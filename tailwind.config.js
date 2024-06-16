@@ -1,8 +1,11 @@
 import defaultTheme from 'tailwindcss/defaultTheme';
 import forms from '@tailwindcss/forms';
 
-/** @type {import('tailwindcss').Config} */
-export default {
+/** @type {(tailwindConfig: object) => object} */
+const withMT = require("@material-tailwind/react/utils/withMT");
+
+export default withMT({
+    darkMode: 'selector',
     content: [
         './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
         './storage/framework/views/*.php',
@@ -19,4 +22,4 @@ export default {
     },
 
     plugins: [forms],
-};
+});

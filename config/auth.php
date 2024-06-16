@@ -40,6 +40,14 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        'admin' => [
+            'driver' => 'session',
+            'provider' => 'admin',
+        ],
+        'pegawai' => [
+            'driver' => 'session',
+            'provider' => 'pegawai',
+        ],
     ],
 
     /*
@@ -64,6 +72,14 @@ return [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', App\Models\User::class),
         ],
+        'admin' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Admin::class
+        ],
+        'pegawai' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Pegawai::class
+        ]
 
         // 'users' => [
         //     'driver' => 'database',
