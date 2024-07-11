@@ -1,6 +1,5 @@
 import { ReactNode, useEffect, useState } from "react";
 import { Home } from "lucide-react";
-import { AdminSideNav } from "@/Components/Admin/AdminSideNav";
 import { AdminNavbar } from "@/Components/Admin/AdminNavbar";
 import { AdminFooter } from "@/Components/Admin/AdminFooter";
 import { Card } from "@material-tailwind/react";
@@ -15,53 +14,6 @@ export const AdminLayout = ({ children }: {
     const icon = {
         className: "w-5 h-5 text-inherit",
     };
-    const routes = [
-        {
-            layout: "dashboard",
-            pages: [
-                {
-                    icon: <Home {...icon} />,
-                    name: "dashboard",
-                    path: "/home",
-                    element: <Home />,
-                },
-                {
-                    icon: <Home {...icon} />,
-                    name: "profile",
-                    path: "/profile",
-                    element: <Home />,
-                },
-                {
-                    icon: <Home {...icon} />,
-                    name: "tables",
-                    path: "/tables",
-                    element: <Home />,
-                },
-                {
-                    icon: <Home {...icon} />,
-                    name: "notifications",
-                    path: "/notifications",
-                    element: <Home />,
-                },
-            ],
-        },
-        {
-            title: "auth pages",
-            layout: "auth",
-            pages: [
-                {
-                    icon: <Home {...icon} />,
-                    name: "sign in",
-                    path: "/sign-in",
-                },
-                {
-                    icon: <Home {...icon} />,
-                    name: "sign up",
-                    path: "/sign-up",
-                },
-            ],
-        },
-    ];
 
     useEffect(() => {
         const handleResize = () => {

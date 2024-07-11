@@ -68,12 +68,15 @@ class AuthController extends Controller
      */
     public function authAdminUnit(Request $request): JsonResponse
     {
-        $validation = Validator::make($request->only('username', 'password'), [
+        $validation = Validator::make($request->only('username', 'password', 'unit'), [
             'username' => 'required',
             'password' => 'required',
+            'unit' => 'required|exists:unit,id',
         ], [
             'username.required' => 'Username tidak boleh kosong',
             'password.required' => 'Password tidak boleh kosong',
+            'unit.required' => 'Unit tidak boleh kosong',
+            'unit.exists' => 'Unit tidak ditemukan',
         ]);
         if ($validation->fails()) {
             return Response::json([
