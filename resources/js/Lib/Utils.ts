@@ -31,4 +31,3 @@ export const notifyToast = (type: 'success' | 'error', message: string, theme: '
         transition: Bounce,
     });
 }
-

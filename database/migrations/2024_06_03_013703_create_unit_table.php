@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('unit', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('nama')->unique();
+            $table->string('keterangan');
             $table->boolean('is_master')->default(false);
             $table->timestamps();
         });
