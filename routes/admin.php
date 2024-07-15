@@ -1,20 +1,36 @@
 <?php
 
-use App\Http\Controllers\Admin\MasterPagesController;
+use App\Http\Controllers\Pages\AdminMasterController;
+use App\Http\Controllers\Pages\AdminUnitController;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
 Route::prefix('admin')->name('admin.')->group(function () {
-    Route::get('/dashboard', function () {
-        return Inertia::render('Admin/DashboardPage');
-    })->name('dashboard');
+    Route::get('/', [AdminUnitController::class, 'loginPage'])->name('login');
+    Route::get('/{unitId}/dashboard', [AdminUnitController::class, 'dashboardPage'])->name('dashboard');
 });
-Route::prefix('~')->name('master.')->group(function () {
-    Route::get('/unit', [MasterPagesController::class, 'manageUnitPage'])->name('manage-unit');
-    Route::get('/golongan', [MasterPagesController::class, 'manageGolonganPage'])->name('manage-golongan');
-    Route::get('/kader', [MasterPagesController::class, 'manageKaderPage'])->name('manage-kader');
-    Route::get('/admins', [MasterPagesController::class, 'manageAdminPage'])->name('manage-admin');
-    Route::get('/pegawai', [MasterPagesController::class, 'manageUnitPage'])->name('manage-pegawai');
-    Route::get('/rekap-pegawai', [MasterPagesController::class, 'manageUnitPage'])->name('rekap-pegawai');
-    Route::get('/inventaris', [MasterPagesController::class, 'manageUnitPage'])->name('manage-inventaris');
+Route::prefix('~')->name('master.')->middleware('admin.master')->group(function () {
+    Route::get('/login', [AdminMasterController::class, 'loginPage'])->name('login');
+    Route::prefix('/unit')->name('unit.')->group(function () {
+        Route::get('/', [AdminMasterController::class, 'unitIndexPage'])->name('index');
+        Route::get('/details', [AdminMasterController::class, 'unitDetailsPage'])->name('details');
+    });
+    Route::prefix('/golongan')->name('golongan.')->group(function () {
+        Route::get('/', [AdminMasterController::class, 'golonganIndexPage'])->name('index');
+    });
+    Route::prefix('/kader')->name('kader.')->group(function () {
+        Route::get('/', [AdminMasterController::class, 'kaderIndexPage'])->name('index');
+    });
+    Route::prefix('/admin')->name('admin.')->group(function () {
+        Route::get('/', [AdminMasterController::class, 'adminIndexPage'])->name('index');
+        Route::get('/details', [AdminMasterController::class, 'adminDetailsPage'])->name('details');
+    });
+    Route::prefix('/pegawai')->name('pegawai.')->group(function () {
+        Route::get('/', [AdminMasterController::class, 'pegawaiIndexPage'])->name('index');
+        Route::get('/create', [AdminMasterController::class, 'pegawaiCreatePage'])->name('create');
+    });
+    Route::prefix('/inventaris')->name('inventaris.')->group(function () {
+        Route::get('/', [AdminMasterController::class, 'unitIndexPage'])->name('index');
+    });
+
+    Route::get('/rekap-pegawai', [AdminMasterController::class, 'unitIndexPage'])->name('rekap-pegawai');
 });

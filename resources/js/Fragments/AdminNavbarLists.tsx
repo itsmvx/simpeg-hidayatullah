@@ -25,31 +25,31 @@ const navListMenuItems = [
         title: "Unit",
         description: "mengatur unit dalam sistem",
         icon: <Building2 />,
-        link: route('master.manage-unit')
+        link: route('master.unit.index')
     },
     {
         title: "Golongan",
         description: "mengatur golongan pegawai dalam sistem",
         icon: <UsersRound />,
-        link: route('master.manage-golongan')
+        link: route('master.golongan.index')
     },
     {
         title: "Kader",
         description: "mengatur kader pegawai dalam sistem",
         icon: <Award />,
-        link: route('master.manage-kader')
+        link: route('master.kader.index')
     },
     {
         title: "Admin",
         description: "mengatur Admin dalam sistem",
         icon: <CircleUserRound />,
-        link: route('master.manage-admin')
+        link: route('master.admin.index')
     },
     {
         title: "Pegawai",
         description: "mengatur akun dan data kepegawaian",
         icon: <UserRound />,
-        link: route('master.manage-pegawai')
+        link: route('master.pegawai.index')
     },
 
     {
@@ -62,7 +62,7 @@ const navListMenuItems = [
         title: "Inventaris",
         description: "mengatur data daftar inventaris yang dimiliki",
         icon: <Dock />,
-        link: route('master.manage-inventaris')
+        link: route('master.inventaris.index')
     }
 ];
 

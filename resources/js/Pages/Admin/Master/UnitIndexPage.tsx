@@ -350,7 +350,8 @@ export default function MasterManageUnitPage({ auth, units, adminCount }: PagePr
                                                                 )
                                                                 : admin.map((admn, index) => ((
                                                                     <Link
-                                                                        href={route('admin.details', admn.id)}
+                                                                        href={route('master.admin.details')}
+                                                                        data={{ q: admn.id }}
                                                                         key={ index }
                                                                         className="font-normal text-sm hover:text-blue-600"
                                                                     >

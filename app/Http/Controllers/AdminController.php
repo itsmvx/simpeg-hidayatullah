@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
+use Inertia\Testing\Concerns\Has;
 
 class AdminController extends Controller
 {
@@ -21,16 +22,6 @@ class AdminController extends Controller
         //
     }
 
-    public function details($id)
-    {
-        if (!$id) {
-            abort(404);
-        }
-
-        return Inertia::render('Admin/Master/DetailsAdminPage', [
-            'admin' => fn() => Admin::where('id', '=', $id)->with('unit')->first()
-        ]);
-    }
     /**
      * Show the form for creating a new resource.
      * @throws ValidationException
@@ -142,6 +133,43 @@ class AdminController extends Controller
         } catch (QueryException $exception) {
             return Response::json([
                 'message' => 'Server gagal memproses permintaan',
+            ], 500);
+        }
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function reset(Request $request)
+    {
+        try {
+            $validation = Validator::make($request->only('id', 'password'), [
+                'id' => 'required|string|exists:admin,id',
+                'password' => 'required|string'
+            ], [
+                'id.required' => 'Admin belum dipilih!',
+                'id.exists' => 'Admin tidak ditemukan!',
+                'id.string' => 'Admin belum dipilih!',
+                'password.required' => 'Password baru belum diisi!',
+                'password.string' => 'Password tidak valid!',
+            ]);
+            if ($validation->fails()) {
+                return Response::json([
+                    'message' => $validation->errors()->first(),
+                ], 400);
+            }
+            $validated = $validation->validated();
+
+            Admin::where('id', '=', $validated['id'])
+                ->update([
+                    'password' => Hash::make($validated['password'])
+                ]);
+            return Response::json([
+                'message' => 'Password berhasil diubah!'
+            ]);
+        } catch (QueryException $exception) {
+            return Response::json([
+                'message' => 'Server gagal memproses permintaan!'
             ], 500);
         }
     }
