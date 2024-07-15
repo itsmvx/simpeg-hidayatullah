@@ -5,6 +5,7 @@
         "moduleResolution": "bundler",
         "jsx": "react-jsx",
         "strict": true,
+        "skipLibCheck": true,
         "isolatedModules": true,
         "target": "ESNext",
         "esModuleInterop": true,
@@ -13,7 +14,9 @@
         "paths": {
             "@/*": ["./resources/js/*"],
             "ziggy-js": ["./vendor/tightenco/ziggy"]
-        }
+        },
+        "noImplicitAny": false
     },
-    "include": ["resources/js/**/*.ts", "resources/js/**/*.tsx", "resources/js/**/*.d.ts"]
+    "include": ["resources/js/**/*.ts", "resources/js/**/*.tsx", "resources/js/**/*.d.ts"],
+    "exclude": ["node_modules"]
 }
