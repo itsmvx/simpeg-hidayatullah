@@ -4,31 +4,33 @@ import {
     CardBody,
     CardFooter,
     CardHeader, Dialog, DialogBody, DialogFooter, DialogHeader,
-    IconButton, Select, Option,
+    IconButton,
     Tooltip,
-    Typography, Chip
+    Typography
 } from "@material-tailwind/react";
 import {
     ArrowLeft, ArrowRight,
-    ChevronDown, CircleUserRound, FileSearch,
+    ChevronDown, FileSearch,
     Pencil,
     Plus,
-    Search, Trash2,
+    Search, Trash2, UserRound,
 } from "lucide-react";
 import { MTColor, PageProps } from "@/types";
 import { AdminLayout } from "@/Layouts/AdminLayout";
-import { Head, router } from "@inertiajs/react";
+import { Head, Link, router } from "@inertiajs/react";
 import { Input } from "@/Components/Input";
 import { format } from "date-fns";
 import { id as localeID } from "date-fns/locale/id";
 import { useTheme } from "@/Hooks/useTheme";
-import { SyntheticEvent, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Bounce, toast } from "react-toastify";
 import {  z } from "zod";
 import axios, { AxiosError } from "axios";
+import { DragNDropFile } from "@/Components/DragAndDropFile";
+import * as XLSX from "xlsx";
 
-export default function MasterManageAdminPage({ auth, admins, units }: PageProps<{
-    admins: {
+export default function PegawaiIndexPage({ auth, pegawais }: PageProps<{
+    pegawais: {
         id: string;
         nama: string;
         username: string;
@@ -37,25 +39,21 @@ export default function MasterManageAdminPage({ auth, admins, units }: PageProps
             nama: string;
             keterangan: string;
         };
+        unitId: string;
         created_at: string;
     }[];
-    units: {
-        id: string;
-        nama: string;
-        isMaster: number;
-    }[]
 }>) {
+
     const TABLE_HEAD = ['No', 'Nama', 'Username', 'Unit', 'Tanggal daftar', 'Aksi'];
     const cardData = [
         {
             color: "gray",
-            icon: <CircleUserRound />,
-            title: "Jumlah Admin terdaftar",
-            value: admins.length,
+            icon: <UserRound />,
+            title: "Jumlah Pegawai terdaftar",
+            value: pegawais.length,
         }
     ];
     const { theme } = useTheme();
-    const [ openFormDialog, setOpenFormDialog ] = useState(false);
     const [ deleteDialog, setDeleteDialog ] = useState<{
         open: boolean;
         id: string;
@@ -87,11 +85,25 @@ export default function MasterManageAdminPage({ auth, admins, units }: PageProps
         const startIndex = (currPage - 1) * viewPerPage;
         const lastIndex = startIndex + viewPerPage;
 
-        return admins.slice(startIndex, lastIndex);
-    }, [ admins, viewPerPage ]);
+        return pegawais.slice(startIndex, lastIndex);
+    }, [ pegawais, viewPerPage ]);
 
     const [ data, setData ] = useState(adjustData);
     const [ search, setSearch ] = useState('');
+    const [ dragAndDrop, setDragAndDrop ] = useState<{
+        open: boolean;
+        file: File | null;
+    }>({
+        open: false,
+        file: null
+    });
+    const [ uploadPreview, setUploadPreview ] = useState<{
+        open: boolean;
+        data: any[];
+    }>({
+        open: false,
+        data: []
+    });
     const getItemProps = (index: number) =>
         ({
             variant: currPage === index ? "filled" : "text",
@@ -100,94 +112,16 @@ export default function MasterManageAdminPage({ auth, admins, units }: PageProps
         } as any);
 
     const nextPage = () => {
-        const totalPages = Math.ceil(admins.length / viewPerPage);
+        const totalPages = Math.ceil(pegawais.length / viewPerPage);
         currPage < totalPages && setCurrPage(currPage + 1);
     };
     const prevPage = () => {
         currPage > 1 && setCurrPage(currPage - 1);
     };
 
-    const handleOpenForm = () => setOpenFormDialog(true);
-    const handleOpenDelete = () => setDeleteDialog((prevState) => ({
-        ...prevState,
-        open: true
-    }));
-    const formInputInit = {
-        nama: '',
-        username: '',
-        password: '',
-        unitId: '',
-        passwordView: false,
-        error: {
-            nama: false,
-            username: false,
-            password: false,
-            unitId: false
-        },
-        onSubmit: false
-    };
-    const [ formInput, setFormInput ] = useState<{
-        nama: string;
-        username: string;
-        password: string;
-        unitId: string;
-        passwordView: boolean;
-        error: {
-            nama: boolean;
-            username: boolean;
-            password: boolean;
-            unitId: boolean;
-        };
-        onSubmit: boolean;
-    }>(formInputInit);
-
-    const formSubmitDisabled = (): boolean => (!formInput.nama || !formInput.username || !formInput.password || !formInput.unitId);
-    const handleFormSubmit = (event: SyntheticEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        const { nama, username, password, unitId } = formInput
-
-        setFormInput((prevState) => ({
-            ...prevState,
-            onSubmit: true
-        }));
-        const adminschema = z.object({
-            nama: z.string().min(1, { message: "Nama Admin tidak boleh kosong" }),
-            username: z.string().min(1, { message: "Username Admin tidak boleh kosong" }),
-            password: z.string().min(1, { message: "Password tidak boleh kosong" }),
-            unitId: z.string().min(1, { message: "Unit belum dipilih" }),
-        });
-        const zodUnitResult = adminschema.safeParse({
-            nama: nama,
-            username: username,
-            password: password,
-            unitId: unitId
-        });
-        if (!zodUnitResult.success) {
-            const errorMessages = zodUnitResult.error.issues[0].message;
-            notifyToast('error', errorMessages, theme as 'light' | 'dark');
-        }
-
-        axios.post(route('admin.create'), {
-            nama: nama,
-            username: username,
-            password: password,
-            unit_id: unitId
-        })
-            .then(() => {
-                notifyToast('success', 'Admin berhasil ditambahkan!', theme as 'light' | 'dark');
-                router.reload({ only: ['admins'] });
-            })
-            .catch((err: unknown) => {
-                const errMsg: string = err instanceof AxiosError
-                    ? err.response?.data.message ?? 'Error tidak diketahui terjadi!'
-                    : 'Error tidak diketahui terjadi!'
-                notifyToast('error', errMsg, theme as 'light' | 'dark');
-            })
-            .finally(() => {
-                setOpenFormDialog(false);
-                setFormInput((prevState) => ({ ...prevState, onSubmit: false }))
-            });
-    };
+    const handleOpenDelete = () => setDeleteDialog((prevState) => ({ ...prevState, open: true }));
+    const handleOpenDragAndDrop = () => setDragAndDrop((prevState) => ({ ...prevState, open: true }));
+    const handleOpenUploadPreview = () => setUploadPreview((prevState) => ({ ...prevState }));
     const handleDeleteSubmit = () => {
         const { id } = deleteDialog
 
@@ -224,22 +158,36 @@ export default function MasterManageAdminPage({ auth, admins, units }: PageProps
             });
     };
     useEffect(() => {
-        if (!openFormDialog) {
-            setFormInput(formInputInit);
-        }
-    }, [ openFormDialog ]);
-    useEffect(() => {
         setData(adjustData);
-    }, [ admins, viewPerPage ]);
+    }, [ pegawais, viewPerPage ]);
     useEffect(() => {
         if (search.length < 1) {
             setData(adjustData);
         } else {
             setCurrPage(1);
-            const matchadmins = admins.filter((Admin) => Admin.nama.toLowerCase().includes(search.toLowerCase()));
-            setData(matchadmins);
+            const matchPegawai = pegawais.filter((pegawai) => pegawai.nama.toLowerCase().includes(search.toLowerCase()));
+            setData(matchPegawai);
         }
     }, [ search ]);
+
+    console.log(dragAndDrop.open);
+    useEffect(() => {
+        const handleFile = async () => {
+            if (dragAndDrop.file) {
+                try {
+                    const arrayBuffer = await dragAndDrop.file.arrayBuffer();
+                    const workbook = XLSX.read(arrayBuffer);
+                    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const raw_data = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                    console.log(raw_data);
+                } catch (error) {
+                    notifyToast('error', 'Gagal membaca dokumen');
+                }
+            }
+        };
+
+        handleFile();
+    }, [ dragAndDrop.file ]);
 
     return (
         <>
@@ -280,13 +228,22 @@ export default function MasterManageAdminPage({ auth, admins, units }: PageProps
                                     Informasi mengenai Admin yang terdaftar
                                 </Typography>
                             </div>
-                            <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
+                            <div className="flex shrink-0 flex-row-reverse gap-2">
                                 <Button
-                                    onClick={() => setOpenFormDialog(true)}
+                                    onClick={() => {
+                                        router.visit(route('master.pegawai.create'));
+                                    }}
                                     className="flex items-center gap-1.5 capitalize font-medium text-base" size="sm"
                                 >
                                     <Plus />
-                                    Tambahkan Admin baru
+                                    Tambahkan Pegawai baru
+                                </Button>
+                                <Button
+                                    onClick={() => setDragAndDrop((prevState) => ({ ...prevState, open: true }))}
+                                    className="flex items-center gap-1.5 capitalize font-medium text-base" size="sm"
+                                >
+                                    <Plus />
+                                    Upload Excel
                                 </Button>
                             </div>
                         </div>
@@ -349,16 +306,14 @@ export default function MasterManageAdminPage({ auth, admins, units }: PageProps
                                                     </Typography>
                                                 </td>
                                                 <td className={ `${ classes } min-w-52` }>
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="flex flex-col">
-                                                            <Typography
-                                                                variant="small"
-                                                                color="blue-gray"
-                                                                className="font-normal"
-                                                            >
-                                                                { nama }
-                                                            </Typography>
-                                                        </div>
+                                                    <div className="flex flex-col items-center gap-3">
+                                                        <Typography
+                                                            variant="small"
+                                                            color="blue-gray"
+                                                            className="font-normal"
+                                                        >
+                                                            { nama }
+                                                        </Typography>
                                                     </div>
                                                 </td>
                                                 <td className={ `${ classes } min-w-52` }>
@@ -376,15 +331,9 @@ export default function MasterManageAdminPage({ auth, admins, units }: PageProps
                                                 </td>
                                                 <td className={ `${ classes } min-w-52` }>
                                                     <div className="flex items-center gap-3">
-                                                        <div className="flex flex-col">
-                                                            <Typography
-                                                                variant="small"
-                                                                color="blue-gray"
-                                                                className="font-normal"
-                                                            >
-                                                                { unit.nama }
-                                                            </Typography>
-                                                        </div>
+                                                        <Link href={route('master.unit.details')} data={{ q: unit.id }} className="text-sm font-normal hover:text-blue-600">
+                                                            { unit.nama }
+                                                        </Link>
                                                     </div>
                                                 </td>
                                                 <td className={ `${ classes } min-w-40` }>
@@ -401,7 +350,9 @@ export default function MasterManageAdminPage({ auth, admins, units }: PageProps
                                                 <td className={ classes }>
                                                     <div className="w-32 flex gap-2.5 items-center justify-start">
                                                         <Tooltip content="Detail">
-                                                            <IconButton variant="text">
+                                                            <IconButton variant="text" onClick={() => {
+                                                                router.visit(route('master.admin.details'), { data: { q: id }})
+                                                            }}>
                                                                 <FileSearch className="h-5 w-5 text-blue-800"/>
                                                             </IconButton>
                                                         </Tooltip>
@@ -418,7 +369,7 @@ export default function MasterManageAdminPage({ auth, admins, units }: PageProps
                                                                         ...prevState,
                                                                         open: true,
                                                                         id: id,
-                                                                        nama: admins.find((Admin) => Admin.id === id)?.nama ?? '-'
+                                                                        nama: pegawais.find((pegawai) => pegawai.id === id)?.nama ?? '-'
                                                                     }))
                                                                 }}
                                                             >
@@ -473,144 +424,15 @@ export default function MasterManageAdminPage({ auth, admins, units }: PageProps
                         </div>
                     </CardFooter>
                 </Card>
-                <Dialog
-                    size="lg"
-                    open={openFormDialog}
-                    handler={handleOpenForm}
-                    className="bg-transparent shadow-none backdrop-blur-none"
-                >
-                    <form className="mx-auto w-full" onSubmit={handleFormSubmit}>
-                        <Card>
-                            <CardBody className="flex flex-col gap-4">
-                                <Typography variant="h4" color="blue-gray">
-                                    Menambahkan Admin baru
-                                </Typography>
-                                <Input
-                                    label="Nama Admin"
-                                    size="lg"
-                                    required={true}
-                                    error={formInput.error.nama}
-                                    value={formInput.nama}
-                                    onChange={(event) => {
-                                        setFormInput((prevState) => ({
-                                            ...prevState,
-                                            nama: event.target.value,
-                                            error: {
-                                                ...prevState.error,
-                                                nama: event.target.value.length < 1
-                                            }
-                                        }));
-                                    }}
-                                />
-                                <Input
-                                    label="Username"
-                                    size="lg"
-                                    value={formInput.username}
-                                    required={true}
-                                    error={formInput.error.username}
-                                    onChange={(event) => {
-                                        setFormInput((prevState) => ({
-                                            ...prevState,
-                                            username: event.target.value,
-                                            error: {
-                                                ...prevState.error,
-                                                username: event.target.value.length < 1
-                                            }
-                                        }));
-                                    }}
-                                />
-                                <div className="flex gap-1 items-center">
-                                    <Input
-                                        type="password"
-                                        label="Password"
-                                        size="lg"
-                                        value={formInput.password}
-                                        required={true}
-                                        error={formInput.error.password}
-                                        onChange={(event) => {
-                                            setFormInput((prevState) => ({
-                                                ...prevState,
-                                                password: event.target.value,
-                                                error: {
-                                                    ...prevState.error,
-                                                    password: event.target.value.length < 1
-                                                }
-                                            }));
-                                        }}
-                                    />
 
-                                </div>
-                                <Select
-                                    label="Hak Akses Unit" size="lg"
-                                    onChange={(value) => {
-                                        setFormInput((prevState) => ({
-                                            ...prevState,
-                                            unitId: value ?? '',
-                                        }))
-                                    }}
-                                >
-
-                                    {
-                                        units.length > 0
-                                            ? units.sort((a, b) => {
-                                                if (a.isMaster !== b.isMaster) {
-                                                    return b.isMaster - a.isMaster;
-                                                }
-                                                return a.nama.localeCompare(b.nama);
-                                            }).map((unit) => ((
-                                                <Option key={unit.id} value={unit.id}>
-                                                    <div className="flex items-center justify-between ">
-                                                        { unit.nama }
-                                                        <span>
-                                                            { Boolean(unit.isMaster) && (
-                                                                <Chip size="sm" variant="ghost" value="Master" color="green" className="ml-3"/>
-                                                            )}
-                                                        </span>
-                                                    </div>
-
-                                                </Option>
-                                            ))) : (
-                                                <Option disabled>
-                                                    <p className="!text-gray-900 !text-sm">
-                                                        { units.length < 1
-                                                            ? 'Belum ada Unit yang didaftarkan'
-                                                            : 'Pilih Akses Unit'
-                                                        }
-                                                    </p>
-                                                </Option>
-                                            )
-                                    }
-                                </Select>
-                            </CardBody>
-                            <CardFooter className="pt-0 flex gap-3 justify-between">
-                                <Button
-                                    color="red"
-                                    onClick={() => setOpenFormDialog(false)}
-                                    fullWidth
-                                >
-                                    Batal
-                                </Button>
-                                <Button
-                                    type="submit"
-                                    loading={formInput.onSubmit}
-                                    disabled={formSubmitDisabled()}
-                                    onClick={handleOpenForm}
-                                    fullWidth
-                                >
-                                    Buat
-                                </Button>
-                            </CardFooter>
-                        </Card>
-                    </form>
-                </Dialog>
                 <Dialog open={deleteDialog.open} handler={handleOpenDelete}>
                     <DialogHeader className="text-gray-900">
-                        Hapus Admin terpilih?
+                        Hapus Pegawai terpilih?
                     </DialogHeader>
                     <DialogBody>
                         <Typography variant="h6" className="text-gray-900 truncate">
                             Anda akan menghapus
-                            Admin: &nbsp;
+                            Pegawai: &nbsp;
                             <span className="font-semibold">
                                 " { deleteDialog.nama } "
                             </span>
@@ -632,6 +454,46 @@ export default function MasterManageAdminPage({ auth, admins, units }: PageProps
                         </Button>
                         <Button color="red" onClick={handleDeleteSubmit} loading={deleteDialog.onSubmit}>
                             <span>Hapus</span>
+                        </Button>
+                    </DialogFooter>
+                </Dialog>
+                <Dialog open={dragAndDrop.open} handler={handleOpenDragAndDrop}>
+                    <DialogHeader className="justify-center font-bold">
+                        Upload file Excel Pegawai
+                    </DialogHeader>
+                    <DialogBody>
+                        <DragNDropFile
+                            state={dragAndDrop}
+                            setState={setDragAndDrop}
+                        />
+                    </DialogBody>
+                    <DialogFooter className="justify-center">
+                        <Button
+                            color="red"
+                            onClick={() => setDragAndDrop((prevState) => ({ ...prevState, open: !prevState.open }))}
+                            className="!shadow-none"
+                        >
+                            <span>Tutup</span>
+                        </Button>
+                    </DialogFooter>
+                </Dialog>
+                <Dialog open={uploadPreview.open} handler={handleOpenUploadPreview}>
+                    <DialogHeader className="justify-center font-bold">
+                        Preview Data Pegawai
+                    </DialogHeader>
+                    <DialogBody>
+                        <DragNDropFile
+                            state={dragAndDrop}
+                            setState={setDragAndDrop}
+                        />
+                    </DialogBody>
+                    <DialogFooter className="justify-center">
+                        <Button
+                            color="red"
+                            onClick={() => setUploadPreview((prevState) => ({ ...prevState, open: !prevState.open }))}
+                            className="!shadow-none"
+                        >
+                            <span>Tutup</span>
                         </Button>
                     </DialogFooter>
                 </Dialog>

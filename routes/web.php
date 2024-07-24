@@ -28,6 +28,11 @@ Route::get('/', function () {
     ]);
 });
 
+Route::prefix('auth')->name('auth.')->group(function () {
+    Route::post('/master', [AuthController::class, 'authAdminMaster'])->name('master');
+    Route::post('/admin', [AuthController::class, 'authAdminUnit'])->name('admin');
+});
+
 Route::prefix('unit')->name('unit.')->group(function () {
     Route::post('/exists-check', [UnitController::class, 'isExists'])->name('exists');
     Route::post('/create', [UnitController::class, 'create'])->name('create');
@@ -45,10 +50,10 @@ Route::prefix('kader')->name('kader.')->group(function () {
     Route::post('/delete', [KaderController::class, 'destroy'])->name('delete');
 });
 Route::prefix('admin')->name('admin.')->group(function () {
-    Route::get('/details/{id}', [AdminController::class, 'details'])->name('details');
     Route::post('/create', [AdminController::class, 'create'])->name('create');
     Route::post('/update', [AdminController::class, 'update'])->name('update');
     Route::post('/delete', [AdminController::class, 'destroy'])->name('delete');
+    Route::post('/reset', [AdminController::class, 'reset'])->name('reset');
 });
 
 

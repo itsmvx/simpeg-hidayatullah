@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -32,7 +33,18 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'auth' => [
-                'user' => $request->user(),
+                'admin' => Auth::guard('admin')->check() ? [
+                    'id' => Auth::guard('admin')->user()->id,
+                    'nama' => Auth::guard('admin')->user()->nama,
+                    'username' => Auth::guard('admin')->user()->username,
+                    'unit_id' => Auth::guard('admin')->user()->unit_id,
+                ] : null,
+                'pegawai' => Auth::guard('pegawai')->check() ? [
+                    'id' => Auth::guard('pegawai')->id,
+                    'nama' => Auth::guard('admin')->user()->nama,
+                    'username' => Auth::guard('admin')->user()->username,
+                    'unit_id' => Auth::guard('admin')->user()->unit_id,
+                ] : null
             ],
         ];
     }
