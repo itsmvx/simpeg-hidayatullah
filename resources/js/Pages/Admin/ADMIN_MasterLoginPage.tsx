@@ -16,7 +16,7 @@ import axios, { AxiosError } from "axios";
 import { PageProps } from "@/types";
 import { Eye, EyeOff } from "lucide-react";
 
-export default function MasterLoginPage() {
+export default function ADMIN_MasterLoginPage() {
     const { theme } = useTheme();
     const formInit = {
         username: '',
@@ -106,9 +106,9 @@ export default function MasterLoginPage() {
                         <Typography variant="h5">
                             Selamat Datang
                         </Typography>
-                        <p className="font-medium text-sm">
-                            Ijinkan Sistem mengidentifikasi anda
-                        </p>
+                        {/*<p className="font-medium text-sm">*/}
+                        {/*    Ijinkan Sistem mengidentifikasi anda*/}
+                        {/*</p>*/}
                     </div>
                     <form className="space-y-10" onSubmit={handleFormSubmit}>
                         <div className="mb-1 flex flex-col gap-4">

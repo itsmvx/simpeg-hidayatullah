@@ -1,24 +1,28 @@
 import { AdminLayout } from "@/Layouts/AdminLayout";
 import { Head } from "@inertiajs/react";
 
-export default function AdminDetailsPage({ unit }: {
-    unit: {
+export default function ADMIN_AdminDetailsPage({ admin }: {
+    admin: {
         id: string;
         nama: string;
-        keterangan: string;
+        username: string;
         created_at: string;
+        unit: {
+            id: string;
+            nama: string;
+            is_master: number
+        }
     }
 }) {
-
     return (
         <>
             <Head title="Master - Admin Details" />
             <AdminLayout>
                 <div>
                     DETAILS Admin:
-                    { Object.keys(unit).map(key => ((
+                    { Object.keys(admin).map(key => ((
                         <p key={key}>
-                            { key !== 'unit' && unit[key] }
+                            { key !== 'unit' && admin[key] }
                         </p>
                     )))}
                 </div>

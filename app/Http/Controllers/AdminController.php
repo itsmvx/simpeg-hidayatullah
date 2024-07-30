@@ -32,7 +32,7 @@ class AdminController extends Controller
             'nama' => 'required|string',
             'username' => 'required|string',
             'password' => 'required|string',
-            'unit_id' => 'required|exists:unit,id'
+            'unit_id' => 'nullable|exists:unit,id'
         ], [
             'nama.required' => 'Nama tidak boleh kosong',
             'username.required' => 'Username tidak boleh kosong',

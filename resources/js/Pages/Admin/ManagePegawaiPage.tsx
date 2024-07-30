@@ -37,7 +37,7 @@ const TABLE_HEAD = ["Member", "Function", "Status", "Employed", ""];
 const rawData = [
     {
         img: "https://demos.creative-tim.com/test/corporate-ui-dashboard/assets/img/team-3.jpg",
-        name: "John Michael",
+        key: "John Michael",
         email: "john@creative-tim.com",
         job: "Manager",
         org: "Organization",
@@ -46,7 +46,7 @@ const rawData = [
     },
     {
         img: "https://demos.creative-tim.com/test/corporate-ui-dashboard/assets/img/team-2.jpg",
-        name: "Alexa Liras",
+        key: "Alexa Liras",
         email: "alexa@creative-tim.com",
         job: "Programator",
         org: "Developer",
@@ -55,7 +55,7 @@ const rawData = [
     },
     {
         img: "https://demos.creative-tim.com/test/corporate-ui-dashboard/assets/img/team-1.jpg",
-        name: "Laurent Perrier",
+        key: "Laurent Perrier",
         email: "laurent@creative-tim.com",
         job: "Executive",
         org: "Projects",
@@ -64,7 +64,7 @@ const rawData = [
     },
     {
         img: "https://demos.creative-tim.com/test/corporate-ui-dashboard/assets/img/team-4.jpg",
-        name: "Michael Levi",
+        key: "Michael Levi",
         email: "michael@creative-tim.com",
         job: "Programator",
         org: "Developer",
@@ -73,7 +73,7 @@ const rawData = [
     },
     {
         img: "https://demos.creative-tim.com/test/corporate-ui-dashboard/assets/img/team-5.jpg",
-        name: "Richard Gran",
+        key: "Richard Gran",
         email: "richard@creative-tim.com",
         job: "Manager",
         org: "Executive",

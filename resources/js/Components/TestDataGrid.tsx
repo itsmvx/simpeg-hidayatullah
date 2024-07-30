@@ -22,7 +22,7 @@ const getRowsCols = ( data: DataSet, sheetName: string ): RowCol => ({
     rows: utils.sheet_to_json<Row>(data[sheetName], {header:1}),
     columns: Array.from({
         length: utils.decode_range(data[sheetName]["!ref"]||"A1").e.c + 1
-    }, (_, i) => ({ key: String(i), name: utils.encode_col(i), editor: textEditor }))
+    }, (_, i) => ({ key: String(i), key: utils.encode_col(i), editor: textEditor }))
 });
 
 export const TestDataGrid = () => {

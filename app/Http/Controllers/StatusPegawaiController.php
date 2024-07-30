@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Kader;
+use App\Models\StatusPegawai;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
-class KaderController extends Controller
+class StatusPegawaiController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -35,20 +36,22 @@ class KaderController extends Controller
         }
         $validated = $validation->validated();
         try {
-            $kader = Kader::where('nama', '=', $validated['nama'])->first();
+            $statusPegawai = StatusPegawai::where('nama', '=', $validated['nama'])->first();
 
-            if ($kader) {
+            if ($statusPegawai) {
                 return Response::json([
-                    'message' => "Kader sudah ada!",
+                    'message' => "Status Pegawai sudah ada!",
                 ], 409);
             }
-            Kader::create([
+            DB::table('status_pegawai')->insert([
                 'id' => Str::uuid(),
                 'nama' => $validated['nama'],
-                'keterangan' => $validated['keterangan']
+                'keterangan' => $validated['keterangan'],
+                'created_at' => now('Asia/Jakarta'),
+                'updated_at' => now('Asia/Jakarta'),
             ]);
             return Response::json([
-                'message' => 'Kader berhasil dibuat!'
+                'message' => 'Status Pegawai berhasil dibuat!'
             ]);
         } catch (QueryException $exception) {
             return Response::json([
@@ -56,7 +59,6 @@ class KaderController extends Controller
             ], 500);
         }
     }
-
 
     /**
      * Store a newly created resource in storage.
@@ -69,7 +71,7 @@ class KaderController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Kader $kader)
+    public function show(StatusPegawai $statusPegawai)
     {
         //
     }
@@ -77,7 +79,7 @@ class KaderController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Kader $kader)
+    public function edit(StatusPegawai $statusPegawai)
     {
         //
     }
@@ -85,7 +87,7 @@ class KaderController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Kader $kader)
+    public function update(Request $request, StatusPegawai $statusPegawai)
     {
         //
     }
@@ -93,40 +95,8 @@ class KaderController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Request $request)
+    public function destroy(StatusPegawai $statusPegawai)
     {
-        $validation = Validator::make($request->only('id'), [
-            'id' => 'required|string'
-        ], [
-            'id.required' => 'Kader tidak boleh kosong!'
-        ]);
-        if ($validation->fails()) {
-            return Response::json([
-                'message' => $validation->errors()->first(),
-            ], 400);
-        }
-        $validated = $validation->validated();
-
-        try {
-            $kader = Kader::find($validated['id']);
-            if (!$kader) {
-                return Response::json([
-                    'message' => 'Kader tidak ditemukan!'
-                ], 400);
-            }
-            if ($kader->delete()) {
-                return Response::json([
-                    'message' => 'Kader berhasil dihapus!'
-                ]);
-            } else {
-                return Response::json([
-                    'message' => 'Kader gagal dihapus!'
-                ], 500);
-            }
-        } catch (QueryException $exception) {
-            return Response::json([
-                'message' => 'Server gagal memproses permintaan',
-            ], 500);
-        }
+        //
     }
 }

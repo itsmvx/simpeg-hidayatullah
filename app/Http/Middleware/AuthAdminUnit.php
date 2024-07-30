@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Symfony\Component\HttpFoundation\Response;
 
-class AuthAdminMaster
+class AuthAdminUnit
 {
     /**
      * Handle an incoming request.
@@ -22,21 +22,26 @@ class AuthAdminMaster
         }
 
         if (!Auth::guard('admin')->check()) {
-            if ($request->route()->getName() === 'master.login') {
+            if ($request->route()->getName() === 'admin.login') {
                 return $next($request);
             } else {
-                return redirect()->route('master.login');
+                return redirect()->route('admin.login');
             }
         }
 
         if (is_null(Auth::guard('admin')->user()->unit_id)) {
-            if ($request->route()->getName() === 'master.login') {
-                return redirect()->route('master.unit.index');
-            } else {
+            Auth::guard('admin')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            if (!$request->route()->getName() == 'admin.login') {
                 return $next($request);
+            } else {
+                return redirect()->route('admin.login');
+
             }
         } else {
-            return redirect()->route('admin.dashboard');
+            $admin = Auth::guard('admin')->user();
+            return redirect("/unit/{$admin->unit_id}/admin");
         }
     }
 }

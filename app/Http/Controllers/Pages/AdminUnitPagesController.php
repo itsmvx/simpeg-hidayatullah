@@ -9,11 +9,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
-class AdminUnitController extends Controller
+class AdminUnitPagesController extends Controller
 {
     public function loginPage()
     {
-        return Inertia::render('Admin/AdminLoginPage', [
+        return Inertia::render('Admin/ADMIN_AdminLoginPage', [
             'units' => Unit::select('id', 'nama', 'keterangan')->get()
         ]);
     }

@@ -2,6 +2,7 @@ import { Card, CardBody, CardFooter, CardHeader, Typography } from "@material-ta
 import { BarChartBig } from "lucide-react";
 import { useTheme } from "@/Hooks/useTheme";
 import { MTColor, PageProps } from "@/types";
+import { AdminLayout } from "@/Layouts/AdminLayout";
 
 export default function AdminDashboardPage({ auth, pegawais }: PageProps<{
     pegawais: {}[]
@@ -56,41 +57,45 @@ export default function AdminDashboardPage({ auth, pegawais }: PageProps<{
     ];
 
     return (
-        <div className="mt-12">
-            <div className="mb-12 grid gap-y-10 gap-x-6 md:grid-cols-2 xl:grid-cols-4">
-                {cardData.map(({ icon, title, footer, color, value }) => (
-                    <Card className="border border-blue-gray-100 shadow-sm">
-                        <CardHeader
-                            variant="gradient"
-                            color={color as MTColor}
-                            floated={false}
-                            shadow={false}
-                            className="absolute grid h-12 w-12 place-items-center"
-                        >
-                            {icon}
-                        </CardHeader>
-                        <CardBody className="p-4 text-right">
-                            <div className="w-10 h-10 bg-blue-300 dark:bg-red-900">
+        <>
+            <AdminLayout>
+                <div className="mt-12">
+                    <div className="mb-12 grid gap-y-10 gap-x-6 md:grid-cols-2 xl:grid-cols-4">
+                        { cardData.map(({ icon, title, footer, color, value }) => (
+                            <Card className="border border-blue-gray-100 shadow-sm">
+                                <CardHeader
+                                    variant="gradient"
+                                    color={ color as MTColor }
+                                    floated={ false }
+                                    shadow={ false }
+                                    className="absolute grid h-12 w-12 place-items-center"
+                                >
+                                    { icon }
+                                </CardHeader>
+                                <CardBody className="p-4 text-right">
+                                    <div className="w-10 h-10 bg-blue-300 dark:bg-red-900">
 
-                            </div>
-                            <Typography variant="small" className="font-normal text-blue-gray-600">
-                                {title}
-                            </Typography>
-                            <Typography variant="h4" color="blue-gray">
-                                {value}
-                            </Typography>
-                        </CardBody>
-                        {footer && (
-                            <CardFooter className="border-t border-blue-gray-50 p-4">
-                                <Typography className="font-normal text-blue-gray-600">
-                                    <strong className={footer.color}>{footer.value}</strong>
-                                    &nbsp;{footer.label}
-                                </Typography>
-                            </CardFooter>
-                        )}
-                    </Card>
-                ))}
-            </div>
-        </div>
+                                    </div>
+                                    <Typography variant="small" className="font-normal text-blue-gray-600">
+                                        { title }
+                                    </Typography>
+                                    <Typography variant="h4" color="blue-gray">
+                                        { value }
+                                    </Typography>
+                                </CardBody>
+                                { footer && (
+                                    <CardFooter className="border-t border-blue-gray-50 p-4">
+                                        <Typography className="font-normal text-blue-gray-600">
+                                            <strong className={ footer.color }>{ footer.value }</strong>
+                                            &nbsp;{ footer.label }
+                                        </Typography>
+                                    </CardFooter>
+                                ) }
+                            </Card>
+                        )) }
+                    </div>
+                </div>
+            </AdminLayout>
+        </>
     );
 }
