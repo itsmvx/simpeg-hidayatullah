@@ -7,10 +7,10 @@ export const AdminFooter = ({ brandName, brandLink }: {
 }) => {
     const year = new Date().getFullYear();
     const routes = [
-            { name: "Creative Tim", path: "https://www.creative-tim.com" },
-            { name: "About Us", path: "https://www.creative-tim.com/presentation" },
-            { name: "Blog", path: "https://www.creative-tim.com/blog" },
-            { name: "License", path: "https://www.creative-tim.com/license" },
+            { key: "Creative Tim", path: "https://www.creative-tim.com" },
+            { key: "About Us", path: "https://www.creative-tim.com/presentation" },
+            { key: "Blog", path: "https://www.creative-tim.com/blog" },
+            { key: "License", path: "https://www.creative-tim.com/license" },
     ];
 
     return (

@@ -1,18 +1,48 @@
-import { Dispatch, memo, SetStateAction } from "react";
-import { Button, Card, Option, Select, Tooltip, Typography } from "@material-tailwind/react";
+import { ChangeEvent, Dispatch, memo, SetStateAction } from "react";
+import { Button, Card, Option, Select, ThemeProvider, Tooltip, Typography } from "@material-tailwind/react";
 import { Input } from "@/Components/Input";
 import { ListPlus, ListX } from "lucide-react";
-import { FormDataKeluarga } from "@/Pages/Admin/Master/PegawaiCreatePage";
+import { FormDataKeluarga, type FormDataPendidikanFormal } from "@/Pages/Admin/ADMIN_PegawaiCreatePage";
+import value = ThemeProvider.propTypes.value;
 
 const PegawaiFormDataKeluarga = ({ formState, setFormState, formInitial }: {
     formState: FormDataKeluarga[];
     setFormState: Dispatch<SetStateAction<FormDataKeluarga[]>>;
     formInitial: FormDataKeluarga;
 }) => {
-    const TABLE_HEAD = ["Status", "Nama lengkap", "Jenis kelamin", "Tempat lahir", "Tanggal lahir", "Pekerjaan", "Pendidikan"];
+
+    const TABLE_HEAD = [
+        { key: 'status', label: 'Status Dalam Keluarga' },
+        { key: 'nama', label: 'Nama Lengkap' },
+        { key: 'jenisKelamin', label: 'Jenis Kelamin' },
+        { key: 'tempatLahir', label: 'Tempat Lahir' },
+        { key: 'tanggalLahir', label: 'Tanggal Lahir' },
+        { key: 'pekerjaan', label: 'Pekerjaan' },
+        { key: 'pendidikan', label: 'Pendidikan' }
+    ];
     const STATUS_KELUARGA = [ "Kepala keluarga", "Istri", "Anak","Orang tua", "Lainnya" ];
 
+    const handleChangeInput = (event: ChangeEvent<HTMLInputElement>) => {
+        const { id, name, value } = event.target;
+        const index = Number(id);
 
+        if (index >= formState.length) {
+            return;
+        }
+
+        setFormState((prevState) =>
+            prevState.map((prev, idx) =>
+                idx === index ? { ...prev, [name]: value } : prev
+            )
+        );
+    };
+    const handleSelectChange = (index: number, key: keyof FormDataKeluarga, value: string) => {
+        setFormState((prevState) =>
+            prevState.map((prev, idx) =>
+                idx === index ? { ...prev, [key]: value } : prev
+            )
+        );
+    };
 
     return (
         <>
@@ -21,9 +51,9 @@ const PegawaiFormDataKeluarga = ({ formState, setFormState, formInitial }: {
                     <table className="col-span-2 table-auto text-left border-2">
                         <thead>
                         <tr>
-                            { TABLE_HEAD.map((head) => (
+                            { TABLE_HEAD.map(({ key, label }) => (
                                 <th
-                                    key={ head }
+                                    key={ key }
                                     className="border-b border-blue-gray-100 bg-blue-gray-50 p-4"
                                 >
                                     <Typography
@@ -31,7 +61,7 @@ const PegawaiFormDataKeluarga = ({ formState, setFormState, formInitial }: {
                                         color="blue-gray"
                                         className="font-normal leading-none opacity-70"
                                     >
-                                        { head }
+                                        { label }
                                     </Typography>
                                 </th>
                             )) }
@@ -45,35 +75,56 @@ const PegawaiFormDataKeluarga = ({ formState, setFormState, formInitial }: {
                             return (
                                 <tr key={ index }>
                                     <td className={ classes }>
-                                        <Select label="Status dlm keluarga" color="teal">
+                                        <Select
+                                            label="Status dlm keluarga"
+                                            color="teal"
+                                            onChange={(value) => {
+                                                handleSelectChange(index, 'status', value ?? '');
+                                            }}
+                                        >
                                             { STATUS_KELUARGA.map((status) => ((
-                                                <Option key={ status } value={ status }>
+                                                <Option
+                                                    key={ status }
+                                                    value={ status }
+                                                                                           >
                                                     { status }
                                                 </Option>
                                             ))) }
                                         </Select>
                                     </td>
-                                    { TABLE_HEAD.filter((_, idx) => idx !== 0).map((head, idx) => (
+                                    { TABLE_HEAD.filter((_, idx) => idx !== 0).map(({ key, label }, idx) => (
                                         <td key={`${index}-${idx}`} className={classes}>
                                             {
-                                                head === 'Jenis kelamin'
+                                                key === 'jenisKelamin'
                                                     ? (
-                                                        <Select label="Jenis kelamin" color="teal">
+                                                        <Select
+                                                            label="Jenis kelamin"
+                                                            color="teal"
+                                                            onChange={(value) => handleSelectChange(index, 'jenisKelamin', value ?? '')}
+                                                        >
                                                             <Option>Laki-laki</Option>
                                                             <Option>Perempuan</Option>
                                                         </Select>
-                                                    ) : head === 'Tanggal lahir'
+                                                    ) : key === 'tanggalLahir'
                                                         ? (
                                                             <Input
                                                                 color="teal"
                                                                 type="date"
-                                                                label={ head }
+                                                                id={String(index)}
+                                                                name={key}
+                                                                label={ label }
+                                                                value={formState[key]}
+                                                                onChange={handleChangeInput}
                                                             />
                                                         ) : (
                                                             <Input
                                                                 color="teal"
                                                                 type="text"
-                                                                label={ head }
+                                                                id={String(index)}
+                                                                label={ label }
+                                                                name={key}
+                                                                value={formState[key]}
+                                                                onChange={handleChangeInput}
                                                             />
                                                         )
                                             }

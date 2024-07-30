@@ -18,6 +18,11 @@ export default withMT({
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
+            colors: {
+                'pph-black': '#191917',
+                'pph-green': '#98C743',
+                'pph-white': '#FEFEFE'
+            }
         },
     },
 
