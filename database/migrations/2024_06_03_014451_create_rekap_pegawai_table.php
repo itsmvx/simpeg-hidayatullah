@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignUuid('status_pegawai_id')->constrained('status_pegawai');
             $table->foreignUuid('amanah_id')->constrained('amanah');
             $table->foreignUuid('unit_id')->constrained('unit');
-            $table->foreignUuid('kader_id')->constrained('kader');
+            $table->foreignUuid('marhalah_id')->constrained('marhalah');
             $table->integer('gaji');
             $table->string('skill_manajerial')->nullable();
             $table->string('skill_leadership')->nullable();

@@ -1,26 +1,20 @@
 import { ChangeEvent, Dispatch, memo, SetStateAction } from "react";
-import { Button, Card, Option, Select, Tooltip, Typography } from "@material-tailwind/react";
+import { Button, Card, Tooltip, Typography } from "@material-tailwind/react";
 import { Input } from "@/Components/Input";
 import { ListPlus, ListX } from "lucide-react";
-import type { FormDataPendidikanFormal } from "@/Pages/Admin/ADMIN_PegawaiCreatePage";
+import type { FormDataPengalamanNonPPH } from "@/Pages/Admin/ADMIN_PegawaiCreatePage";
 
-const PegawaiFormDataPendidikanFormal = ({ formState, setFormState, formInitial }: {
-    formState: FormDataPendidikanFormal[];
-    setFormState: Dispatch<SetStateAction<FormDataPendidikanFormal[]>>;
-    formInitial: FormDataPendidikanFormal;
+const PegawaiFormDataPengalamanNonPPH = ({ formState, setFormState, formInitial }: {
+    formState: FormDataPengalamanNonPPH[];
+    setFormState: Dispatch<SetStateAction<FormDataPengalamanNonPPH[]>>;
+    formInitial: FormDataPengalamanNonPPH;
 }) => {
 
     const TABLE_HEAD = [
-        { key: 'tingkat', label: 'Tingkat Pendidikan' },
-        { key: 'sekolah', label: 'Nama Sekolah/Universitas' },
-        { key: 'lulus', label: 'Tahun Lulus' },
-    ];
-
-    const TINGKAT_PENDIDIKAN = [
-        "SD / Sederajat",
-        "SMP / Sederajat",
-        "SMA / sederajat",
-        "S1", "S2", "S3"
+        { key: "instansi", label: "Nama Instansi" },
+        { key: "jabatan", label: "Jabatan" },
+        { key: "tahun", label: "Tahun" },
+        { key: "keterangan", label: "Keterangan" },
     ];
 
     const handleChangeInput = (event: ChangeEvent<HTMLInputElement>) => {
@@ -37,13 +31,6 @@ const PegawaiFormDataPendidikanFormal = ({ formState, setFormState, formInitial 
             )
         );
     };
-    const handleSelectChange = (index: number, key: keyof FormDataPendidikanFormal, value: string) => {
-        setFormState((prevState) =>
-            prevState.map((prev, idx) =>
-                idx === index ? { ...prev, [key]: value } : prev
-            )
-        );
-    };
 
     return (
         <>
@@ -52,7 +39,7 @@ const PegawaiFormDataPendidikanFormal = ({ formState, setFormState, formInitial 
                     <table className="w-full table-auto text-left border-2">
                         <thead>
                         <tr>
-                            { TABLE_HEAD.map(({ key, label}) => (
+                            { TABLE_HEAD.map(({ key, label }) => (
                                 <th
                                     key={ key }
                                     className="border-b border-blue-gray-100 bg-blue-gray-50 p-4"
@@ -75,32 +62,16 @@ const PegawaiFormDataPendidikanFormal = ({ formState, setFormState, formInitial 
 
                             return (
                                 <tr key={ index }>
-                                    <td className={ classes }>
-                                        <Select
-                                            label="Tingkat Pendidikan"
-                                            color="teal"
-                                            name="tingkat"
-                                            onChange={(value) => {
-                                                handleSelectChange(index, 'tingkat', value ?? '');
-                                            }}
-                                        >
-                                            { TINGKAT_PENDIDIKAN.map((tingkat) => ((
-                                                <Option key={ tingkat } value={ tingkat }>
-                                                    { tingkat }
-                                                </Option>
-                                            ))) }
-                                        </Select>
-                                    </td>
-                                    { TABLE_HEAD.filter((_, idx) => idx !== 0).map(({ key, label }, idx) => (
-                                        <td key={`${key}-${idx}`} className={classes}>
+                                    { TABLE_HEAD.map(({ key, label }, idx) => (
+                                        <td key={`${index}-${idx}`} className={classes}>
                                             <Input
                                                 color="teal"
                                                 type="text"
                                                 id={String(index)}
-                                                label={ label }
                                                 name={key}
                                                 value={formState[key]}
                                                 onChange={handleChangeInput}
+                                                label={ label }
                                             />
                                         </td>
                                     )) }
@@ -139,4 +110,4 @@ const PegawaiFormDataPendidikanFormal = ({ formState, setFormState, formInitial 
     )
 };
 
-export default memo(PegawaiFormDataPendidikanFormal);
+export default memo(PegawaiFormDataPengalamanNonPPH);

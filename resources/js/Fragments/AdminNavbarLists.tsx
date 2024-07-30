@@ -4,7 +4,7 @@ import {
     Building2,
     ChevronDown, CircleUserRound,
     Dock,
-    Newspaper,
+    Newspaper, ShieldCheck,
     UserRound,
     UsersRound
 } from "lucide-react";
@@ -34,10 +34,10 @@ const navListMenuItems = [
         link: route('master.golongan.index')
     },
     {
-        title: "Kader",
-        description: "mengatur kader pegawai dalam sistem",
+        title: "Marhalah",
+        description: "mengatur daftar marhalah dalam sistem",
         icon: <Award />,
-        link: route('master.kader.index')
+        link: route('master.marhalah.index')
     },
     {
         title: "Admin",
@@ -50,6 +50,12 @@ const navListMenuItems = [
         description: "mengatur akun dan data kepegawaian",
         icon: <UserRound />,
         link: route('master.pegawai.index')
+    },
+    {
+        title: "Status Pegawai",
+        description: "mengatur data Status kepegawaian",
+        icon: <ShieldCheck />,
+        link: route('master.status-pegawai.index')
     },
 
     {

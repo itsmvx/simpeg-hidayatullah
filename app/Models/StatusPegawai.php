@@ -7,19 +7,15 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Unit extends Model
+class StatusPegawai extends Model
 {
     use HasFactory, HasUuids;
-    protected $table = 'unit';
-    protected $primaryKey = 'id';
+
+    protected $table = 'status_pegawai';
     protected $guarded = ['id'];
 
-    public function admin(): HasMany
-    {
-        return $this->hasMany(Admin::class, 'unit_id', 'id');
-    }
     public function pegawai(): HasMany
     {
-        return $this->hasMany(Pegawai::class, 'unit_id', 'id');
+        return $this->hasMany(Pegawai::class, 'status_pegawai_id', 'id');
     }
 }

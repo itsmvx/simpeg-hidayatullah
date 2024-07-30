@@ -13,16 +13,13 @@ import {
 import { X, Menu as MenuIcon, Home, ChevronDown, CircleUserRound, LogOut } from "lucide-react";
 import { AdminNavbarLists } from "@/Fragments/AdminNavbarLists";
 import { Link, router } from "@inertiajs/react";
-import { HarunaPP } from "@/Lib/StaticImages";
+import { HarunaPP, PPHLogo } from "@/Lib/StaticImages";
 import axios, { AxiosError } from "axios";
 import { notifyToast } from "@/Lib/Utils";
 import { useTheme } from "@/Hooks/useTheme";
 import { AdminLoadingOverlay } from "@/Components/Admin/AdminLoadingOverlay";
 
-export const AdminNavbar = ({ openSideNav, setOpenSideNav }: {
-    openSideNav: boolean;
-    setOpenSideNav: Dispatch<SetStateAction<boolean>>;
-}) => {
+export const AdminNavbar = () => {
     const { theme } = useTheme();
     const [ openNavbar, setOpenNavbar ] = useState(false);
     const [ onFetchLogout, setFetchLogout ] = useState(false);
@@ -87,7 +84,7 @@ export const AdminNavbar = ({ openSideNav, setOpenSideNav }: {
                             </MenuHandler>
                             <MenuList className="w-max border-0">
                                 <MenuItem className="flex items-center gap-3 w-60">
-                                    <Avatar src={HarunaPP} size="sm" />
+                                    <Avatar src={PPHLogo} size="sm" />
                                     <Typography
                                         variant="small"
                                         color="blue-gray"

@@ -3,11 +3,20 @@
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\GolonganController;
-use App\Http\Controllers\KaderController;
+use App\Http\Controllers\MarhalahController;
+use App\Http\Controllers\Pages\AdminMasterPagesController;
+use App\Http\Controllers\Pages\AdminUnitPagesController;
+use App\Http\Controllers\PegawaiController;
+use App\Http\Controllers\StatusPegawaiController;
 use App\Http\Controllers\UnitController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', [AdminUnitPagesController::class, 'loginPage'])->name('login');
+    Route::get('/{unitId}/dashboard', [AdminUnitPagesController::class, 'dashboardPage'])->name('dashboard');
+});
 
 Route::prefix('auth')->name('auth.')->group(function () {
     Route::post('/login/master', [AuthController::class, 'authAdminMaster'])->name('master');
@@ -36,24 +45,29 @@ Route::prefix('auth')->name('auth.')->group(function () {
 Route::prefix('unit')->name('unit.')->group(function () {
     Route::post('/exists-check', [UnitController::class, 'isExists'])->name('exists');
     Route::post('/create', [UnitController::class, 'create'])->name('create');
+    Route::post('/delete', [UnitController::class, 'destroy'])->name('delete');
 });
 Route::prefix('golongan')->name('golongan.')->group(function () {
-//    Route::get('/', [GolonganController::class, 'index'])->name('index');
     Route::post('/create', [GolonganController::class, 'create'])->name('create');
     Route::post('/update', [GolonganController::class, 'update'])->name('update');
     Route::post('/delete', [GolonganController::class, 'destroy'])->name('delete');
 });
-Route::prefix('kader')->name('kader.')->group(function () {
-//    Route::get('/', [GolonganController::class, 'index'])->name('index');
-    Route::post('/create', [KaderController::class, 'create'])->name('create');
-    Route::post('/update', [KaderController::class, 'update'])->name('update');
-    Route::post('/delete', [KaderController::class, 'destroy'])->name('delete');
+Route::prefix('marhalah')->name('marhalah.')->group(function () {
+    Route::post('/create', [MarhalahController::class, 'create'])->name('create');
+    Route::post('/update', [MarhalahController::class, 'update'])->name('update');
+    Route::post('/delete', [MarhalahController::class, 'destroy'])->name('delete');
 });
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::post('/create', [AdminController::class, 'create'])->name('create');
     Route::post('/update', [AdminController::class, 'update'])->name('update');
     Route::post('/delete', [AdminController::class, 'destroy'])->name('delete');
     Route::post('/reset', [AdminController::class, 'reset'])->name('reset');
+});
+Route::prefix('status-pegawai')->name('status-pegawai.')->group(function () {
+    Route::post('/create', [StatusPegawaiController::class, 'create'])->name('create');
+});
+Route::prefix('pegawai')->name('pegawai.')->group(function () {
+    Route::post('/create', [PegawaiController::class, 'create'])->name('create');
 });
 
 
@@ -65,4 +79,5 @@ Route::get('/form-pelamar', function () {
 });
 
 require __DIR__.'/admin.php';
+require __DIR__.'/master.php';
 require __DIR__.'/pegawai.php';

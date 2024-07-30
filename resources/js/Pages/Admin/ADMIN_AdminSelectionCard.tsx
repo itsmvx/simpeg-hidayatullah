@@ -7,7 +7,7 @@ import { Dispatch, memo, SetStateAction } from "react";
 import { ExternalLink, Home } from "lucide-react";
 import { PPHLogo } from "@/Lib/StaticImages";
 
-const AdminSelectionCard = ({ units, setForm }: {
+const ADMIN_AdminSelectionCard = ({ units, setForm }: {
     units: {
         id: string;
         nama: string;
@@ -101,4 +101,4 @@ const AdminSelectionCard = ({ units, setForm }: {
     );
 }
 
-export default memo(AdminSelectionCard);
+export default memo(ADMIN_AdminSelectionCard);

@@ -13,26 +13,31 @@ return new class extends Migration
     {
         Schema::create('pegawai', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('username')->unique();
+            $table->string('username');
             $table->string('password');
             $table->string('nip')->unique();
             $table->string('nik')->unique();
-            $table->string('foto')->comment('URL Storage');
+            $table->string('foto')->nullable()->comment('URL Storage');
             $table->string('nama');
-            $table->enum('jenis_kelamin', ['L', 'P']);
+            $table->enum('jenis_kelamin', ['Laki-Laki', 'Perempuan']);
             $table->string('tempat_lahir');
             $table->date('tanggal_lahir');
-            $table->integer('usia');
             $table->string('no_hp');
             $table->string('status_pernikahan');
-            $table->date('tahun_masuk');
+            $table->string('amanah');
+            $table->date('tanggal_masuk');
             $table->string('bpjs_kesehatan')->nullable();
             $table->string('bpjs_ketenagakerjaan')->nullable();
-            $table->string('kepangkatan');
-            $table->string('keahlian')->nullable()->comment('Array[] stringify');
             $table->string('pendidikan_formal')->comment('Array[] stringify');
-            $table->string('pendidikan_non_formal')->nullable()->comment('Array[] stringify');
-            $table->foreignUuid('unit_id')->constrained('unit');
+            $table->string('pendidikan_non_formal')->comment('Array[] stringify');
+            $table->string('pengalaman_organisasi')->comment('Array[] stringify');
+            $table->string('pengalaman_kerja_pph')->comment('Array[] stringify');
+            $table->string('pengalaman_kerja_non_pph')->comment('Array[] stringify');
+            $table->string('keahlian')->nullable()->comment('Array[] stringify');
+            $table->foreignUuid('golongan_id')->nullable()->constrained('golongan')->onDelete('set null');
+            $table->foreignUuid('marhalah_id')->nullable()->constrained('marhalah')->onDelete('set null');
+            $table->foreignUuid('status_pegawai_id')->nullable()->constrained('status_pegawai')->onDelete('set null');
+            $table->foreignUuid('unit_id')->nullable()->constrained('unit')->onDelete('set null');
             $table->timestamps();
         });
     }
