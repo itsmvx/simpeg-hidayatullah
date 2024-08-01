@@ -9,11 +9,10 @@ import {
     Typography
 } from "@material-tailwind/react";
 import {
-    ArrowLeft, ArrowRight,
+    ArrowLeft, ArrowRight, Award,
     ChevronDown, FileSearch,
-    Pencil,
     Plus,
-    Search, Trash2, UserRound,
+    Search, Trash2,
 } from "lucide-react";
 import { MTColor, PageProps } from "@/types";
 import { AdminLayout } from "@/Layouts/AdminLayout";
@@ -21,36 +20,32 @@ import { Head, Link, router } from "@inertiajs/react";
 import { Input } from "@/Components/Input";
 import { format } from "date-fns";
 import { id as localeID } from "date-fns/locale/id";
+import { TextArea } from "@/Components/TextArea";
 import { useTheme } from "@/Hooks/useTheme";
-import { useEffect, useMemo, useState } from "react";
+import { SyntheticEvent, useEffect, useMemo, useState } from "react";
 import { Bounce, toast } from "react-toastify";
 import {  z } from "zod";
 import axios, { AxiosError } from "axios";
-import { DragNDropFile } from "@/Components/DragAndDropFile";
-import * as XLSX from "xlsx";
 
-export default function ADMIN_PegawaiIndexPage({ auth, pegawais }: PageProps<{
-    pegawais: {
+export default function MasterManageMarhalahPage({ auth, marhalahs }: PageProps<{
+    marhalahs: {
         id: string;
-        nip: string;
         nama: string;
-        unit_id: string;
-        unit_nama: string;
-        statusPegawai_nama: string;
+        keterangan: string;
         created_at: string;
-    }[];
+    }[] | [];
 }>) {
-
-    const TABLE_HEAD = ['No','NIP', 'Nama', 'Unit', 'Status Pegawai', 'Tanggal ditambahkan', 'Aksi'];
+    const TABLE_HEAD = ['No', 'Nama', 'Keterangan', 'Tanggal daftar', 'Aksi'];
     const cardData = [
         {
             color: "gray",
-            icon: <UserRound />,
-            title: "Jumlah Pegawai terdaftar",
-            value: pegawais.length,
+            icon: <Award />,
+            title: "Jumlah Marhalah terdaftar",
+            value: marhalahs.length,
         }
     ];
     const { theme } = useTheme();
+    const [ openFormDialog, setOpenFormDialog ] = useState(false);
     const [ deleteDialog, setDeleteDialog ] = useState<{
         open: boolean;
         id: string;
@@ -82,25 +77,11 @@ export default function ADMIN_PegawaiIndexPage({ auth, pegawais }: PageProps<{
         const startIndex = (currPage - 1) * viewPerPage;
         const lastIndex = startIndex + viewPerPage;
 
-        return pegawais.slice(startIndex, lastIndex);
-    }, [ pegawais, viewPerPage ]);
+        return marhalahs.slice(startIndex, lastIndex);
+    }, [ marhalahs, viewPerPage ]);
 
     const [ data, setData ] = useState(adjustData);
     const [ search, setSearch ] = useState('');
-    const [ dragAndDrop, setDragAndDrop ] = useState<{
-        open: boolean;
-        file: File | null;
-    }>({
-        open: false,
-        file: null
-    });
-    const [ uploadPreview, setUploadPreview ] = useState<{
-        open: boolean;
-        data: any[];
-    }>({
-        open: false,
-        data: []
-    });
     const getItemProps = (index: number) =>
         ({
             variant: currPage === index ? "filled" : "text",
@@ -109,16 +90,78 @@ export default function ADMIN_PegawaiIndexPage({ auth, pegawais }: PageProps<{
         } as any);
 
     const nextPage = () => {
-        const totalPages = Math.ceil(pegawais.length / viewPerPage);
+        const totalPages = Math.ceil(marhalahs.length / viewPerPage);
         currPage < totalPages && setCurrPage(currPage + 1);
     };
     const prevPage = () => {
         currPage > 1 && setCurrPage(currPage - 1);
     };
 
-    const handleOpenDelete = () => setDeleteDialog((prevState) => ({ ...prevState, open: true }));
-    const handleOpenDragAndDrop = () => setDragAndDrop((prevState) => ({ ...prevState, open: true }));
-    const handleOpenUploadPreview = () => setUploadPreview((prevState) => ({ ...prevState }));
+    const handleOpenForm = () => setOpenFormDialog(true);
+    const handleOpenDelete = () => setDeleteDialog((prevState) => ({
+        ...prevState,
+        open: true
+    }));
+    const formInputInit = {
+        nama: '',
+        keterangan: '',
+        error: {
+            nama: false,
+            keterangan: false
+        },
+        onSubmit: false
+    };
+    const [ formInput, setFormInput ] = useState<{
+        nama: string;
+        keterangan: string;
+        error: {
+            nama: boolean;
+            keterangan: boolean;
+        };
+        onSubmit: boolean;
+    }>(formInputInit);
+
+    const formSubmitDisabled = (): boolean => (!formInput.nama || !formInput.keterangan);
+    const handleFormSubmit = (event: SyntheticEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        const { nama, keterangan } = formInput
+
+        setFormInput((prevState) => ({
+            ...prevState,
+            onSubmit: true
+        }));
+        const marhalahSchema = z.object({
+            nama: z.string().min(1, { message: "Nama Marhalah tidak boleh kosong" }),
+            keterangan: z.string().min(1, { message: "Keterangan Marhalah tidak boleh kosong" })
+        });
+        const zodUnitResult = marhalahSchema.safeParse({
+            nama: nama,
+            keterangan: keterangan
+        });
+        if (!zodUnitResult.success) {
+            const errorMessages = zodUnitResult.error.issues[0].message;
+            notifyToast('error', errorMessages, theme as 'light' | 'dark');
+        }
+
+        axios.post(route('marhalah.create'), {
+            nama: nama,
+            keterangan: keterangan
+        })
+            .then(() => {
+                notifyToast('success', 'Marhalah berhasil ditambahkan!', theme as 'light' | 'dark');
+                router.reload({ only: ['marhalahs'] });
+            })
+            .catch((err: unknown) => {
+                const errMsg: string = err instanceof AxiosError
+                    ? err.response?.data.message ?? 'Error tidak diketahui terjadi!'
+                    : 'Error tidak diketahui terjadi!'
+                notifyToast('error', errMsg, theme as 'light' | 'dark');
+            })
+            .finally(() => {
+                setOpenFormDialog(false);
+                setFormInput((prevState) => ({ ...prevState, onSubmit: false }))
+            });
+    };
     const handleDeleteSubmit = () => {
         const { id } = deleteDialog
 
@@ -126,10 +169,10 @@ export default function ADMIN_PegawaiIndexPage({ auth, pegawais }: PageProps<{
             ...prevState,
             onSubmit: true
         }));
-        const pegawaischema = z.object({
-            id: z.string().min(1, { message: "Pegawai belum terpilih" }),
+        const marhalahschema = z.object({
+            id: z.string().min(1, { message: "Marhalah belum terpilih" }),
         });
-        const zodUnitResult = pegawaischema.safeParse({
+        const zodUnitResult = marhalahschema.safeParse({
             id: id,
         });
         if (!zodUnitResult.success) {
@@ -137,12 +180,12 @@ export default function ADMIN_PegawaiIndexPage({ auth, pegawais }: PageProps<{
             notifyToast('error', errorMessages, theme as 'light' | 'dark');
         }
 
-        axios.post(route('pegawai.delete'), {
+        axios.post(route('marhalah.delete'), {
             id: id,
         })
             .then(() => {
-                notifyToast('success', 'Pegawai berhasil dihapus!', theme as 'light' | 'dark');
-                router.reload({ only: ['pegawais'] });
+                notifyToast('success', 'Marhalah berhasil dihapus!', theme as 'light' | 'dark');
+                router.reload({ only: ['marhalahs'] });
             })
             .catch((err: unknown) => {
                 const errMsg: string = err instanceof AxiosError
@@ -155,39 +198,26 @@ export default function ADMIN_PegawaiIndexPage({ auth, pegawais }: PageProps<{
             });
     };
     useEffect(() => {
+        if (!openFormDialog) {
+            setFormInput(formInputInit);
+        }
+    }, [ openFormDialog ]);
+    useEffect(() => {
         setData(adjustData);
-    }, [ pegawais, viewPerPage ]);
+    }, [ marhalahs, viewPerPage ]);
     useEffect(() => {
         if (search.length < 1) {
             setData(adjustData);
         } else {
             setCurrPage(1);
-            const matchPegawai = pegawais.filter((pegawai) => pegawai.nama.toLowerCase().includes(search.toLowerCase()));
-            setData(matchPegawai);
+            const matchmarhalahs = marhalahs.filter((marhalah) => marhalah.nama.toLowerCase().includes(search.toLowerCase()));
+            setData(matchmarhalahs);
         }
     }, [ search ]);
 
-    useEffect(() => {
-        const handleFile = async () => {
-            if (dragAndDrop.file) {
-                try {
-                    const arrayBuffer = await dragAndDrop.file.arrayBuffer();
-                    const workbook = XLSX.read(arrayBuffer);
-                    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-                    const raw_data = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-                    console.log(raw_data);
-                } catch (error) {
-                    notifyToast('error', 'Gagal membaca dokumen');
-                }
-            }
-        };
-
-        handleFile();
-    }, [ dragAndDrop.file ]);
-
     return (
         <>
-            <Head title="Master - Pegawai" />
+            <Head title="Master - Marhalah" />
             <AdminLayout>
                 <section className="mb-1 grid gap-y-10 gap-x-6 md:grid-cols-2 xl:grid-cols-4">
                     { cardData.map(({ icon, title, color, value }) => (
@@ -218,28 +248,19 @@ export default function ADMIN_PegawaiIndexPage({ auth, pegawais }: PageProps<{
                         <div className="mb-8 flex items-center justify-between gap-x-3">
                             <div>
                                 <Typography variant="h5" color="blue-gray">
-                                    Daftar Pegawai
+                                    Daftar Marhalah
                                 </Typography>
                                 <Typography color="gray" className="mt-1 font-normal">
-                                    Informasi mengenai Pegawai yang terdaftar
+                                    Informasi mengenai Marhalah yang terdaftar
                                 </Typography>
                             </div>
-                            <div className="flex shrink-0 flex-row-reverse gap-2">
+                            <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
                                 <Button
-                                    onClick={() => {
-                                        router.visit(route('master.pegawai.create'));
-                                    }}
+                                    onClick={() => setOpenFormDialog(true)}
                                     className="flex items-center gap-1.5 capitalize font-medium text-base" size="sm"
                                 >
                                     <Plus />
-                                    Tambahkan Pegawai baru
-                                </Button>
-                                <Button
-                                    onClick={() => setDragAndDrop((prevState) => ({ ...prevState, open: true }))}
-                                    className="flex items-center gap-1.5 capitalize font-medium text-base" size="sm"
-                                >
-                                    <Plus />
-                                    Upload Excel
+                                    Tambahkan Marhalah baru
                                 </Button>
                             </div>
                         </div>
@@ -284,7 +305,7 @@ export default function ADMIN_PegawaiIndexPage({ auth, pegawais }: PageProps<{
                             <tbody>
                             {
                                 data.map(
-                                    ({ id, nip, nama, unit_id, unit_nama, statusPegawai_nama, created_at }, index) => {
+                                    ({ id, nama, keterangan, created_at }, index) => {
                                         const isLast = index === data.length - 1;
                                         const classes = isLast
                                             ? "p-4"
@@ -292,13 +313,13 @@ export default function ADMIN_PegawaiIndexPage({ auth, pegawais }: PageProps<{
 
                                         return (
                                             <tr key={ id }>
-                                                <td className={ `${ classes } w-3` }>
+                                                <td className={ `${ classes } w-3`}>
                                                     <Typography
                                                         variant="small"
                                                         color="blue-gray"
                                                         className="font-normal text-center"
                                                     >
-                                                        { index + 1 }
+                                                        { index + 1}
                                                     </Typography>
                                                 </td>
                                                 <td className={ `${ classes } min-w-52` }>
@@ -309,40 +330,22 @@ export default function ADMIN_PegawaiIndexPage({ auth, pegawais }: PageProps<{
                                                                 color="blue-gray"
                                                                 className="font-normal"
                                                             >
-                                                                { nip }
+                                                                { nama }
                                                             </Typography>
                                                         </div>
                                                     </div>
                                                 </td>
                                                 <td className={ `${ classes } min-w-52` }>
-                                                    <div className="flex flex-col items-start gap-3">
-                                                        <Typography
-                                                            variant="small"
-                                                            color="blue-gray"
-                                                            className="font-normal"
-                                                        >
-                                                            { nama }
-                                                        </Typography>
-                                                    </div>
-                                                </td>
-                                                <td className={ `${ classes } min-w-52` }>
                                                     <div className="flex items-center gap-3">
-                                                        <Link href={ route('master.unit.details') }
-                                                              data={ { q: unit_id } }
-                                                              className="text-sm font-normal hover:text-blue-600">
-                                                            { unit_nama }
-                                                        </Link>
-                                                    </div>
-                                                </td>
-                                                <td className={ `${ classes } min-w-52` }>
-                                                    <div className="flex flex-col items-start gap-3">
-                                                        <Typography
-                                                            variant="small"
-                                                            color="blue-gray"
-                                                            className="font-normal"
-                                                        >
-                                                            { statusPegawai_nama }
-                                                        </Typography>
+                                                        <div className="flex flex-col">
+                                                            <Typography
+                                                                variant="small"
+                                                                color="blue-gray"
+                                                                className="font-normal"
+                                                            >
+                                                                { keterangan }
+                                                            </Typography>
+                                                        </div>
                                                     </div>
                                                 </td>
                                                 <td className={ `${ classes } min-w-40` }>
@@ -358,22 +361,24 @@ export default function ADMIN_PegawaiIndexPage({ auth, pegawais }: PageProps<{
                                                 </td>
                                                 <td className={ classes }>
                                                     <div className="w-32 flex gap-2.5 items-center justify-start">
-                                                        <Tooltip content="Edit">
-                                                            <IconButton variant="text">
-                                                                <Pencil className="h-5 w-5"/>
-                                                            </IconButton>
+                                                        <Tooltip content="Detail">
+                                                            <Link href={route('master.marhalah.details', { q: marhalahs[index].id })}>
+                                                                <IconButton variant="text">
+                                                                    <FileSearch className="h-5 w-5 text-blue-800"/>
+                                                                </IconButton>
+                                                            </Link>
                                                         </Tooltip>
                                                         <Tooltip content="Hapus" className="bg-red-400">
                                                             <IconButton
                                                                 variant="text"
-                                                                onClick={ () => {
+                                                                onClick={() => {
                                                                     setDeleteDialog((prevState) => ({
                                                                         ...prevState,
                                                                         open: true,
                                                                         id: id,
-                                                                        nama: pegawais.find((pegawai) => pegawai.id === id)?.nama ?? '-'
+                                                                        nama: marhalahs.find((marhalah) => marhalah.id === id)?.nama ?? '-'
                                                                     }))
-                                                                } }
+                                                                }}
                                                             >
                                                                 <Trash2 className="h-5 w-5 text-red-600"/>
                                                             </IconButton>
@@ -426,15 +431,82 @@ export default function ADMIN_PegawaiIndexPage({ auth, pegawais }: PageProps<{
                         </div>
                     </CardFooter>
                 </Card>
-
+                <Dialog
+                    size="lg"
+                    open={openFormDialog}
+                    handler={handleOpenForm}
+                    className="bg-transparent shadow-none backdrop-blur-none"
+                >
+                    <form className="mx-auto w-full" onSubmit={handleFormSubmit}>
+                        <Card>
+                            <CardBody className="flex flex-col gap-4">
+                                <Typography variant="h4" color="blue-gray">
+                                    Menambahkan Marhalah baru
+                                </Typography>
+                                <Input
+                                    label="Nama Marhalah"
+                                    size="lg"
+                                    required={true}
+                                    error={formInput.error.nama}
+                                    value={formInput.nama}
+                                    onChange={(event) => {
+                                        setFormInput((prevState) => ({
+                                            ...prevState,
+                                            nama: event.target.value,
+                                            error: {
+                                                ...prevState.error,
+                                                nama: event.target.value.length < 1
+                                            }
+                                        }));
+                                    }}
+                                />
+                                <TextArea
+                                    label="Keterangan"
+                                    size="lg"
+                                    value={formInput.keterangan}
+                                    required={true}
+                                    error={formInput.error.keterangan}
+                                    onChange={(event) => {
+                                        setFormInput((prevState) => ({
+                                            ...prevState,
+                                            keterangan: event.target.value,
+                                            error: {
+                                                ...prevState.error,
+                                                keterangan: event.target.value.length < 1
+                                            }
+                                        }));
+                                    }}
+                                />
+                            </CardBody>
+                            <CardFooter className="pt-0 flex gap-3 justify-between">
+                                <Button
+                                    color="red"
+                                    onClick={() => setOpenFormDialog(false)}
+                                    fullWidth
+                                >
+                                    Batal
+                                </Button>
+                                <Button
+                                    type="submit"
+                                    loading={formInput.onSubmit}
+                                    disabled={formSubmitDisabled()}
+                                    onClick={handleOpenForm}
+                                    fullWidth
+                                >
+                                    Buat
+                                </Button>
+                            </CardFooter>
+                        </Card>
+                    </form>
+                </Dialog>
                 <Dialog open={deleteDialog.open} handler={handleOpenDelete}>
                     <DialogHeader className="text-gray-900">
-                        Hapus Pegawai terpilih?
+                        Hapus Marhalah terpilih?
                     </DialogHeader>
                     <DialogBody>
                         <Typography variant="h6" className="text-gray-900 truncate">
                             Anda akan menghapus
-                            Pegawai: &nbsp;
+                            Marhalah: &nbsp;
                             <span className="font-semibold">
                                 " { deleteDialog.nama } "
                             </span>
@@ -443,7 +515,7 @@ export default function ADMIN_PegawaiIndexPage({ auth, pegawais }: PageProps<{
                                 <span className="text-red-600 font-bold">
                                     *
                                 </span>
-                            Pegawai yang akan dihapus dari Sistem
+                            Pegawai yang terhubung akan akan kehilangan status marhalah
                         </p>
                     </DialogBody>
                     <DialogFooter>
@@ -456,46 +528,6 @@ export default function ADMIN_PegawaiIndexPage({ auth, pegawais }: PageProps<{
                         </Button>
                         <Button color="red" onClick={handleDeleteSubmit} loading={deleteDialog.onSubmit}>
                             <span>Hapus</span>
-                        </Button>
-                    </DialogFooter>
-                </Dialog>
-                <Dialog open={dragAndDrop.open} handler={handleOpenDragAndDrop}>
-                    <DialogHeader className="justify-center font-bold">
-                        Upload file Excel Pegawai
-                    </DialogHeader>
-                    <DialogBody>
-                        <DragNDropFile
-                            state={dragAndDrop}
-                            setState={setDragAndDrop}
-                        />
-                    </DialogBody>
-                    <DialogFooter className="justify-center">
-                        <Button
-                            color="red"
-                            onClick={() => setDragAndDrop((prevState) => ({ ...prevState, open: !prevState.open }))}
-                            className="!shadow-none"
-                        >
-                            <span>Tutup</span>
-                        </Button>
-                    </DialogFooter>
-                </Dialog>
-                <Dialog open={uploadPreview.open} handler={handleOpenUploadPreview}>
-                    <DialogHeader className="justify-center font-bold">
-                        Preview Data Pegawai
-                    </DialogHeader>
-                    <DialogBody>
-                        <DragNDropFile
-                            state={dragAndDrop}
-                            setState={setDragAndDrop}
-                        />
-                    </DialogBody>
-                    <DialogFooter className="justify-center">
-                        <Button
-                            color="red"
-                            onClick={() => setUploadPreview((prevState) => ({ ...prevState, open: !prevState.open }))}
-                            className="!shadow-none"
-                        >
-                            <span>Tutup</span>
                         </Button>
                     </DialogFooter>
                 </Dialog>

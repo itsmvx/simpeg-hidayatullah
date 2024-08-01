@@ -4,7 +4,7 @@ import { Input } from "@/Components/Input";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import { DayPicker } from "react-day-picker";
-import type { FormDataDiri } from "@/Pages/Admin/ADMIN_PegawaiCreatePage";
+import type { FormDataDiri } from "@/Pages/Admin/MASTER_PegawaiCreatePage";
 import { TriangleAlert } from "lucide-react";
 
 const PegawaiFormDataDiri = ({ formState, changeInput, changeDate, changeSelect, golongans, marhalahs, statusPegawais, units }: {

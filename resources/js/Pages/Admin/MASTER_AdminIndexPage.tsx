@@ -4,45 +4,53 @@ import {
     CardBody,
     CardFooter,
     CardHeader, Dialog, DialogBody, DialogFooter, DialogHeader,
-    IconButton,
+    IconButton, Select, Option,
     Tooltip,
-    Typography
+    Typography, Chip
 } from "@material-tailwind/react";
 import {
     ArrowLeft, ArrowRight,
-    ChevronDown, FileSearch,
-    Pencil,
+    ChevronDown, CircleUserRound, FileSearch,
     Plus,
-    Search, Trash2, UsersRound,
+    Search, Trash2,
 } from "lucide-react";
 import { MTColor, PageProps } from "@/types";
 import { AdminLayout } from "@/Layouts/AdminLayout";
-import { Head, router } from "@inertiajs/react";
+import { Head, Link, router } from "@inertiajs/react";
 import { Input } from "@/Components/Input";
 import { format } from "date-fns";
 import { id as localeID } from "date-fns/locale/id";
-import { TextArea } from "@/Components/TextArea";
 import { useTheme } from "@/Hooks/useTheme";
 import { SyntheticEvent, useEffect, useMemo, useState } from "react";
 import { Bounce, toast } from "react-toastify";
 import {  z } from "zod";
 import axios, { AxiosError } from "axios";
 
-export default function MasterManageGolonganPage({ auth, golongans }: PageProps<{
-    golongans: {
+export default function MasterManageAdminPage({ auth, admins, units }: PageProps<{
+    admins: {
         id: string;
         nama: string;
-        keterangan: string;
+        username: string;
+        unit: {
+            id: string;
+            nama: string;
+            keterangan: string;
+        };
         created_at: string;
-    }[] | [];
+    }[];
+    units: {
+        id: string;
+        nama: string;
+    }[]
 }>) {
-    const TABLE_HEAD = ['No', 'Nama', 'Keterangan', 'Tanggal daftar', 'Aksi'];
+
+    const TABLE_HEAD = ['No', 'Nama', 'Username', 'Unit', 'Tanggal daftar', 'Aksi'];
     const cardData = [
         {
             color: "gray",
-            icon: <UsersRound />,
-            title: "Jumlah Golongan terdaftar",
-            value: golongans.length,
+            icon: <CircleUserRound />,
+            title: "Jumlah Admin terdaftar",
+            value: admins.length,
         }
     ];
     const { theme } = useTheme();
@@ -78,8 +86,8 @@ export default function MasterManageGolonganPage({ auth, golongans }: PageProps<
         const startIndex = (currPage - 1) * viewPerPage;
         const lastIndex = startIndex + viewPerPage;
 
-        return golongans.slice(startIndex, lastIndex);
-    }, [ golongans, viewPerPage ]);
+        return admins.slice(startIndex, lastIndex);
+    }, [ admins, viewPerPage ]);
 
     const [ data, setData ] = useState(adjustData);
     const [ search, setSearch ] = useState('');
@@ -91,7 +99,7 @@ export default function MasterManageGolonganPage({ auth, golongans }: PageProps<
         } as any);
 
     const nextPage = () => {
-        const totalPages = Math.ceil(golongans.length / viewPerPage);
+        const totalPages = Math.ceil(admins.length / viewPerPage);
         currPage < totalPages && setCurrPage(currPage + 1);
     };
     const prevPage = () => {
@@ -105,52 +113,85 @@ export default function MasterManageGolonganPage({ auth, golongans }: PageProps<
     }));
     const formInputInit = {
         nama: '',
-        keterangan: '',
+        username: '',
+        password: '',
+        unitId: '',
+        passwordView: false,
         error: {
             nama: false,
-            keterangan: false
+            username: false,
+            password: false,
+            unitId: false
         },
         onSubmit: false
     };
     const [ formInput, setFormInput ] = useState<{
         nama: string;
-        keterangan: string;
+        username: string;
+        password: string;
+        unitId: string | null;
+        passwordView: boolean;
         error: {
             nama: boolean;
-            keterangan: boolean;
+            username: boolean;
+            password: boolean;
+            unitId: boolean;
         };
         onSubmit: boolean;
     }>(formInputInit);
+    const resetPasswordInit = {
+        onOpen: false,
+        onFetch: false,
+        id: '',
+        nama: '',
+        newPassword: '',
+        newPassword1: ''
+    }
+    const [ resetPassword, setResetPassword ] = useState<{
+        onOpen: boolean;
+        onFetch: boolean;
+        id: string;
+        nama: string;
+        newPassword: string;
+        newPassword1: string;
+    }>(resetPasswordInit);
 
-    const formSubmitDisabled = (): boolean => (!formInput.nama || !formInput.keterangan);
+    // @ts-ignore
+    const formSubmitDisabled = (): boolean => (!formInput.nama || !formInput.username || !formInput.password || (typeof formInput.unitId !== null ? formInput.unitId?.length < 1 : false));
     const handleFormSubmit = (event: SyntheticEvent<HTMLFormElement>) => {
         event.preventDefault();
-        const { nama, keterangan } = formInput
+        const { nama, username, password, unitId } = formInput
 
         setFormInput((prevState) => ({
             ...prevState,
             onSubmit: true
         }));
-        const golonganschema = z.object({
-            nama: z.string().min(1, { message: "Nama Golongan tidak boleh kosong" }),
-            keterangan: z.string().min(1, { message: "Keterangan Golongan tidak boleh kosong" })
+        const adminschema = z.object({
+            nama: z.string().min(1, { message: "Nama Admin tidak boleh kosong" }),
+            username: z.string().min(1, { message: "Username Admin tidak boleh kosong" }),
+            password: z.string().min(1, { message: "Password tidak boleh kosong" }),
+            unitId: z.string().min(1, { message: "Unit belum dipilih" }).nullable(),
         });
-        const zodUnitResult = golonganschema.safeParse({
+        const zodUnitResult = adminschema.safeParse({
             nama: nama,
-            keterangan: keterangan
+            username: username,
+            password: password,
+            unitId: unitId
         });
         if (!zodUnitResult.success) {
             const errorMessages = zodUnitResult.error.issues[0].message;
             notifyToast('error', errorMessages, theme as 'light' | 'dark');
         }
 
-        axios.post(route('golongan.create'), {
+        axios.post(route('admin.create'), {
             nama: nama,
-            keterangan: keterangan
+            username: username,
+            password: password,
+            unit_id: unitId
         })
             .then(() => {
-                notifyToast('success', 'Golongan berhasil ditambahkan!', theme as 'light' | 'dark');
-                router.reload({ only: ['golongans'] });
+                notifyToast('success', 'Admin berhasil ditambahkan!', theme as 'light' | 'dark');
+                router.reload({ only: ['admins'] });
             })
             .catch((err: unknown) => {
                 const errMsg: string = err instanceof AxiosError
@@ -170,10 +211,10 @@ export default function MasterManageGolonganPage({ auth, golongans }: PageProps<
             ...prevState,
             onSubmit: true
         }));
-        const golonganschema = z.object({
-            id: z.string().min(1, { message: "Golongan belum terpilih" }),
+        const adminschema = z.object({
+            id: z.string().min(1, { message: "Admin belum terpilih" }),
         });
-        const zodUnitResult = golonganschema.safeParse({
+        const zodUnitResult = adminschema.safeParse({
             id: id,
         });
         if (!zodUnitResult.success) {
@@ -181,12 +222,12 @@ export default function MasterManageGolonganPage({ auth, golongans }: PageProps<
             notifyToast('error', errorMessages, theme as 'light' | 'dark');
         }
 
-        axios.post(route('golongan.delete'), {
+        axios.post(route('admin.delete'), {
             id: id,
         })
             .then(() => {
-                notifyToast('success', 'Golongan berhasil dihapus!', theme as 'light' | 'dark');
-                router.reload({ only: ['golongans'] });
+                notifyToast('success', 'Admin berhasil dihapus!', theme as 'light' | 'dark');
+                router.reload({ only: ['admins'] });
             })
             .catch((err: unknown) => {
                 const errMsg: string = err instanceof AxiosError
@@ -198,27 +239,71 @@ export default function MasterManageGolonganPage({ auth, golongans }: PageProps<
                 setDeleteDialog((prevState) => ({ ...prevState, onSubmit: false, open: false }));
             });
     };
+    const handleResetPassword = (event: SyntheticEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        const { id, newPassword } = resetPassword;
+        const resetSchema = z.object({
+            id: z.string().min(1, { message: "Admin belum dipilih!" }),
+            newPassword: z.string().min(1, { message: "Password Admin tidak boleh kosong" }),
+        });
+        const zodUnitResult = resetSchema.safeParse({
+            id: id,
+            newPassword: newPassword
+        });
+        if (!zodUnitResult.success) {
+            const errorMessages = zodUnitResult.error.issues[0].message;
+            notifyToast('error', errorMessages, theme as 'light' | 'dark');
+            return;
+        }
+        setResetPassword((prevState) => ({ ...prevState, onFetch: true }))
+        axios.post(route('admin.reset'), {
+            id: id,
+            password: newPassword
+        })
+            .then(() => {
+                notifyToast('success', 'Atur ulang password berhasil!', theme as 'light' | 'dark');
+                router.reload({ only: ['admins'] });
+            })
+            .catch((err: unknown) => {
+                const errMsg: string = err instanceof AxiosError
+                    ? err.response?.data.message ?? 'Error tidak diketahui terjadi!'
+                    : 'Error tidak diketahui terjadi!'
+                notifyToast('error', errMsg, theme as 'light' | 'dark');
+            })
+            .finally(() => {
+                setResetPassword((prevState) => ({
+                    ...prevState,
+                    onOpen: false,
+                    onFetch: false
+                }));
+            })
+    };
     useEffect(() => {
         if (!openFormDialog) {
             setFormInput(formInputInit);
         }
     }, [ openFormDialog ]);
     useEffect(() => {
+        if (!resetPassword.onOpen) {
+            setResetPassword(resetPasswordInit);
+        }
+    }, [ resetPassword.onOpen ])
+    useEffect(() => {
         setData(adjustData);
-    }, [ golongans, viewPerPage ]);
+    }, [ admins, viewPerPage ]);
     useEffect(() => {
         if (search.length < 1) {
             setData(adjustData);
         } else {
             setCurrPage(1);
-            const matchgolongans = golongans.filter((golongan) => golongan.nama.toLowerCase().includes(search.toLowerCase()));
-            setData(matchgolongans);
+            const matchadmins = admins.filter((Admin) => Admin.nama.toLowerCase().includes(search.toLowerCase()));
+            setData(matchadmins);
         }
     }, [ search ]);
 
     return (
         <>
-            <Head title="Master - Golongan" />
+            <Head title="Master - Admin" />
             <AdminLayout>
                 <section className="mb-1 grid gap-y-10 gap-x-6 md:grid-cols-2 xl:grid-cols-4">
                     { cardData.map(({ icon, title, color, value }) => (
@@ -249,19 +334,19 @@ export default function MasterManageGolonganPage({ auth, golongans }: PageProps<
                         <div className="mb-8 flex items-center justify-between gap-x-3">
                             <div>
                                 <Typography variant="h5" color="blue-gray">
-                                    Daftar Golongan
+                                    Daftar Admin
                                 </Typography>
                                 <Typography color="gray" className="mt-1 font-normal">
-                                    Informasi mengenai Golongan yang terdaftar
+                                    Informasi mengenai Admin yang terdaftar
                                 </Typography>
                             </div>
-                            <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
+                            <div className="flex flex-row-reverse shrink-0 gap-2">
                                 <Button
                                     onClick={() => setOpenFormDialog(true)}
                                     className="flex items-center gap-1.5 capitalize font-medium text-base" size="sm"
                                 >
                                     <Plus />
-                                    Tambahkan Golongan baru
+                                    Tambahkan Admin baru
                                 </Button>
                             </div>
                         </div>
@@ -306,7 +391,7 @@ export default function MasterManageGolonganPage({ auth, golongans }: PageProps<
                             <tbody>
                             {
                                 data.map(
-                                    ({ id, nama, keterangan, created_at }, index) => {
+                                    ({ id, nama, username, unit, created_at }, index) => {
                                         const isLast = index === data.length - 1;
                                         const classes = isLast
                                             ? "p-4"
@@ -324,17 +409,13 @@ export default function MasterManageGolonganPage({ auth, golongans }: PageProps<
                                                     </Typography>
                                                 </td>
                                                 <td className={ `${ classes } min-w-52` }>
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="flex flex-col">
-                                                            <Typography
-                                                                variant="small"
-                                                                color="blue-gray"
-                                                                className="font-normal"
-                                                            >
-                                                                { nama }
-                                                            </Typography>
-                                                        </div>
-                                                    </div>
+                                                    <Typography
+                                                        variant="small"
+                                                        color="blue-gray"
+                                                        className="font-normal"
+                                                    >
+                                                        { nama }
+                                                    </Typography>
                                                 </td>
                                                 <td className={ `${ classes } min-w-52` }>
                                                     <div className="flex items-center gap-3">
@@ -344,9 +425,16 @@ export default function MasterManageGolonganPage({ auth, golongans }: PageProps<
                                                                 color="blue-gray"
                                                                 className="font-normal"
                                                             >
-                                                                { keterangan }
+                                                                { username }
                                                             </Typography>
                                                         </div>
+                                                    </div>
+                                                </td>
+                                                <td className={ `${ classes } min-w-52` }>
+                                                    <div className="flex items-center gap-3">
+                                                        <Link href={route('master.unit.details')} data={{ q: unit.id }} className="text-sm font-normal hover:text-blue-600">
+                                                            { unit.nama }
+                                                        </Link>
                                                     </div>
                                                 </td>
                                                 <td className={ `${ classes } min-w-40` }>
@@ -361,15 +449,26 @@ export default function MasterManageGolonganPage({ auth, golongans }: PageProps<
                                                     </Typography>
                                                 </td>
                                                 <td className={ classes }>
-                                                    <div className="w-32 flex gap-2.5 items-center justify-start">
-                                                        <Tooltip content="Detail">
-                                                            <IconButton variant="text">
-                                                                <FileSearch className="h-5 w-5 text-blue-800"/>
+                                                    <div className="w-44 flex gap-2.5 items-center justify-start">
+                                                        <Tooltip content="Atur ulang Password">
+                                                            <IconButton variant="text" onClick={ () => {
+                                                                setResetPassword((prevState) => ({
+                                                                    ...prevState,
+                                                                    onOpen: true,
+                                                                    id: id,
+                                                                    nama: nama
+                                                                }))
+                                                            } }>
+                                                                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" className="h-5 w-5">
+                                                                    <path fill="currentColor" d="m19.75 22.575l-7.55-7.55q-.8 1.35-2.175 2.163T7 18q-2.5 0-4.25-1.75T1 12q0-1.65.813-3.025T3.975 6.8l-2.55-2.55l1.425-1.4l18.3 18.325zM21 9l3 3l-4.575 4.575l-3.175-3.15l1.25-.925l1.8 1.35L21.175 12l-1-1h-6.35l-2-2zM7 16q1.275 0 2.263-.687t1.437-1.788l-1.4-1.4l-1.213-1.213L6.876 9.7l-1.4-1.4q-1.1.45-1.787 1.438T3 12q0 1.65 1.175 2.825T7 16m0-2q-.825 0-1.412-.587T5 12t.588-1.412T7 10t1.413.588T9 12t-.587 1.413T7 14"/>
+                                                                </svg>
                                                             </IconButton>
                                                         </Tooltip>
-                                                        <Tooltip content="Edit">
-                                                            <IconButton variant="text">
-                                                                <Pencil className="h-5 w-5"/>
+                                                        <Tooltip content="Detail" className="bg-blue-600">
+                                                            <IconButton variant="text" onClick={ () => {
+                                                                router.visit(route('master.admin.details'), { data: { q: id } })
+                                                            } }>
+                                                                <FileSearch className="h-5 w-5 text-blue-800"/>
                                                             </IconButton>
                                                         </Tooltip>
                                                         <Tooltip content="Hapus" className="bg-red-400">
@@ -380,7 +479,7 @@ export default function MasterManageGolonganPage({ auth, golongans }: PageProps<
                                                                         ...prevState,
                                                                         open: true,
                                                                         id: id,
-                                                                        nama: golongans.find((golongan) => golongan.id === id)?.nama ?? '-'
+                                                                        nama: admins.find((Admin) => Admin.id === id)?.nama ?? '-'
                                                                     }))
                                                                 }}
                                                             >
@@ -445,10 +544,10 @@ export default function MasterManageGolonganPage({ auth, golongans }: PageProps<
                         <Card>
                             <CardBody className="flex flex-col gap-4">
                                 <Typography variant="h4" color="blue-gray">
-                                    Menambahkan Golongan baru
+                                    Menambahkan Admin baru
                                 </Typography>
                                 <Input
-                                    label="Nama Golongan"
+                                    label="Nama Admin"
                                     size="lg"
                                     required={true}
                                     error={formInput.error.nama}
@@ -464,23 +563,89 @@ export default function MasterManageGolonganPage({ auth, golongans }: PageProps<
                                         }));
                                     }}
                                 />
-                                <TextArea
-                                    label="Keterangan"
+                                <Input
+                                    label="Username"
                                     size="lg"
-                                    value={formInput.keterangan}
+                                    value={formInput.username}
                                     required={true}
-                                    error={formInput.error.keterangan}
+                                    error={formInput.error.username}
                                     onChange={(event) => {
                                         setFormInput((prevState) => ({
                                             ...prevState,
-                                            keterangan: event.target.value,
+                                            username: event.target.value,
                                             error: {
                                                 ...prevState.error,
-                                                keterangan: event.target.value.length < 1
+                                                username: event.target.value.length < 1
                                             }
                                         }));
                                     }}
                                 />
+                                <div className="flex gap-1 items-center">
+                                    <Input
+                                        type="password"
+                                        label="Password"
+                                        size="lg"
+                                        value={formInput.password}
+                                        required={true}
+                                        error={formInput.error.password}
+                                        onChange={(event) => {
+                                            setFormInput((prevState) => ({
+                                                ...prevState,
+                                                password: event.target.value,
+                                                error: {
+                                                    ...prevState.error,
+                                                    password: event.target.value.length < 1
+                                                }
+                                            }));
+                                        }}
+                                    />
+                                </div>
+                                <Select
+                                    label="Hak Akses Admin" size="lg"
+                                    onChange={(value) => {
+                                        setFormInput((prevState) => ({
+                                            ...prevState,
+                                            unitId: value === "null" ? null : value ?? '',
+                                        }))
+                                    }}
+                                >
+                                    {
+                                        units.length > 0
+                                            ? units.sort((a, b) => {
+                                                return a.nama.localeCompare(b.nama);
+                                            }).map((unit, index) => {
+                                                return index === 0
+                                                    ? (
+                                                        <Option key={unit.id} value="null">
+                                                            <div className="flex items-center justify-between ">
+                                                                <p className="font-bold">
+                                                                    | UNIT MASTER |
+                                                                </p>
+                                                                <span>
+                                                                    <Chip size="sm" variant="ghost" value="Master" color="green" className="ml-3"/>
+                                                                </span>
+                                                            </div>
+                                                        </Option>
+                                                    )
+                                                    : (
+                                                        <Option key={unit.id} value={unit.id}>
+                                                            <div className="flex items-center justify-between ">
+                                                                { unit.nama }
+                                                            </div>
+                                                        </Option>
+                                                    )
+                                            }) : (
+                                                <Option disabled>
+                                                    <p className="!text-gray-900 !text-sm">
+                                                        { units.length < 1
+                                                            ? 'Belum ada Unit yang didaftarkan'
+                                                            : 'Pilih Akses Unit'
+                                                        }
+                                                    </p>
+                                                </Option>
+                                            )
+                                    }
+                                </Select>
                             </CardBody>
                             <CardFooter className="pt-0 flex gap-3 justify-between">
                                 <Button
@@ -505,12 +670,12 @@ export default function MasterManageGolonganPage({ auth, golongans }: PageProps<
                 </Dialog>
                 <Dialog open={deleteDialog.open} handler={handleOpenDelete}>
                     <DialogHeader className="text-gray-900">
-                        Hapus Golongan terpilih?
+                        Hapus Admin terpilih?
                     </DialogHeader>
                     <DialogBody>
                         <Typography variant="h6" className="text-gray-900 truncate">
                             Anda akan menghapus
-                            Golongan: &nbsp;
+                            Admin: &nbsp;
                             <span className="font-semibold">
                                 " { deleteDialog.nama } "
                             </span>
@@ -519,7 +684,7 @@ export default function MasterManageGolonganPage({ auth, golongans }: PageProps<
                                 <span className="text-red-600 font-bold">
                                     *
                                 </span>
-                            Pegawai yang terhubung akan akan kehilangan status golongan
+                            Pegawai yang terhubung akan akan kehilangan status Admin
                         </p>
                     </DialogBody>
                     <DialogFooter>
@@ -534,6 +699,74 @@ export default function MasterManageGolonganPage({ auth, golongans }: PageProps<
                             <span>Hapus</span>
                         </Button>
                     </DialogFooter>
+                </Dialog>
+                <Dialog
+                    size="md"
+                    open={resetPassword.onOpen}
+                    handler={() => setResetPassword((prevState) => ({ ...prevState, onOpen: true }))}
+                    className="bg-transparent shadow-none backdrop-blur-none"
+                >
+                    <form className="mx-auto w-full" onSubmit={handleResetPassword}>
+                        <Card>
+                            <CardBody className="flex flex-col gap-4">
+                                <Typography variant="h4" color="blue-gray">
+                                    Mengupdate Password Admin
+                                </Typography>
+                                <p className="text-sm font-medium text-gray-900">
+                                    <span className="text-red-600">*</span>
+                                    Mengubah password untuk&nbsp;
+                                    { resetPassword.nama }
+                                </p>
+                                <div className="flex gap-1 items-center">
+                                    <Input
+                                        type="password"
+                                        label="Password baru"
+                                        size="lg"
+                                        value={ resetPassword.newPassword }
+                                        required={ true }
+                                        onChange={ (event) => {
+                                            setResetPassword((prevState) => ({
+                                                ...prevState,
+                                                newPassword: event.target.value
+                                            }));
+                                        } }
+                                    />
+                                </div>
+                                <div className="flex gap-1 items-center">
+                                    <Input
+                                        type="password"
+                                        label="Ulangi Password baru"
+                                        size="lg"
+                                        value={ resetPassword.newPassword1 }
+                                        required={ true }
+                                        onChange={ (event) => {
+                                            setResetPassword((prevState) => ({
+                                                ...prevState,
+                                                newPassword1: event.target.value
+                                            }));
+                                        } }
+                                    />
+                                </div>
+                            </CardBody>
+                            <CardFooter className="pt-0 flex gap-3 justify-between">
+                                <Button
+                                    color="red"
+                                    onClick={ () => setResetPassword((prevState) => ({ ...prevState, onOpen: false })) }
+                                    fullWidth
+                                >
+                                    Batal
+                                </Button>
+                                <Button
+                                    type="submit"
+                                    loading={ resetPassword.onFetch }
+                                    disabled={ !resetPassword.newPassword || resetPassword.onFetch || (resetPassword.newPassword !== resetPassword.newPassword1) }
+                                    fullWidth
+                                >
+                                    Simpan
+                                </Button>
+                            </CardFooter>
+                        </Card>
+                    </form>
                 </Dialog>
             </AdminLayout>
         </>

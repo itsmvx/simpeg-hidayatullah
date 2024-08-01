@@ -1,6 +1,5 @@
-import { Card, CardBody, CardFooter, CardHeader, Typography } from "@material-tailwind/react";
+import { Card, CardBody, CardHeader, Typography } from "@material-tailwind/react";
 import { BarChartBig } from "lucide-react";
-import { useTheme } from "@/Hooks/useTheme";
 import { MTColor, PageProps } from "@/types";
 import { AdminLayout } from "@/Layouts/AdminLayout";
 import { ManagePegawaiTable } from "@/Pages/Admin/ManagePegawaiPage";

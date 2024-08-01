@@ -4,8 +4,7 @@ import {
     Typography, IconButton,
 } from "@material-tailwind/react";
 import { Input } from "@/Components/Input";
-import { PPHBackground } from "@/Lib/StaticImages";
-import { SyntheticEvent, useEffect, useState } from "react";
+import { SyntheticEvent, useState } from "react";
 import { ToastContainer } from "react-toastify";
 import { notifyToast } from "@/Lib/Utils";
 import 'react-toastify/dist/ReactToastify.css';
@@ -13,10 +12,9 @@ import { Head, router } from "@inertiajs/react";
 import { z } from "zod";
 import { useTheme } from "@/Hooks/useTheme";
 import axios, { AxiosError } from "axios";
-import { PageProps } from "@/types";
 import { Eye, EyeOff } from "lucide-react";
 
-export default function ADMIN_MasterLoginPage() {
+export default function MASTER_LoginPage() {
     const { theme } = useTheme();
     const formInit = {
         username: '',

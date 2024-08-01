@@ -2,7 +2,7 @@ import { ChangeEvent, Dispatch, memo, SetStateAction } from "react";
 import { Button, Card, Option, Select, ThemeProvider, Tooltip, Typography } from "@material-tailwind/react";
 import { Input } from "@/Components/Input";
 import { ListPlus, ListX } from "lucide-react";
-import { FormDataKeluarga, type FormDataPendidikanFormal } from "@/Pages/Admin/ADMIN_PegawaiCreatePage";
+import { FormDataKeluarga, type FormDataPendidikanFormal } from "@/Pages/Admin/MASTER_PegawaiCreatePage";
 import value = ThemeProvider.propTypes.value;
 
 const PegawaiFormDataKeluarga = ({ formState, setFormState, formInitial }: {

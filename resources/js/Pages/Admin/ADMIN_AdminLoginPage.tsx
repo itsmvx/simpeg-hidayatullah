@@ -7,7 +7,7 @@ import { z } from "zod";
 import { notifyToast } from "@/Lib/Utils";
 import axios, { AxiosError } from "axios";
 import AdminLoginForm from "@/Components/Admin/AdminLoginForm";
-import AdminSelectionCard from "@/Pages/Admin/ADMIN_AdminSelectionCard";
+import AdminSelectionCard from "@/Components/AdminLoginSelection";
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -27,7 +27,6 @@ export default function ADMIN_AdminLoginPage({ auth, units }: PageProps<{
             </>
         );
     }
-    console.log(auth);
     const { theme } = useTheme();
     const formInit = {
         username: '',

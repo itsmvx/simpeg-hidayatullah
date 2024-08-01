@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class Pegawai extends Authenticatable
@@ -30,5 +31,9 @@ class Pegawai extends Authenticatable
     public function unit(): BelongsTo
     {
         return $this->belongsTo(Unit::class, 'unit_id', 'id');
+    }
+    public function rekapPegawai(): HasMany
+    {
+        return $this->hasMany(RekapPegawai::class, 'pegawai_id', 'id');
     }
 }

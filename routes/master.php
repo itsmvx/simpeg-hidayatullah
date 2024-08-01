@@ -16,6 +16,7 @@ Route::prefix('master')->name('master.')->middleware('admin.master')->group(func
     });
     Route::prefix('/marhalah')->name('marhalah.')->group(function () {
         Route::get('/', [AdminMasterPagesController::class, 'marhalahIndexPage'])->name('index');
+        Route::get('/details', [AdminMasterPagesController::class, 'marhalahDetailsPage'])->name('details');
     });
     Route::prefix('/admin')->name('admin.')->group(function () {
         Route::get('/', [AdminMasterPagesController::class, 'adminIndexPage'])->name('index');

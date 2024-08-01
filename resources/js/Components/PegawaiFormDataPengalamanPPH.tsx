@@ -2,7 +2,7 @@ import { ChangeEvent, Dispatch, memo, SetStateAction } from "react";
 import { Button, Card, Tooltip, Typography } from "@material-tailwind/react";
 import { Input } from "@/Components/Input";
 import { ListPlus, ListX } from "lucide-react";
-import type { FormDataPengalamanPPH } from "@/Pages/Admin/ADMIN_PegawaiCreatePage";
+import type { FormDataPengalamanPPH } from "@/Pages/Admin/MASTER_PegawaiCreatePage";
 
 const PegawaiFormDataPengalamanPPH = ({ formState, setFormState, formInitial }: {
     formState: FormDataPengalamanPPH[];
