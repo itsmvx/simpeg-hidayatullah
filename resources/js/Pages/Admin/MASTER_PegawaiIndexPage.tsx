@@ -9,44 +9,47 @@ import {
     Typography
 } from "@material-tailwind/react";
 import {
-    ArrowLeft, ArrowRight, Award,
-    ChevronDown, FileSearch,
-    Pencil,
+    ArrowLeft, ArrowRight,
+    ChevronDown, Download, FileSearch,
     Plus,
-    Search, Trash2,
+    Search, Trash2, UserRound,
 } from "lucide-react";
 import { MTColor, PageProps } from "@/types";
 import { AdminLayout } from "@/Layouts/AdminLayout";
-import { Head, router } from "@inertiajs/react";
+import { Head, Link, router } from "@inertiajs/react";
 import { Input } from "@/Components/Input";
 import { format } from "date-fns";
 import { id as localeID } from "date-fns/locale/id";
-import { TextArea } from "@/Components/TextArea";
 import { useTheme } from "@/Hooks/useTheme";
-import { SyntheticEvent, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Bounce, toast } from "react-toastify";
 import {  z } from "zod";
 import axios, { AxiosError } from "axios";
+import { DragNDropFile } from "@/Components/DragAndDropFile";
+import * as XLSX from "xlsx";
 
-export default function MasterManageStatusPegawaiPage({ auth, statusPegawais }: PageProps<{
-    statusPegawais: {
+export default function MASTER_PegawaiIndexPage({ auth, pegawais }: PageProps<{
+    pegawais: {
         id: string;
+        nip: string;
         nama: string;
-        keterangan: string;
+        unit_id: string;
+        unit_nama: string;
+        statusPegawai_nama: string;
         created_at: string;
-    }[] | [];
+    }[];
 }>) {
-    const TABLE_HEAD = ['No', 'Nama Status', 'Keterangan', 'Tanggal daftar', 'Aksi'];
+
+    const TABLE_HEAD = ['No','NIP', 'Nama', 'Unit', 'Status Pegawai', 'Tanggal ditambahkan', 'Aksi'];
     const cardData = [
         {
             color: "gray",
-            icon: <Award />,
-            title: "Jumlah Status Pegawai terdaftar",
-            value: statusPegawais.length,
+            icon: <UserRound />,
+            title: "Jumlah Pegawai terdaftar",
+            value: pegawais.length,
         }
     ];
     const { theme } = useTheme();
-    const [ openFormDialog, setOpenFormDialog ] = useState(false);
     const [ deleteDialog, setDeleteDialog ] = useState<{
         open: boolean;
         id: string;
@@ -78,11 +81,25 @@ export default function MasterManageStatusPegawaiPage({ auth, statusPegawais }: 
         const startIndex = (currPage - 1) * viewPerPage;
         const lastIndex = startIndex + viewPerPage;
 
-        return statusPegawais.slice(startIndex, lastIndex);
-    }, [ statusPegawais, viewPerPage ]);
+        return pegawais.slice(startIndex, lastIndex);
+    }, [ pegawais, viewPerPage ]);
 
     const [ data, setData ] = useState(adjustData);
     const [ search, setSearch ] = useState('');
+    const [ dragAndDrop, setDragAndDrop ] = useState<{
+        open: boolean;
+        file: File | null;
+    }>({
+        open: false,
+        file: null
+    });
+    const [ uploadPreview, setUploadPreview ] = useState<{
+        open: boolean;
+        data: any[];
+    }>({
+        open: false,
+        data: []
+    });
     const getItemProps = (index: number) =>
         ({
             variant: currPage === index ? "filled" : "text",
@@ -91,78 +108,16 @@ export default function MasterManageStatusPegawaiPage({ auth, statusPegawais }: 
         } as any);
 
     const nextPage = () => {
-        const totalPages = Math.ceil(statusPegawais.length / viewPerPage);
+        const totalPages = Math.ceil(pegawais.length / viewPerPage);
         currPage < totalPages && setCurrPage(currPage + 1);
     };
     const prevPage = () => {
         currPage > 1 && setCurrPage(currPage - 1);
     };
 
-    const handleOpenForm = () => setOpenFormDialog(true);
-    const handleOpenDelete = () => setDeleteDialog((prevState) => ({
-        ...prevState,
-        open: true
-    }));
-    const formInputInit = {
-        nama: '',
-        keterangan: '',
-        error: {
-            nama: false,
-            keterangan: false
-        },
-        onSubmit: false
-    };
-    const [ formInput, setFormInput ] = useState<{
-        nama: string;
-        keterangan: string;
-        error: {
-            nama: boolean;
-            keterangan: boolean;
-        };
-        onSubmit: boolean;
-    }>(formInputInit);
-
-    const formSubmitDisabled = (): boolean => (!formInput.nama || !formInput.keterangan);
-    const handleFormSubmit = (event: SyntheticEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        const { nama, keterangan } = formInput
-
-        setFormInput((prevState) => ({
-            ...prevState,
-            onSubmit: true
-        }));
-        const statusPegawaiSchema = z.object({
-            nama: z.string().min(1, { message: "Nama Status Pegawai tidak boleh kosong" }),
-            keterangan: z.string().min(1, { message: "Keterangan Status Pegawai tidak boleh kosong" })
-        });
-        const zodUnitResult = statusPegawaiSchema.safeParse({
-            nama: nama,
-            keterangan: keterangan
-        });
-        if (!zodUnitResult.success) {
-            const errorMessages = zodUnitResult.error.issues[0].message;
-            notifyToast('error', errorMessages, theme as 'light' | 'dark');
-        }
-
-        axios.post(route('status-pegawai.create'), {
-            nama: nama,
-            keterangan: keterangan
-        })
-            .then(() => {
-                notifyToast('success', 'Status Pegawai berhasil ditambahkan!', theme as 'light' | 'dark');
-                router.reload({ only: ['statusPegawais'] });
-            })
-            .catch((err: unknown) => {
-                const errMsg: string = err instanceof AxiosError
-                    ? err.response?.data.message ?? 'Error tidak diketahui terjadi!'
-                    : 'Error tidak diketahui terjadi!'
-                notifyToast('error', errMsg, theme as 'light' | 'dark');
-            })
-            .finally(() => {
-                setOpenFormDialog(false);
-                setFormInput((prevState) => ({ ...prevState, onSubmit: false }))
-            });
-    };
+    const handleOpenDelete = () => setDeleteDialog((prevState) => ({ ...prevState, open: true }));
+    const handleOpenDragAndDrop = () => setDragAndDrop((prevState) => ({ ...prevState, open: true }));
+    const handleOpenUploadPreview = () => setUploadPreview((prevState) => ({ ...prevState }));
     const handleDeleteSubmit = () => {
         const { id } = deleteDialog
 
@@ -170,10 +125,10 @@ export default function MasterManageStatusPegawaiPage({ auth, statusPegawais }: 
             ...prevState,
             onSubmit: true
         }));
-        const statusPegawaischema = z.object({
-            id: z.string().min(1, { message: "Status Pegawai belum terpilih" }),
+        const pegawaischema = z.object({
+            id: z.string().min(1, { message: "Pegawai belum terpilih" }),
         });
-        const zodUnitResult = statusPegawaischema.safeParse({
+        const zodUnitResult = pegawaischema.safeParse({
             id: id,
         });
         if (!zodUnitResult.success) {
@@ -181,12 +136,12 @@ export default function MasterManageStatusPegawaiPage({ auth, statusPegawais }: 
             notifyToast('error', errorMessages, theme as 'light' | 'dark');
         }
 
-        axios.post(route('status-pegawai.delete'), {
+        axios.post(route('pegawai.delete'), {
             id: id,
         })
             .then(() => {
-                notifyToast('success', 'Status Pegawai berhasil dihapus!', theme as 'light' | 'dark');
-                router.reload({ only: ['statusPegawais'] });
+                notifyToast('success', 'Pegawai berhasil dihapus!', theme as 'light' | 'dark');
+                router.reload({ only: ['pegawais'] });
             })
             .catch((err: unknown) => {
                 const errMsg: string = err instanceof AxiosError
@@ -199,26 +154,39 @@ export default function MasterManageStatusPegawaiPage({ auth, statusPegawais }: 
             });
     };
     useEffect(() => {
-        if (!openFormDialog) {
-            setFormInput(formInputInit);
-        }
-    }, [ openFormDialog ]);
-    useEffect(() => {
         setData(adjustData);
-    }, [ statusPegawais, viewPerPage ]);
+    }, [ pegawais, viewPerPage ]);
     useEffect(() => {
         if (search.length < 1) {
             setData(adjustData);
         } else {
             setCurrPage(1);
-            const matchstatusPegawais = statusPegawais.filter((statusPegawai) => statusPegawai.nama.toLowerCase().includes(search.toLowerCase()));
-            setData(matchstatusPegawais);
+            const matchPegawai = pegawais.filter((pegawai) => pegawai.nama.toLowerCase().includes(search.toLowerCase()));
+            setData(matchPegawai);
         }
     }, [ search ]);
 
+    useEffect(() => {
+        const handleFile = async () => {
+            if (dragAndDrop.file) {
+                try {
+                    const arrayBuffer = await dragAndDrop.file.arrayBuffer();
+                    const workbook = XLSX.read(arrayBuffer);
+                    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const raw_data = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                    console.log(raw_data);
+                } catch (error) {
+                    notifyToast('error', 'Gagal membaca dokumen');
+                }
+            }
+        };
+
+        handleFile();
+    }, [ dragAndDrop.file ]);
+
     return (
         <>
-            <Head title="Master - Status Pegawai" />
+            <Head title="Master - Pegawai" />
             <AdminLayout>
                 <section className="mb-1 grid gap-y-10 gap-x-6 md:grid-cols-2 xl:grid-cols-4">
                     { cardData.map(({ icon, title, color, value }) => (
@@ -249,19 +217,28 @@ export default function MasterManageStatusPegawaiPage({ auth, statusPegawais }: 
                         <div className="mb-8 flex items-center justify-between gap-x-3">
                             <div>
                                 <Typography variant="h5" color="blue-gray">
-                                    Daftar Status Pegawai
+                                    Daftar Pegawai
                                 </Typography>
                                 <Typography color="gray" className="mt-1 font-normal">
-                                    Informasi mengenai Status Pegawai yang terdaftar
+                                    Informasi mengenai Pegawai yang terdaftar
                                 </Typography>
                             </div>
-                            <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
+                            <div className="flex shrink-0 flex-row-reverse gap-2">
                                 <Button
-                                    onClick={() => setOpenFormDialog(true)}
+                                    onClick={() => {
+                                        router.visit(route('master.pegawai.create'));
+                                    }}
                                     className="flex items-center gap-1.5 capitalize font-medium text-base" size="sm"
                                 >
                                     <Plus />
-                                    Tambahkan Status Pegawai baru
+                                    Tambahkan Pegawai baru
+                                </Button>
+                                <Button
+                                    onClick={() => setDragAndDrop((prevState) => ({ ...prevState, open: true }))}
+                                    className="flex items-center gap-1.5 capitalize font-medium text-base" size="sm"
+                                >
+                                    <Plus />
+                                    Upload Excel
                                 </Button>
                             </div>
                         </div>
@@ -306,7 +283,7 @@ export default function MasterManageStatusPegawaiPage({ auth, statusPegawais }: 
                             <tbody>
                             {
                                 data.map(
-                                    ({ id, nama, keterangan, created_at }, index) => {
+                                    ({ id, nip, nama, unit_id, unit_nama, statusPegawai_nama, created_at }, index) => {
                                         const isLast = index === data.length - 1;
                                         const classes = isLast
                                             ? "p-4"
@@ -314,13 +291,13 @@ export default function MasterManageStatusPegawaiPage({ auth, statusPegawais }: 
 
                                         return (
                                             <tr key={ id }>
-                                                <td className={ `${ classes } w-3`}>
+                                                <td className={ `${ classes } w-3` }>
                                                     <Typography
                                                         variant="small"
                                                         color="blue-gray"
                                                         className="font-normal text-center"
                                                     >
-                                                        { index + 1}
+                                                        { index + 1 }
                                                     </Typography>
                                                 </td>
                                                 <td className={ `${ classes } min-w-52` }>
@@ -331,22 +308,40 @@ export default function MasterManageStatusPegawaiPage({ auth, statusPegawais }: 
                                                                 color="blue-gray"
                                                                 className="font-normal"
                                                             >
-                                                                { nama }
+                                                                { nip }
                                                             </Typography>
                                                         </div>
                                                     </div>
                                                 </td>
                                                 <td className={ `${ classes } min-w-52` }>
+                                                    <div className="flex flex-col items-start gap-3">
+                                                        <Typography
+                                                            variant="small"
+                                                            color="blue-gray"
+                                                            className="font-normal"
+                                                        >
+                                                            { nama }
+                                                        </Typography>
+                                                    </div>
+                                                </td>
+                                                <td className={ `${ classes } min-w-52` }>
                                                     <div className="flex items-center gap-3">
-                                                        <div className="flex flex-col">
-                                                            <Typography
-                                                                variant="small"
-                                                                color="blue-gray"
-                                                                className="font-normal"
-                                                            >
-                                                                { keterangan }
-                                                            </Typography>
-                                                        </div>
+                                                        <Link href={ route('master.unit.details') }
+                                                              data={ { q: unit_id } }
+                                                              className="text-sm font-normal hover:text-blue-600">
+                                                            { unit_nama }
+                                                        </Link>
+                                                    </div>
+                                                </td>
+                                                <td className={ `${ classes } min-w-52` }>
+                                                    <div className="flex flex-col items-start gap-3">
+                                                        <Typography
+                                                            variant="small"
+                                                            color="blue-gray"
+                                                            className="font-normal"
+                                                        >
+                                                            { statusPegawai_nama }
+                                                        </Typography>
                                                     </div>
                                                 </td>
                                                 <td className={ `${ classes } min-w-40` }>
@@ -362,29 +357,31 @@ export default function MasterManageStatusPegawaiPage({ auth, statusPegawais }: 
                                                 </td>
                                                 <td className={ classes }>
                                                     <div className="w-32 flex gap-2.5 items-center justify-start">
-                                                        <Tooltip content="Detail">
+                                                        <Tooltip content="Detail" className="bg-blue-600">
                                                             <IconButton variant="text">
-                                                                <FileSearch className="h-5 w-5 text-blue-800"/>
-                                                            </IconButton>
-                                                        </Tooltip>
-                                                        <Tooltip content="Edit">
-                                                            <IconButton variant="text">
-                                                                <Pencil className="h-5 w-5"/>
+                                                                <FileSearch className="h-5 w-5 text-blue-600"/>
                                                             </IconButton>
                                                         </Tooltip>
                                                         <Tooltip content="Hapus" className="bg-red-400">
                                                             <IconButton
                                                                 variant="text"
-                                                                onClick={() => {
+                                                                onClick={ () => {
                                                                     setDeleteDialog((prevState) => ({
                                                                         ...prevState,
                                                                         open: true,
                                                                         id: id,
-                                                                        nama: statusPegawais.find((statusPegawai) => statusPegawai.id === id)?.nama ?? '-'
+                                                                        nama: pegawais.find((pegawai) => pegawai.id === id)?.nama ?? '-'
                                                                     }))
-                                                                }}
+                                                                } }
                                                             >
                                                                 <Trash2 className="h-5 w-5 text-red-600"/>
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                        <Tooltip content="Unduh Data" className="bg-black">
+                                                            <IconButton
+                                                                variant="text"
+                                                            >
+                                                                <Download className="h-5 w-5"/>
                                                             </IconButton>
                                                         </Tooltip>
                                                     </div>
@@ -435,82 +432,15 @@ export default function MasterManageStatusPegawaiPage({ auth, statusPegawais }: 
                         </div>
                     </CardFooter>
                 </Card>
-                <Dialog
-                    size="lg"
-                    open={openFormDialog}
-                    handler={handleOpenForm}
-                    className="bg-transparent shadow-none backdrop-blur-none"
-                >
-                    <form className="mx-auto w-full" onSubmit={handleFormSubmit}>
-                        <Card>
-                            <CardBody className="flex flex-col gap-4">
-                                <Typography variant="h4" color="blue-gray">
-                                    Menambahkan Status Pegawai baru
-                                </Typography>
-                                <Input
-                                    label="Nama Status Pegawai"
-                                    size="lg"
-                                    required={true}
-                                    error={formInput.error.nama}
-                                    value={formInput.nama}
-                                    onChange={(event) => {
-                                        setFormInput((prevState) => ({
-                                            ...prevState,
-                                            nama: event.target.value,
-                                            error: {
-                                                ...prevState.error,
-                                                nama: event.target.value.length < 1
-                                            }
-                                        }));
-                                    }}
-                                />
-                                <TextArea
-                                    label="Keterangan"
-                                    size="lg"
-                                    value={formInput.keterangan}
-                                    required={true}
-                                    error={formInput.error.keterangan}
-                                    onChange={(event) => {
-                                        setFormInput((prevState) => ({
-                                            ...prevState,
-                                            keterangan: event.target.value,
-                                            error: {
-                                                ...prevState.error,
-                                                keterangan: event.target.value.length < 1
-                                            }
-                                        }));
-                                    }}
-                                />
-                            </CardBody>
-                            <CardFooter className="pt-0 flex gap-3 justify-between">
-                                <Button
-                                    color="red"
-                                    onClick={() => setOpenFormDialog(false)}
-                                    fullWidth
-                                >
-                                    Batal
-                                </Button>
-                                <Button
-                                    type="submit"
-                                    loading={formInput.onSubmit}
-                                    disabled={formSubmitDisabled()}
-                                    onClick={handleOpenForm}
-                                    fullWidth
-                                >
-                                    Buat
-                                </Button>
-                            </CardFooter>
-                        </Card>
-                    </form>
-                </Dialog>
+
                 <Dialog open={deleteDialog.open} handler={handleOpenDelete}>
                     <DialogHeader className="text-gray-900">
-                        Hapus Status Pegawai terpilih?
+                        Hapus Pegawai terpilih?
                     </DialogHeader>
                     <DialogBody>
                         <Typography variant="h6" className="text-gray-900 truncate">
                             Anda akan menghapus
-                            Status Pegawai: &nbsp;
+                            Pegawai: &nbsp;
                             <span className="font-semibold">
                                 " { deleteDialog.nama } "
                             </span>
@@ -519,7 +449,7 @@ export default function MasterManageStatusPegawaiPage({ auth, statusPegawais }: 
                                 <span className="text-red-600 font-bold">
                                     *
                                 </span>
-                            Pegawai yang terhubung akan akan kehilangan status Status Pegawai
+                            Pegawai yang akan dihapus dari Sistem
                         </p>
                     </DialogBody>
                     <DialogFooter>
@@ -532,6 +462,46 @@ export default function MasterManageStatusPegawaiPage({ auth, statusPegawais }: 
                         </Button>
                         <Button color="red" onClick={handleDeleteSubmit} loading={deleteDialog.onSubmit}>
                             <span>Hapus</span>
+                        </Button>
+                    </DialogFooter>
+                </Dialog>
+                <Dialog open={dragAndDrop.open} handler={handleOpenDragAndDrop}>
+                    <DialogHeader className="justify-center font-bold">
+                        Upload file Excel Pegawai
+                    </DialogHeader>
+                    <DialogBody>
+                        <DragNDropFile
+                            state={dragAndDrop}
+                            setState={setDragAndDrop}
+                        />
+                    </DialogBody>
+                    <DialogFooter className="justify-center">
+                        <Button
+                            color="red"
+                            onClick={() => setDragAndDrop((prevState) => ({ ...prevState, open: !prevState.open }))}
+                            className="!shadow-none"
+                        >
+                            <span>Tutup</span>
+                        </Button>
+                    </DialogFooter>
+                </Dialog>
+                <Dialog open={uploadPreview.open} handler={handleOpenUploadPreview}>
+                    <DialogHeader className="justify-center font-bold">
+                        Preview Data Pegawai
+                    </DialogHeader>
+                    <DialogBody>
+                        <DragNDropFile
+                            state={dragAndDrop}
+                            setState={setDragAndDrop}
+                        />
+                    </DialogBody>
+                    <DialogFooter className="justify-center">
+                        <Button
+                            color="red"
+                            onClick={() => setUploadPreview((prevState) => ({ ...prevState, open: !prevState.open }))}
+                            className="!shadow-none"
+                        >
+                            <span>Tutup</span>
                         </Button>
                     </DialogFooter>
                 </Dialog>

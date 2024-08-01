@@ -1,7 +1,7 @@
 import { AdminLayout } from "@/Layouts/AdminLayout";
 import { Head } from "@inertiajs/react";
 
-export default function ADMIN_AdminDetailsPage({ admin }: {
+export default function AdminDetailsPage({ admin }: {
     admin: {
         id: string;
         nama: string;

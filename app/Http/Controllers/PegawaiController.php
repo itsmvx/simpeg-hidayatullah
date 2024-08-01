@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pegawai;
+use App\Models\RekapPegawai;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Validator;
@@ -161,8 +163,49 @@ class PegawaiController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Pegawai $pegawai)
+    public function destroy(Request $request)
     {
-        //
+        $validation = Validator::make($request->only(['id']), [
+            'id' => 'required|string|exists:pegawai,id',
+        ], [
+            'id.required' => 'Input Pegawai tidak boleh kosong!',
+            'id.exists' => 'Pegawai tidak ditemukan!',
+        ]);
+
+        if ($validation->fails()) {
+            return Response::json([
+                'message' => $validation->errors()->first(),
+            ], 400);
+        }
+
+        $validated = $validation->validated();
+
+        DB::beginTransaction();
+
+        try {
+            $pegawai = Pegawai::where('id', '=', $validated['id'])->first();
+
+            if (!$pegawai) {
+                DB::rollBack();
+                return Response::json([
+                    'message' => 'Pegawai tidak ditemukan!',
+                ], 404);
+            }
+
+            RekapPegawai::where('pegawai_id', '=', $validated['id'])->delete();
+
+            $pegawai->delete();
+
+            DB::commit();
+
+            return Response::json([
+                'message' => 'Pegawai dan Rekapnya berhasil dihapus!'
+            ]);
+        } catch (QueryException $exception) {
+            DB::rollBack();
+            return Response::json([
+                'message' => 'Server gagal memproses permintaan',
+            ], 500);
+        }
     }
 }
