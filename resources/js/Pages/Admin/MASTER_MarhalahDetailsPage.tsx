@@ -8,41 +8,41 @@ import { id } from "date-fns/locale";
 import { Save } from "lucide-react";
 import { TextArea } from "@/Components/TextArea";
 
-type Unit = {
+type Marhalah = {
     id: string;
     nama: string;
     keterangan: string;
     created_at: string;
 }
-export default function AdminDetailsPage({ unit }: {
-    unit: Unit
+export default function MarhalahDetailsPage({ marhalah }: {
+    marhalah: Marhalah
 }) {
-    const [ unitState, setUnitState ] = useState(unit);
-    const [ onChangeUnit, setOnChangeUnit ] = useState(false);
+    const [ marhalahState, setMarhalahState ] = useState(marhalah);
+    const [ onChangeMarhalah, setOnChangeMarhalah ] = useState(false);
 
-    const handleUnitChange = (event: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>) => {
+    const handleMarhalahChange = (event: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>) => {
         const payload = {
-            [event.target.name as keyof Unit]: event.target.value,
+            [event.target.name as keyof Marhalah]: event.target.value,
         };
 
-        setUnitState((prevState) => ({
+        setMarhalahState((prevState) => ({
             ...prevState,
             ...payload
         }));
     }
     return (
         <>
-            <Head title="Master - Admin Details" />
+            <Head title="Master - Marhalah Details" />
             <AdminLayout>
                 <div className="space-y-3">
                     <div className="mx-auto flex items-center justify-center w-40 h-40 rounded-full border-4 border-pph-black bg-pph-green">
                         <h3 className="font-bold text-4xl text-pph-white/90">
-                            { unit.nama.split(' ').map(word => word.charAt(0).toUpperCase()).join('').slice(0, 2) }
+                            { marhalah.nama.split(' ').map(word => word.charAt(0).toUpperCase()).join('').slice(0, 2) }
                         </h3>
                     </div>
                     <div className="flex flex-col items-center justify-center">
                         <p>Tanggal Didaftarkan:</p>
-                        <p>{ format(unitState.created_at, 'PPPP', {
+                        <p>{ format(marhalahState.created_at, 'PPPP', {
                             locale: id
                         }) }</p>
                     </div>
@@ -66,33 +66,33 @@ export default function AdminDetailsPage({ unit }: {
                                         clipRule="evenodd"
                                     />
                                 </svg>
-                                ID Unit
+                                ID Marhalah
                             </Typography>
                             <Input
                                 type="text"
-                                label="ID Unit"
+                                label="ID Marhalah"
                                 disabled
-                                value={unitState.id}
-                                onChange={handleUnitChange}
+                                value={marhalahState.id}
+                                onChange={handleMarhalahChange}
                             />
                         </div>
                         <Input
                             type="text"
-                            value={ unitState.nama }
-                            label="Nama Unit"
+                            value={ marhalahState.nama }
+                            label="Nama Marhalah"
                             name="nama"
-                            onChange={ handleUnitChange }
+                            onChange={ handleMarhalahChange }
                         />
                         <TextArea
-                            value={ unitState.keterangan }
+                            value={ marhalahState.keterangan }
                             label="Keterangan"
                             name="keterangan"
-                            onChange={ handleUnitChange }
+                            onChange={ handleMarhalahChange }
                         />
                         <Button
                             color="blue"
                             className="group *:group-disabled:text-gray-50 flex items-center justify-center h-10 gap-1 text-base"
-                            disabled={!onChangeUnit}
+                            disabled={!onChangeMarhalah}
                         >
                             <span className="normal-case">
                                 Simpan

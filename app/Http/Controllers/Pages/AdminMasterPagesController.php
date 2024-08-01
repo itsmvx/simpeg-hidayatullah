@@ -18,7 +18,7 @@ class AdminMasterPagesController extends Controller
 {
     public function loginPage()
     {
-        return Inertia::render('Admin/ADMIN_MasterLoginPage');
+        return Inertia::render('Admin/MASTER_LoginPage');
     }
     public function dashboardPage()
     {
@@ -26,7 +26,7 @@ class AdminMasterPagesController extends Controller
     }
     public function unitIndexPage()
     {
-        return Inertia::render('Admin/ADMIN_UnitIndexPage', [
+        return Inertia::render('Admin/MASTER_UnitIndexPage', [
             'units' => fn() => Unit::select('id', 'nama', 'keterangan', 'created_at')
                 ->with(['admin' => function($query) {
                     $query->select('id', 'username', 'unit_id');
@@ -48,7 +48,7 @@ class AdminMasterPagesController extends Controller
                 abort(404);
             }
 
-            return Inertia::render('Admin/ADMIN_UnitDetailsPage', [
+            return Inertia::render('Admin/MASTER_UnitDetailsPage', [
                 'unit' => $unit->only(['id', 'nama', 'keterangan', 'created_at'])
             ]);
         } catch (QueryException $exception) {
@@ -57,19 +57,39 @@ class AdminMasterPagesController extends Controller
     }
     public function golonganIndexPage()
     {
-        return Inertia::render('Admin/ADMIN_GolonganIndexPage', [
+        return Inertia::render('Admin/MASTER_GolonganIndexPage', [
             'golongans' => fn() => Golongan::select('id', 'nama', 'keterangan', 'created_at')->orderBy('nama', 'asc')->get(),
         ]);
     }
     public function marhalahIndexPage()
     {
-        return Inertia::render('Admin/ADMIN_MarhalahIndexPage', [
+        return Inertia::render('Admin/MASTER_MarhalahIndexPage', [
             'marhalahs' => fn() => Marhalah::select('id', 'nama', 'keterangan', 'created_at')->get(),
         ]);
     }
+    public function marhalahDetailsPage(Request $request)
+    {
+        $idParam = $request->query->get('q');
+        if (!$idParam) {
+            abort(404);
+        }
+
+        try {
+            $marhalah = Marhalah::find($idParam);
+            if (!$marhalah) {
+                abort(404);
+            }
+
+            return Inertia::render('Admin/MASTER_MarhalahDetailsPage', [
+                'marhalah' => $marhalah->only(['id', 'nama', 'keterangan', 'created_at'])
+            ]);
+        } catch (QueryException $exception) {
+            abort(500);
+        }
+    }
     public function adminIndexPage()
     {
-        return Inertia::render('Admin/ADMIN_AdminIndexPage', [
+        return Inertia::render('Admin/MASTER_AdminIndexPage', [
             'admins' => fn() => Admin::select('id', 'nama', 'username', 'unit_id', 'created_at')->with('unit')->whereNotNull('unit_id')->get(),
             'units' => fn() => Unit::select('id', 'nama')->get(),
         ]);
@@ -87,7 +107,7 @@ class AdminMasterPagesController extends Controller
                 abort(404);
             }
 
-            return Inertia::render('Admin/ADMIN_AdminDetailsPage', [
+            return Inertia::render('Admin/MASTER_AdminDetailsPage', [
                 'admin' => $admin->only(['id', 'nama', 'username', 'created_at', 'unit'])
             ]);
         } catch (QueryException $exception) {
@@ -96,7 +116,7 @@ class AdminMasterPagesController extends Controller
     }
     public function pegawaiIndexPage(Request $request)
     {
-        return Inertia::render('Admin/ADMIN_PegawaiIndexPage', [
+        return Inertia::render('Admin/MASTER_PegawaiIndexPage', [
             'pegawais' => fn() => DB::table('pegawai')
                 ->select(
                     'pegawai.id',
@@ -115,7 +135,7 @@ class AdminMasterPagesController extends Controller
     }
     public function pegawaiCreatePage()
     {
-        return Inertia::render('Admin/ADMIN_PegawaiCreatePage',[
+        return Inertia::render('Admin/MASTER_PegawaiCreatePage',[
             'golongans' => fn() => Golongan::select('id', 'nama')->get(),
             'marhalahs' => fn() => Marhalah::select('id', 'nama')->get(),
             'statusPegawais' => fn() => StatusPegawai::select('id', 'nama')->get(),
@@ -125,7 +145,7 @@ class AdminMasterPagesController extends Controller
 
     public function statusPegawaiIndexPage()
     {
-        return Inertia::render('Admin/ADMIN_StatusPegawaiIndexPage', [
+        return Inertia::render('Admin/MASTER_StatusPegawaiIndexPage', [
             'statusPegawais' => fn() => StatusPegawai::select('id', 'nama', 'keterangan', 'created_at')->get()
         ]);
     }

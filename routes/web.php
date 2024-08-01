@@ -68,6 +68,7 @@ Route::prefix('status-pegawai')->name('status-pegawai.')->group(function () {
 });
 Route::prefix('pegawai')->name('pegawai.')->group(function () {
     Route::post('/create', [PegawaiController::class, 'create'])->name('create');
+    Route::post('/delete', [PegawaiController::class, 'destroy'])->name('delete');
 });
 
 

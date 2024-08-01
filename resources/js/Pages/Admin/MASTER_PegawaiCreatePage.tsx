@@ -94,7 +94,7 @@ export type FormDataPengalamanNonPPH = {
     keterangan: string;
 };
 
-export default function ADMIN_PegawaiCreatePage({ auth, golongans, marhalahs, statusPegawais, units }: PageProps<{
+export default function MASTER_PegawaiCreatePage({ auth, golongans, marhalahs, statusPegawais, units }: PageProps<{
     golongans: {
         id: string;
         nama: string;

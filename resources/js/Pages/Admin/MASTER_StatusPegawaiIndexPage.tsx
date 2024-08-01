@@ -9,88 +9,54 @@ import {
     Typography
 } from "@material-tailwind/react";
 import {
-    ArrowLeft, ArrowRight,
-    BarChartBig,
-    Building2,
-    ChevronDown, Download, FileSearch,
-    NotebookText,
+    ArrowLeft, ArrowRight, Award,
+    ChevronDown, FileSearch,
     Plus,
     Search, Trash2,
-    User2
 } from "lucide-react";
 import { MTColor, PageProps } from "@/types";
 import { AdminLayout } from "@/Layouts/AdminLayout";
-import { Head, Link, router } from "@inertiajs/react";
+import { Head, router } from "@inertiajs/react";
 import { Input } from "@/Components/Input";
 import { format } from "date-fns";
 import { id as localeID } from "date-fns/locale/id";
 import { TextArea } from "@/Components/TextArea";
-import { Checkbox } from "@/Components/Checkbox";
 import { useTheme } from "@/Hooks/useTheme";
 import { SyntheticEvent, useEffect, useMemo, useState } from "react";
 import { Bounce, toast } from "react-toastify";
 import {  z } from "zod";
 import axios, { AxiosError } from "axios";
-import * as XLSX from "xlsx";
-import { id } from "date-fns/locale";
 
-export default function MasterManageUnitPage({ auth, units, adminCount }: PageProps<{
-    units: {
+export default function MasterManageStatusPegawaiPage({ auth, statusPegawais }: PageProps<{
+    statusPegawais: {
         id: string;
         nama: string;
         keterangan: string;
         created_at: string;
-        admin: {
-            id: string;
-            username: string;
-            unit_id: string;
-        }[] | []
     }[] | [];
-    adminCount: number;
 }>) {
-    const TABLE_HEAD = ['No', 'Nama', 'Admin', 'Tanggal daftar', 'Aksi'];
+    const TABLE_HEAD = ['No', 'Nama Status', 'Keterangan', 'Tanggal daftar', 'Aksi'];
     const cardData = [
         {
             color: "gray",
-            icon: <Building2 />,
-            title: "Jumlah Unit terdaftar",
-            value: units.length,
-        },
-        {
-            color: "gray",
-            icon: <User2 />,
-            title: "Jumlah Akun Unit aktif",
-            value: adminCount,
-        },
-        {
-            color: "gray",
-            icon: <NotebookText />,
-            title: "Pengajuan Promosi Unit",
-            value: "1",
-        },
-        {
-            color: "gray",
-            icon: <BarChartBig />,
-            title: "Lorem ipsum",
-            value: "704",
-        },
+            icon: <Award />,
+            title: "Jumlah Status Pegawai terdaftar",
+            value: statusPegawais.length,
+        }
     ];
-    const deleteDialogInit = {
-        open: false,
-        unitId: '',
-        admins: []
-    };
     const { theme } = useTheme();
     const [ openFormDialog, setOpenFormDialog ] = useState(false);
     const [ deleteDialog, setDeleteDialog ] = useState<{
         open: boolean;
-        unitId: string;
-        admins: {
-            id: string;
-            username: string;
-            unit_id: string;
-        }[]
-    }>(deleteDialogInit);
+        id: string;
+        nama: string;
+        onSubmit: boolean;
+    }>({
+        open: false,
+        id: '',
+        nama: '',
+        onSubmit: false
+    });
     const [ sortBy, setSortBy ] = useState('');
     const [ currPage, setCurrPage ] = useState(1);
     const [ viewPerPage, setViewPerPage ] = useState(10);
@@ -111,10 +77,10 @@ export default function MasterManageUnitPage({ auth, units, adminCount }: PagePr
         const startIndex = (currPage - 1) * viewPerPage;
         const lastIndex = startIndex + viewPerPage;
 
-        return units.slice(startIndex, lastIndex);
-    }, [ units, viewPerPage ]);
+        return statusPegawais.slice(startIndex, lastIndex);
+    }, [ statusPegawais, viewPerPage ]);
 
-    const [data, setData] = useState(adjustData);
+    const [ data, setData ] = useState(adjustData);
     const [ search, setSearch ] = useState('');
     const getItemProps = (index: number) =>
         ({
@@ -124,7 +90,7 @@ export default function MasterManageUnitPage({ auth, units, adminCount }: PagePr
         } as any);
 
     const nextPage = () => {
-        const totalPages = Math.ceil(units.length / viewPerPage);
+        const totalPages = Math.ceil(statusPegawais.length / viewPerPage);
         currPage < totalPages && setCurrPage(currPage + 1);
     };
     const prevPage = () => {
@@ -155,30 +121,6 @@ export default function MasterManageUnitPage({ auth, units, adminCount }: PagePr
         onSubmit: boolean;
     }>(formInputInit);
 
-    const handleXLSXDownload = () => {
-        const workbook = XLSX.utils.book_new();
-        const data = units.map((unit) => ({
-            nama: unit.nama,
-            keterangan: unit.keterangan,
-            tanggal_daftar: format(unit.created_at, 'PPPP', {
-                locale: id
-            })
-        }))
-        const sheet = XLSX.utils.json_to_sheet(data, {
-            header: ['nama', 'keterangan', 'tanggal_daftar'],
-        });
-        XLSX.utils.book_append_sheet(workbook, sheet, 'Sheet1');
-
-        const wbout = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-        const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = 'data.xlsx';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    };
     const formSubmitDisabled = (): boolean => (!formInput.nama || !formInput.keterangan);
     const handleFormSubmit = (event: SyntheticEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -188,11 +130,11 @@ export default function MasterManageUnitPage({ auth, units, adminCount }: PagePr
             ...prevState,
             onSubmit: true
         }));
-        const unitSchema = z.object({
-            nama: z.string().min(1, { message: "Nama Unit tidak boleh kosong" }),
-            keterangan: z.string().min(1, { message: "Keterangan Unit tidak boleh kosong" })
+        const statusPegawaiSchema = z.object({
+            nama: z.string().min(1, { message: "Nama Status Pegawai tidak boleh kosong" }),
+            keterangan: z.string().min(1, { message: "Keterangan Status Pegawai tidak boleh kosong" })
         });
-        const zodUnitResult = unitSchema.safeParse({
+        const zodUnitResult = statusPegawaiSchema.safeParse({
             nama: nama,
             keterangan: keterangan
         });
@@ -201,45 +143,60 @@ export default function MasterManageUnitPage({ auth, units, adminCount }: PagePr
             notifyToast('error', errorMessages, theme as 'light' | 'dark');
         }
 
-        axios.post(route('unit.create'), {
+        axios.post(route('status-pegawai.create'), {
             nama: nama,
-            keterangan: keterangan,
+            keterangan: keterangan
         })
             .then(() => {
-                notifyToast('success', 'Unit berhasil ditambahkan!', theme as 'light' | 'dark');
-                router.reload({ only: ['units'] });
-                setOpenFormDialog(false);
+                notifyToast('success', 'Status Pegawai berhasil ditambahkan!', theme as 'light' | 'dark');
+                router.reload({ only: ['statusPegawais'] });
             })
             .catch((err: unknown) => {
-                const errMsg = err instanceof AxiosError
-                    ? err.response?.data.message as string ?? 'Error tidak diketahui terjadi!'
+                const errMsg: string = err instanceof AxiosError
+                    ? err.response?.data.message ?? 'Error tidak diketahui terjadi!'
                     : 'Error tidak diketahui terjadi!'
                 notifyToast('error', errMsg, theme as 'light' | 'dark');
             })
             .finally(() => {
+                setOpenFormDialog(false);
                 setFormInput((prevState) => ({ ...prevState, onSubmit: false }))
             });
     };
-    const handleDeleteUnit = () => {
-        axios.post(route('unit.delete'), {
-            id: deleteDialog.unitId,
-            admins: deleteDialog.admins.length > 0
-                ? deleteDialog.admins.map((admin) => admin.id)
-                : []
+    const handleDeleteSubmit = () => {
+        const { id } = deleteDialog
+
+        setDeleteDialog((prevState) => ({
+            ...prevState,
+            onSubmit: true
+        }));
+        const statusPegawaischema = z.object({
+            id: z.string().min(1, { message: "Status Pegawai belum terpilih" }),
+        });
+        const zodUnitResult = statusPegawaischema.safeParse({
+            id: id,
+        });
+        if (!zodUnitResult.success) {
+            const errorMessages = zodUnitResult.error.issues[0].message;
+            notifyToast('error', errorMessages, theme as 'light' | 'dark');
+        }
+
+        axios.post(route('status-pegawai.delete'), {
+            id: id,
         })
             .then(() => {
-                notifyToast('success', 'Unit terpilih berhasil dihapus!');
-                setData((prevState) => prevState.filter((filt) => filt.id !== deleteDialog.unitId));
-                setDeleteDialog(deleteDialogInit);
+                notifyToast('success', 'Status Pegawai berhasil dihapus!', theme as 'light' | 'dark');
+                router.reload({ only: ['statusPegawais'] });
             })
             .catch((err: unknown) => {
-                const errMsg = err instanceof AxiosError
-                    ? err?.response?.data.message ?? 'Error tidak diketahui terjadi'
-                    : 'Error tidak diketahui terjadi';
-                notifyToast('error', errMsg);
+                const errMsg: string = err instanceof AxiosError
+                    ? err.response?.data.message ?? 'Error tidak diketahui terjadi!'
+                    : 'Error tidak diketahui terjadi!'
+                notifyToast('error', errMsg, theme as 'light' | 'dark');
+            })
+            .finally(() => {
+                setDeleteDialog((prevState) => ({ ...prevState, onSubmit: false, open: false }));
             });
     };
-
     useEffect(() => {
         if (!openFormDialog) {
             setFormInput(formInputInit);
@@ -247,23 +204,20 @@ export default function MasterManageUnitPage({ auth, units, adminCount }: PagePr
     }, [ openFormDialog ]);
     useEffect(() => {
         setData(adjustData);
-    }, [ units, viewPerPage ]);
+    }, [ statusPegawais, viewPerPage ]);
     useEffect(() => {
         if (search.length < 1) {
             setData(adjustData);
         } else {
             setCurrPage(1);
-            const matchUnits = units.filter(unit =>
-                unit.nama.toLowerCase().includes(search.toLowerCase()) ||
-                unit.admin.some(admin => admin.username.toLowerCase().includes(search.toLowerCase()))
-            );
-            setData(matchUnits);
+            const matchstatusPegawais = statusPegawais.filter((statusPegawai) => statusPegawai.nama.toLowerCase().includes(search.toLowerCase()));
+            setData(matchstatusPegawais);
         }
     }, [ search ]);
 
     return (
         <>
-            <Head title="Master - Unit" />
+            <Head title="Master - Status Pegawai" />
             <AdminLayout>
                 <section className="mb-1 grid gap-y-10 gap-x-6 md:grid-cols-2 xl:grid-cols-4">
                     { cardData.map(({ icon, title, color, value }) => (
@@ -294,26 +248,19 @@ export default function MasterManageUnitPage({ auth, units, adminCount }: PagePr
                         <div className="mb-8 flex items-center justify-between gap-x-3">
                             <div>
                                 <Typography variant="h5" color="blue-gray">
-                                    Daftar Unit
+                                    Daftar Status Pegawai
                                 </Typography>
                                 <Typography color="gray" className="mt-1 font-normal">
-                                    Informasi mengenai Unit yang terdaftar
+                                    Informasi mengenai Status Pegawai yang terdaftar
                                 </Typography>
                             </div>
-                            <div className="flex flex-col shrink-0 gap-2 lg:flex-row">
+                            <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
                                 <Button
                                     onClick={() => setOpenFormDialog(true)}
                                     className="flex items-center gap-1.5 capitalize font-medium text-base" size="sm"
                                 >
                                     <Plus />
-                                    Tambahkan Unit baru
-                                </Button>
-                                <Button
-                                    onClick={handleXLSXDownload}
-                                    className="flex items-center gap-1.5 capitalize font-medium text-base" size="sm"
-                                >
-                                    <Download />
-                                    Unduh Data (XLSX)
+                                    Tambahkan Status Pegawai baru
                                 </Button>
                             </div>
                         </div>
@@ -358,7 +305,7 @@ export default function MasterManageUnitPage({ auth, units, adminCount }: PagePr
                             <tbody>
                             {
                                 data.map(
-                                    ({ id, nama, admin, created_at }, index) => {
+                                    ({ id, nama, keterangan, created_at }, index) => {
                                         const isLast = index === data.length - 1;
                                         const classes = isLast
                                             ? "p-4"
@@ -377,7 +324,6 @@ export default function MasterManageUnitPage({ auth, units, adminCount }: PagePr
                                                 </td>
                                                 <td className={ `${ classes } min-w-52` }>
                                                     <div className="flex items-center gap-3">
-                                                        {/*<Avatar src={img} alt={name} size="sm" />*/ }
                                                         <div className="flex flex-col">
                                                             <Typography
                                                                 variant="small"
@@ -390,26 +336,16 @@ export default function MasterManageUnitPage({ auth, units, adminCount }: PagePr
                                                     </div>
                                                 </td>
                                                 <td className={ `${ classes } min-w-52` }>
-                                                    <div className="flex flex-col gap-1">
-                                                        {
-                                                            admin.length < 1
-                                                                ? (
-                                                                    <div
-                                                                        className="flex items-center justify-start text-xs text-gray-400">
-                                                                        Belum ada Admin untuk unit ini
-                                                                    </div>
-                                                                )
-                                                                : admin.map((admn, index) => ((
-                                                                    <Link
-                                                                        href={route('master.admin.details')}
-                                                                        data={{ q: admn.id }}
-                                                                        key={ index }
-                                                                        className="font-normal text-sm hover:text-blue-600"
-                                                                    >
-                                                                        { admn.username }
-                                                                    </Link>
-                                                                )))
-                                                        }
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="flex flex-col">
+                                                            <Typography
+                                                                variant="small"
+                                                                color="blue-gray"
+                                                                className="font-normal"
+                                                            >
+                                                                { keterangan }
+                                                            </Typography>
+                                                        </div>
                                                     </div>
                                                 </td>
                                                 <td className={ `${ classes } min-w-40` }>
@@ -426,12 +362,9 @@ export default function MasterManageUnitPage({ auth, units, adminCount }: PagePr
                                                 <td className={ classes }>
                                                     <div className="w-32 flex gap-2.5 items-center justify-start">
                                                         <Tooltip content="Detail">
-                                                            <Link href={route('master.unit.details', { q: units[index].id })}>
-                                                                <IconButton variant="text">
-                                                                    <FileSearch className="h-5 w-5 text-blue-800"/>
-                                                                </IconButton>
-
-                                                            </Link>
+                                                            <IconButton variant="text">
+                                                                <FileSearch className="h-5 w-5 text-blue-800"/>
+                                                            </IconButton>
                                                         </Tooltip>
                                                         <Tooltip content="Hapus" className="bg-red-400">
                                                             <IconButton
@@ -440,8 +373,8 @@ export default function MasterManageUnitPage({ auth, units, adminCount }: PagePr
                                                                     setDeleteDialog((prevState) => ({
                                                                         ...prevState,
                                                                         open: true,
-                                                                        unitId: id,
-                                                                        admins: admin
+                                                                        id: id,
+                                                                        nama: statusPegawais.find((statusPegawai) => statusPegawai.id === id)?.nama ?? '-'
                                                                     }))
                                                                 }}
                                                             >
@@ -506,10 +439,10 @@ export default function MasterManageUnitPage({ auth, units, adminCount }: PagePr
                         <Card>
                             <CardBody className="flex flex-col gap-4">
                                 <Typography variant="h4" color="blue-gray">
-                                    Menambahkan Unit baru
+                                    Menambahkan Status Pegawai baru
                                 </Typography>
                                 <Input
-                                    label="Nama unit"
+                                    label="Nama Status Pegawai"
                                     size="lg"
                                     required={true}
                                     error={formInput.error.nama}
@@ -542,28 +475,6 @@ export default function MasterManageUnitPage({ auth, units, adminCount }: PagePr
                                         }));
                                     }}
                                 />
-                                {/*<Checkbox*/}
-                                {/*    checked={formInput.isMaster}*/}
-                                {/*    onChange={() => {*/}
-                                {/*        setFormInput((prevState) => ({*/}
-                                {/*            ...prevState, isMaster: !prevState.isMaster*/}
-                                {/*        }));*/}
-                                {/*    }}*/}
-                                {/*    label={*/}
-                                {/*        <Typography color="blue-gray" className="flex font-medium">*/}
-                                {/*            Berikan Hak Master. Apa itu Hak master?*/}
-                                {/*            <Typography*/}
-                                {/*                as="a"*/}
-                                {/*                href="#"*/}
-                                {/*                color="blue"*/}
-                                {/*                className="font-medium transition-colors hover:text-blue-700"*/}
-                                {/*            >*/}
-                                {/*                &nbsp;Pelajari selengkapnya*/}
-                                {/*            </Typography>*/}
-                                {/*            .*/}
-                                {/*        </Typography>*/}
-                                {/*    }*/}
-                                {/*/>*/}
                             </CardBody>
                             <CardFooter className="pt-0 flex gap-3 justify-between">
                                 <Button
@@ -586,47 +497,34 @@ export default function MasterManageUnitPage({ auth, units, adminCount }: PagePr
                         </Card>
                     </form>
                 </Dialog>
-
                 <Dialog open={deleteDialog.open} handler={handleOpenDelete}>
                     <DialogHeader className="text-gray-900">
-                        Hapus Unit terpilih?
+                        Hapus Status Pegawai terpilih?
                     </DialogHeader>
                     <DialogBody>
                         <Typography variant="h6" className="text-gray-900 truncate">
                             Anda akan menghapus
-                            Unit:&nbsp;
-                            <span className="font-bold">
-                                " { units.find((unit) => unit.id === deleteDialog.unitId)?.nama ?? '-' } "
+                            Status Pegawai: &nbsp;
+                            <span className="font-semibold">
+                                " { deleteDialog.nama } "
                             </span>
                         </Typography>
-                        <p className="mt-1.5 text-sm text-gray-900 font-medium">
+                        <p className="text-sm text-gray-900 font-medium">
                                 <span className="text-red-600 font-bold">
                                     *
                                 </span>
-                            Admin yang terhubung dengan Unit akan ikut dihapus:
+                            Pegawai yang terhubung akan akan kehilangan status Status Pegawai
                         </p>
-                        <ul className="flex flex-col gap-1.5 h-40 overflow-auto p-2 border-2 text-gray-800 font-medium">
-                            {
-                                deleteDialog.admins.map((admin) => ((
-                                    <li key={admin.id}>
-                                        <span>-</span> { admin.username }
-                                    </li>
-                                )))
-                            }
-                            {
-                                deleteDialog.admins.length < 1 && ( <p className="text-sm italic font-medium">Unit belum memiliki Admin</p>)
-                            }
-                        </ul>
                     </DialogBody>
                     <DialogFooter>
                         <Button
                             color="black"
-                            onClick={ () => setDeleteDialog(deleteDialogInit)}
+                            onClick={ () => setDeleteDialog((prevState) => ({ ...prevState, open: false })) }
                             className="mr-1"
                         >
-                        <span>Batal</span>
+                            <span>Batal</span>
                         </Button>
-                        <Button color="red" onClick={handleDeleteUnit}>
+                        <Button color="red" onClick={handleDeleteSubmit} loading={deleteDialog.onSubmit}>
                             <span>Hapus</span>
                         </Button>
                     </DialogFooter>
