@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { MTColor, PageProps } from "@/types";
 import { AdminLayout } from "@/Layouts/AdminLayout";
-import { Head, router } from "@inertiajs/react";
+import { Head, Link, router } from "@inertiajs/react";
 import { Input } from "@/Components/Input";
 import { format } from "date-fns";
 import { id as localeID } from "date-fns/locale/id";
@@ -24,10 +24,10 @@ import { TextArea } from "@/Components/TextArea";
 import { useTheme } from "@/Hooks/useTheme";
 import { SyntheticEvent, useEffect, useMemo, useState } from "react";
 import { Bounce, toast } from "react-toastify";
-import {  z } from "zod";
+import { z } from "zod";
 import axios, { AxiosError } from "axios";
 
-export default function MasterManageGolonganPage({ auth, golongans }: PageProps<{
+export default function MasterManageGolonganPage({ auth, golongans, flash }: PageProps<{
     golongans: {
         id: string;
         nama: string;
@@ -45,8 +45,8 @@ export default function MasterManageGolonganPage({ auth, golongans }: PageProps<
         }
     ];
     const { theme } = useTheme();
-    const [ openFormDialog, setOpenFormDialog ] = useState(false);
-    const [ deleteDialog, setDeleteDialog ] = useState<{
+    const [openFormDialog, setOpenFormDialog] = useState(false);
+    const [deleteDialog, setDeleteDialog] = useState<{
         open: boolean;
         id: string;
         nama: string;
@@ -57,9 +57,9 @@ export default function MasterManageGolonganPage({ auth, golongans }: PageProps<
         nama: '',
         onSubmit: false
     });
-    const [ sortBy, setSortBy ] = useState('');
-    const [ currPage, setCurrPage ] = useState(1);
-    const [ viewPerPage, setViewPerPage ] = useState(10);
+    const [sortBy, setSortBy] = useState('');
+    const [currPage, setCurrPage] = useState(1);
+    const [viewPerPage, setViewPerPage] = useState(10);
 
     const notifyToast = (type: 'success' | 'error', message: string, theme: 'light' | 'dark' = 'light') => {
         toast[type](message, {
@@ -78,16 +78,16 @@ export default function MasterManageGolonganPage({ auth, golongans }: PageProps<
         const lastIndex = startIndex + viewPerPage;
 
         return golongans.slice(startIndex, lastIndex);
-    }, [ golongans, viewPerPage ]);
+    }, [golongans, viewPerPage]);
 
-    const [ data, setData ] = useState(adjustData);
-    const [ search, setSearch ] = useState('');
+    const [data, setData] = useState(adjustData);
+    const [search, setSearch] = useState('');
     const getItemProps = (index: number) =>
-        ({
-            variant: currPage === index ? "filled" : "text",
-            color: "gray",
-            className: "rounded-full",
-        } as any);
+    ({
+        variant: currPage === index ? "filled" : "text",
+        color: "gray",
+        className: "rounded-full",
+    } as any);
 
     const nextPage = () => {
         const totalPages = Math.ceil(golongans.length / viewPerPage);
@@ -111,7 +111,7 @@ export default function MasterManageGolonganPage({ auth, golongans }: PageProps<
         },
         onSubmit: false
     };
-    const [ formInput, setFormInput ] = useState<{
+    const [formInput, setFormInput] = useState<{
         nama: string;
         keterangan: string;
         error: {
@@ -201,10 +201,10 @@ export default function MasterManageGolonganPage({ auth, golongans }: PageProps<
         if (!openFormDialog) {
             setFormInput(formInputInit);
         }
-    }, [ openFormDialog ]);
+    }, [openFormDialog]);
     useEffect(() => {
         setData(adjustData);
-    }, [ golongans, viewPerPage ]);
+    }, [golongans, viewPerPage]);
     useEffect(() => {
         if (search.length < 1) {
             setData(adjustData);
@@ -213,34 +213,43 @@ export default function MasterManageGolonganPage({ auth, golongans }: PageProps<
             const matchgolongans = golongans.filter((golongan) => golongan.nama.toLowerCase().includes(search.toLowerCase()));
             setData(matchgolongans);
         }
-    }, [ search ]);
+    }, [search]);
+
+    useEffect(() => {
+        if (flash?.success) {
+            notifyToast("success", flash.success, theme as "light" | "dark");
+        }
+        if (flash?.error) {
+            notifyToast("error", flash.error, theme as "light" | "dark");
+        }
+    }, [flash]);
 
     return (
         <>
             <Head title="Master - Golongan" />
             <AdminLayout>
                 <section className="mb-1 grid gap-y-10 gap-x-6 md:grid-cols-2 xl:grid-cols-4">
-                    { cardData.map(({ icon, title, color, value }) => (
+                    {cardData.map(({ icon, title, color, value }) => (
                         <Card key={title} className="border border-blue-gray-100 shadow-sm">
                             <CardHeader
                                 variant="gradient"
-                                color={ color as MTColor }
-                                floated={ false }
-                                shadow={ false }
+                                color={color as MTColor}
+                                floated={false}
+                                shadow={false}
                                 className="absolute grid h-12 w-12 place-items-center"
                             >
-                                { icon }
+                                {icon}
                             </CardHeader>
                             <CardBody className="p-4 text-left ml-20">
                                 <Typography variant="small" className="font-normal text-blue-gray-600">
-                                    { title }
+                                    {title}
                                 </Typography>
                                 <Typography variant="h4" color="blue-gray">
-                                    { value }
+                                    {value}
                                 </Typography>
                             </CardBody>
                         </Card>
-                    )) }
+                    ))}
                 </section>
 
                 <Card className="h-full w-full" shadow={false}>
@@ -273,7 +282,7 @@ export default function MasterManageGolonganPage({ auth, golongans }: PageProps<
                                     onChange={(event) => {
                                         setSearch(event.target.value);
                                     }}
-                                    icon={<Search className="h-5 w-5"/>}
+                                    icon={<Search className="h-5 w-5" />}
                                 />
                             </div>
                         </div>
@@ -281,138 +290,140 @@ export default function MasterManageGolonganPage({ auth, golongans }: PageProps<
                     <CardBody className="overflow-auto px-0">
                         <table className="mt-4 w-full min-w-max table-auto text-left">
                             <thead>
-                            <tr>
-                                {TABLE_HEAD.map((head, index) => (
-                                    <th
-                                        key={head}
-                                        onClick={() => setSortBy(head)}
-                                        className="cursor-pointer border-y border-blue-gray-100 bg-blue-gray-50/50 p-4 transition-colors hover:bg-blue-gray-50 last:cursor-auto last:hover:bg-blue-gray-50/50"
-                                    >
-                                        <Typography
-                                            variant="small"
-                                            color="blue-gray"
-                                            className="flex items-center justify-between gap-2 font-normal leading-none opacity-70"
+                                <tr>
+                                    {TABLE_HEAD.map((head, index) => (
+                                        <th
+                                            key={head}
+                                            onClick={() => setSortBy(head)}
+                                            className="cursor-pointer border-y border-blue-gray-100 bg-blue-gray-50/50 p-4 transition-colors hover:bg-blue-gray-50 last:cursor-auto last:hover:bg-blue-gray-50/50"
                                         >
-                                            {head}{" "}
-                                            {index !== TABLE_HEAD.length - 1 && (
-                                                <ChevronDown strokeWidth={2} className="h-4 w-4" />
-                                            )}
-                                        </Typography>
-                                    </th>
-                                ))}
-                            </tr>
+                                            <Typography
+                                                variant="small"
+                                                color="blue-gray"
+                                                className="flex items-center justify-between gap-2 font-normal leading-none opacity-70"
+                                            >
+                                                {head}{" "}
+                                                {index !== TABLE_HEAD.length - 1 && (
+                                                    <ChevronDown strokeWidth={2} className="h-4 w-4" />
+                                                )}
+                                            </Typography>
+                                        </th>
+                                    ))}
+                                </tr>
                             </thead>
                             <tbody>
-                            {
-                                data.map(
-                                    ({ id, nama, keterangan, created_at }, index) => {
-                                        const isLast = index === data.length - 1;
-                                        const classes = isLast
-                                            ? "p-4"
-                                            : "p-4 border-b border-blue-gray-50";
+                                {
+                                    data.map(
+                                        ({ id, nama, keterangan, created_at }, index) => {
+                                            const isLast = index === data.length - 1;
+                                            const classes = isLast
+                                                ? "p-4"
+                                                : "p-4 border-b border-blue-gray-50";
 
-                                        return (
-                                            <tr key={ id }>
-                                                <td className={ `${ classes } w-3`}>
-                                                    <Typography
-                                                        variant="small"
-                                                        color="blue-gray"
-                                                        className="font-normal text-center"
-                                                    >
-                                                        { index + 1}
-                                                    </Typography>
-                                                </td>
-                                                <td className={ `${ classes } min-w-52` }>
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="flex flex-col">
-                                                            <Typography
-                                                                variant="small"
-                                                                color="blue-gray"
-                                                                className="font-normal"
-                                                            >
-                                                                { nama }
-                                                            </Typography>
+                                            return (
+                                                <tr key={id}>
+                                                    <td className={`${classes} w-3`}>
+                                                        <Typography
+                                                            variant="small"
+                                                            color="blue-gray"
+                                                            className="font-normal text-center"
+                                                        >
+                                                            {index + 1}
+                                                        </Typography>
+                                                    </td>
+                                                    <td className={`${classes} min-w-52`}>
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="flex flex-col">
+                                                                <Typography
+                                                                    variant="small"
+                                                                    color="blue-gray"
+                                                                    className="font-normal"
+                                                                >
+                                                                    {nama}
+                                                                </Typography>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                </td>
-                                                <td className={ `${ classes } min-w-52` }>
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="flex flex-col">
-                                                            <Typography
-                                                                variant="small"
-                                                                color="blue-gray"
-                                                                className="font-normal"
-                                                            >
-                                                                { keterangan }
-                                                            </Typography>
+                                                    </td>
+                                                    <td className={`${classes} min-w-52`}>
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="flex flex-col">
+                                                                <Typography
+                                                                    variant="small"
+                                                                    color="blue-gray"
+                                                                    className="font-normal"
+                                                                >
+                                                                    {keterangan}
+                                                                </Typography>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                </td>
-                                                <td className={ `${ classes } min-w-40` }>
-                                                    <Typography
-                                                        variant="small"
-                                                        color="blue-gray"
-                                                        className="font-normal"
-                                                    >
-                                                        { format(created_at, 'PPpp', {
-                                                            locale: localeID
-                                                        }) }
-                                                    </Typography>
-                                                </td>
-                                                <td className={ classes }>
-                                                    <div className="w-32 flex gap-2.5 items-center justify-start">
-                                                        <Tooltip content="Detail">
-                                                            <IconButton variant="text">
-                                                                <FileSearch className="h-5 w-5 text-blue-800"/>
-                                                            </IconButton>
-                                                        </Tooltip>
-                                                        <Tooltip content="Hapus" className="bg-red-400">
-                                                            <IconButton
-                                                                variant="text"
-                                                                onClick={() => {
-                                                                    setDeleteDialog((prevState) => ({
-                                                                        ...prevState,
-                                                                        open: true,
-                                                                        id: id,
-                                                                        nama: golongans.find((golongan) => golongan.id === id)?.nama ?? '-'
-                                                                    }))
-                                                                }}
-                                                            >
-                                                                <Trash2 className="h-5 w-5 text-red-600"/>
-                                                            </IconButton>
-                                                        </Tooltip>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        );
-                                    },
-                                )
-                            }
+                                                    </td>
+                                                    <td className={`${classes} min-w-40`}>
+                                                        <Typography
+                                                            variant="small"
+                                                            color="blue-gray"
+                                                            className="font-normal"
+                                                        >
+                                                            {format(created_at, 'PPpp', {
+                                                                locale: localeID
+                                                            })}
+                                                        </Typography>
+                                                    </td>
+                                                    <td className={classes}>
+                                                        <div className="w-32 flex gap-2.5 items-center justify-start">
+                                                            <Tooltip content="Detail">
+                                                                <Link href={route('master.golongan.details', { q: id })}>
+                                                                    <IconButton variant="text">
+                                                                        <FileSearch className="h-5 w-5 text-blue-800" />
+                                                                    </IconButton>
+                                                                </Link>
+                                                            </Tooltip>
+                                                            <Tooltip content="Hapus" className="bg-red-400">
+                                                                <IconButton
+                                                                    variant="text"
+                                                                    onClick={() => {
+                                                                        setDeleteDialog((prevState) => ({
+                                                                            ...prevState,
+                                                                            open: true,
+                                                                            id: id,
+                                                                            nama: golongans.find((golongan) => golongan.id === id)?.nama ?? '-'
+                                                                        }))
+                                                                    }}
+                                                                >
+                                                                    <Trash2 className="h-5 w-5 text-red-600" />
+                                                                </IconButton>
+                                                            </Tooltip>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        },
+                                    )
+                                }
                             </tbody>
                         </table>
                     </CardBody>
                     <CardFooter className="flex items-center justify-between border-t border-blue-gray-50 p-4">
                         <Typography variant="small" color="blue-gray" className="font-normal">
-                            Halaman { currPage } dari { Math.ceil(data.length / viewPerPage) }
+                            Halaman {currPage} dari {Math.ceil(data.length / viewPerPage)}
                         </Typography>
                         <div className="flex items-center gap-4">
                             <Button
                                 variant="text"
                                 className="flex items-center gap-2 rounded-full"
-                                onClick={ prevPage }
-                                disabled={ currPage === 1 }
+                                onClick={prevPage}
+                                disabled={currPage === 1}
                             >
-                                <ArrowLeft strokeWidth={ 2 } className="h-4 w-4"/> Previous
+                                <ArrowLeft strokeWidth={2} className="h-4 w-4" /> Previous
                             </Button>
                             <div className="flex items-center gap-2">
                                 {
                                     Array.from({ length: Math.ceil(data.length / viewPerPage) }).map((_, index) => (
                                         <IconButton
                                             key={index}
-                                            { ...getItemProps(index + 1) }
+                                            {...getItemProps(index + 1)}
                                             onClick={() => setCurrPage(index + 1)}
                                         >
-                                            { index + 1 }
+                                            {index + 1}
                                         </IconButton>
                                     ))
                                 }
@@ -420,11 +431,11 @@ export default function MasterManageGolonganPage({ auth, golongans }: PageProps<
                             <Button
                                 variant="text"
                                 className="flex items-center gap-2 rounded-full"
-                                onClick={ nextPage }
-                                disabled={ currPage === Math.ceil(data.length / viewPerPage) || data.length < 1 }
+                                onClick={nextPage}
+                                disabled={currPage === Math.ceil(data.length / viewPerPage) || data.length < 1}
                             >
                                 Next
-                                <ArrowRight strokeWidth={ 2 } className="h-4 w-4"/>
+                                <ArrowRight strokeWidth={2} className="h-4 w-4" />
                             </Button>
                         </div>
                     </CardFooter>
@@ -506,20 +517,20 @@ export default function MasterManageGolonganPage({ auth, golongans }: PageProps<
                             Anda akan menghapus
                             Golongan: &nbsp;
                             <span className="font-semibold">
-                                " { deleteDialog.nama } "
+                                " {deleteDialog.nama} "
                             </span>
                         </Typography>
                         <p className="text-sm text-gray-900 font-medium">
-                                <span className="text-red-600 font-bold">
-                                    *
-                                </span>
+                            <span className="text-red-600 font-bold">
+                                *
+                            </span>
                             Pegawai yang terhubung akan akan kehilangan status golongan
                         </p>
                     </DialogBody>
                     <DialogFooter>
                         <Button
                             color="black"
-                            onClick={ () => setDeleteDialog((prevState) => ({ ...prevState, open: false })) }
+                            onClick={() => setDeleteDialog((prevState) => ({ ...prevState, open: false }))}
                             className="mr-1"
                         >
                             <span>Batal</span>

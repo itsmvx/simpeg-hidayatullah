@@ -1,35 +1,54 @@
 import { Input } from "@/Components/Input";
 import { AdminLayout } from "@/Layouts/AdminLayout";
-import { Head } from "@inertiajs/react";
+import { Head, router } from "@inertiajs/react";
 import { ChangeEvent, useState } from "react";
 import { Button, Typography } from "@material-tailwind/react";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import { Save } from "lucide-react";
 import { TextArea } from "@/Components/TextArea";
+import { Marhalah } from "@/types";
 
-type Marhalah = {
-    id: string;
-    nama: string;
-    keterangan: string;
-    created_at: string;
+interface Props {
+    marhalah: Marhalah;
 }
-export default function MarhalahDetailsPage({ marhalah }: {
-    marhalah: Marhalah
-}) {
-    const [ marhalahState, setMarhalahState ] = useState(marhalah);
-    const [ onChangeMarhalah, setOnChangeMarhalah ] = useState(false);
+
+export default function MarhalahDetailsPage({ marhalah }: Props) {
+    const [marhalahState, setMarhalahState] = useState(marhalah);
+    const [onChangeMarhalah, setOnChangeMarhalah] = useState(false);
 
     const handleMarhalahChange = (event: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>) => {
         const payload = {
             [event.target.name as keyof Marhalah]: event.target.value,
         };
 
-        setMarhalahState((prevState) => ({
-            ...prevState,
-            ...payload
-        }));
-    }
+        setMarhalahState((prevState) => {
+            const newState = { ...prevState, ...payload };
+
+            if (JSON.stringify(newState) !== JSON.stringify(marhalah)) {
+                setOnChangeMarhalah(true);
+            } else {
+                setOnChangeMarhalah(false);
+            }
+
+            return newState;
+        });
+    };
+
+    const handleSave = () => {
+        const payload: Record<string, string> = {
+            id: String(marhalahState.id),
+            nama: marhalahState.nama,
+            keterangan: marhalahState.keterangan || "",
+            created_at: String(marhalahState.created_at),
+        };
+
+        router.put(`/marhalah/update/${marhalahState.id}`, payload, {
+            onSuccess: () => {
+                setOnChangeMarhalah(false);
+            }
+        });
+    };
     return (
         <>
             <Head title="Master - Marhalah Details" />
@@ -37,14 +56,14 @@ export default function MarhalahDetailsPage({ marhalah }: {
                 <div className="space-y-3">
                     <div className="mx-auto flex items-center justify-center w-40 h-40 rounded-full border-4 border-pph-black bg-pph-green">
                         <h3 className="font-bold text-4xl text-pph-white/90">
-                            { marhalah.nama.split(' ').map(word => word.charAt(0).toUpperCase()).join('').slice(0, 2) }
+                            {marhalah.nama.split(' ').map(word => word.charAt(0).toUpperCase()).join('').slice(0, 2)}
                         </h3>
                     </div>
                     <div className="flex flex-col items-center justify-center">
                         <p>Tanggal Didaftarkan:</p>
-                        <p>{ format(marhalahState.created_at, 'PPPP', {
+                        <p>{format(marhalahState.created_at, 'PPPP', {
                             locale: id
-                        }) }</p>
+                        })}</p>
                     </div>
 
                     <form className="flex flex-col gap-4">
@@ -78,21 +97,22 @@ export default function MarhalahDetailsPage({ marhalah }: {
                         </div>
                         <Input
                             type="text"
-                            value={ marhalahState.nama }
+                            value={marhalahState.nama}
                             label="Nama Marhalah"
                             name="nama"
-                            onChange={ handleMarhalahChange }
+                            onChange={handleMarhalahChange}
                         />
                         <TextArea
-                            value={ marhalahState.keterangan }
+                            value={marhalahState.keterangan}
                             label="Keterangan"
                             name="keterangan"
-                            onChange={ handleMarhalahChange }
+                            onChange={handleMarhalahChange}
                         />
                         <Button
                             color="blue"
                             className="group *:group-disabled:text-gray-50 flex items-center justify-center h-10 gap-1 text-base"
                             disabled={!onChangeMarhalah}
+                            onClick={handleSave}
                         >
                             <span className="normal-case">
                                 Simpan

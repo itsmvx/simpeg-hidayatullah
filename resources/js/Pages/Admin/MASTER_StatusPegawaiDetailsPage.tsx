@@ -1,34 +1,34 @@
 import { Input } from "@/Components/Input";
 import { AdminLayout } from "@/Layouts/AdminLayout";
-import { Head, router } from "@inertiajs/react"; // Import router dari Inertia
+import { Head, router } from "@inertiajs/react";
 import { ChangeEvent, useState } from "react";
 import { Button, Typography } from "@material-tailwind/react";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import { Save } from "lucide-react";
 import { TextArea } from "@/Components/TextArea";
-import { Unit } from "@/types";
+import { StatusPegawai } from "@/types";
 
 interface Props {
-    unit: Unit;
+    status: StatusPegawai;
 }
 
-export default function UnitDetailsPage({ unit }: Props) {
-    const [unitState, setUnitState] = useState(unit);
-    const [onChangeUnit, setOnChangeUnit] = useState(false);
+export default function MasterDetailsStatusPegawaiPage({ status }: Props) {
+    const [statusPegawaiState, setStatusPegawaiState] = useState(status);
+    const [onChangeStatusPegawai, setOnChangeStatusPegawai] = useState(false);
 
-    const handleUnitChange = (event: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>) => {
+    const handleStatusPegawaiChange = (event: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>) => {
         const payload = {
-            [event.target.name as keyof Unit]: event.target.value,
+            [event.target.name as keyof StatusPegawai]: event.target.value,
         };
 
-        setUnitState((prevState) => {
+        setStatusPegawaiState((prevState) => {
             const newState = { ...prevState, ...payload };
 
-            if (JSON.stringify(newState) !== JSON.stringify(unit)) {
-                setOnChangeUnit(true);
+            if (JSON.stringify(newState) !== JSON.stringify(status)) {
+                setOnChangeStatusPegawai(true);
             } else {
-                setOnChangeUnit(false);
+                setOnChangeStatusPegawai(false);
             }
 
             return newState;
@@ -37,37 +37,39 @@ export default function UnitDetailsPage({ unit }: Props) {
 
     const handleSave = () => {
         const payload: Record<string, string> = {
-            id: String(unitState.id),
-            nama: unitState.nama,
-            keterangan: unitState.keterangan || "",
-            created_at: String(unitState.created_at),
+            id: String(statusPegawaiState.id),
+            nama: statusPegawaiState.nama,
+            keterangan: statusPegawaiState.keterangan || "",
+            created_at: String(statusPegawaiState.created_at),
         };
 
-        router.put(`/unit/update/${unitState.id}`, payload, {
+        router.put(`/status-pegawai/update/${statusPegawaiState.id}`, payload, {
             onSuccess: () => {
-                setOnChangeUnit(false);
+                setOnChangeStatusPegawai(false);
             }
         });
     };
 
     return (
         <>
-            <Head title="Master - Admin Details" />
+            <Head title="Master - Marhalah Details" />
             <AdminLayout>
                 <div className="space-y-3">
                     <div className="mx-auto flex items-center justify-center w-40 h-40 rounded-full border-4 border-pph-black bg-pph-green">
                         <h3 className="font-bold text-4xl text-pph-white/90">
-                            {unit.nama.split(' ').map(word => word.charAt(0).toUpperCase()).join('').slice(0, 2)}
+                            {status.nama.split(' ').map(word => word.charAt(0).toUpperCase()).join('').slice(0, 2)}
                         </h3>
                     </div>
                     <div className="flex flex-col items-center justify-center">
                         <p>Tanggal Didaftarkan:</p>
-                        <p>{format(unitState.created_at, 'PPPP', {
-                            locale: id
-                        })}</p>
+                        <p>
+                            {format(statusPegawaiState.created_at, 'PPPP', {
+                                locale: id
+                            })}
+                        </p>
                     </div>
 
-                    <form className="flex flex-col gap-4" onSubmit={e => e.preventDefault()}>
+                    <form className="flex flex-col gap-4">
                         <div>
                             <Typography
                                 variant="small"
@@ -86,33 +88,33 @@ export default function UnitDetailsPage({ unit }: Props) {
                                         clipRule="evenodd"
                                     />
                                 </svg>
-                                ID Unit
+                                ID Marhalah
                             </Typography>
                             <Input
                                 type="text"
-                                label="ID Unit"
+                                label="ID Marhalah"
                                 disabled
-                                value={unitState.id}
-                                onChange={handleUnitChange}
+                                value={statusPegawaiState.id}
+                                onChange={handleStatusPegawaiChange}
                             />
                         </div>
                         <Input
                             type="text"
-                            value={unitState.nama}
-                            label="Nama Unit"
+                            value={statusPegawaiState.nama}
+                            label="Nama Marhalah"
                             name="nama"
-                            onChange={handleUnitChange}
+                            onChange={handleStatusPegawaiChange}
                         />
                         <TextArea
-                            value={unitState.keterangan}
+                            value={statusPegawaiState.keterangan}
                             label="Keterangan"
                             name="keterangan"
-                            onChange={handleUnitChange}
+                            onChange={handleStatusPegawaiChange}
                         />
                         <Button
                             color="blue"
                             className="group *:group-disabled:text-gray-50 flex items-center justify-center h-10 gap-1 text-base"
-                            disabled={!onChangeUnit}
+                            disabled={!onChangeStatusPegawai}
                             onClick={handleSave}
                         >
                             <span className="normal-case">
