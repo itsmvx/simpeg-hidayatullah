@@ -23,7 +23,8 @@ class UnitController extends Controller
         //
     }
 
-    public function isExists(Request $request){
+    public function isExists(Request $request)
+    {
         $validator = Validator::make($request->only('nama'), [
             'nama' => 'required',
         ], [
@@ -93,7 +94,6 @@ class UnitController extends Controller
      */
     public function store(Request $request)
     {
-
     }
 
     /**
@@ -115,9 +115,17 @@ class UnitController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Unit $unit)
+    public function update(Request $request, $id)
     {
-        //
+        $validatedData = $request->validate([
+            'nama' => 'required|string|max:255',
+            'keterangan' => 'nullable|string',
+        ]);
+
+        $unit = Unit::findOrFail($id);
+        $unit->update($validatedData);
+
+        return redirect()->route('master.unit.index')->with('success', 'Unit berhasil diperbarui.');
     }
 
     /**

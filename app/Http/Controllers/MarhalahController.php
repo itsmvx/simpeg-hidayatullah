@@ -85,9 +85,17 @@ class MarhalahController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Marhalah $kader)
+    public function update(Request $request, $id)
     {
-        //
+        $validatedData = $request->validate([
+            'nama' => 'required|string|max:255',
+            'keterangan' => 'nullable|string',
+        ]);
+
+        $marhalah = Marhalah::findOrFail($id);
+        $marhalah->update($validatedData);
+
+        return redirect()->route('master.marhalah.index')->with('success', 'Marhalah berhasil diperbarui.');
     }
 
     /**

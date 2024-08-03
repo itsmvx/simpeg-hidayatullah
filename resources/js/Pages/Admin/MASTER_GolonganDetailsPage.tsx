@@ -7,28 +7,28 @@ import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import { Save } from "lucide-react";
 import { TextArea } from "@/Components/TextArea";
-import { Unit } from "@/types";
+import { Gologan, Unit } from "@/types";
 
 interface Props {
-    unit: Unit;
+    golongan: Gologan;
 }
 
-export default function UnitDetailsPage({ unit }: Props) {
-    const [unitState, setUnitState] = useState(unit);
-    const [onChangeUnit, setOnChangeUnit] = useState(false);
+export default function GolonganDetailsPage({ golongan }: Props) {
+    const [golonganState, setGolonganState] = useState(golongan);
+    const [onChangeGolongan, setOnChangeGolongan] = useState(false);
 
-    const handleUnitChange = (event: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>) => {
+    const handleGolonganChange = (event: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>) => {
         const payload = {
             [event.target.name as keyof Unit]: event.target.value,
         };
 
-        setUnitState((prevState) => {
+        setGolonganState((prevState) => {
             const newState = { ...prevState, ...payload };
 
-            if (JSON.stringify(newState) !== JSON.stringify(unit)) {
-                setOnChangeUnit(true);
+            if (JSON.stringify(newState) !== JSON.stringify(golongan)) {
+                setOnChangeGolongan(true);
             } else {
-                setOnChangeUnit(false);
+                setOnChangeGolongan(false);
             }
 
             return newState;
@@ -37,15 +37,15 @@ export default function UnitDetailsPage({ unit }: Props) {
 
     const handleSave = () => {
         const payload: Record<string, string> = {
-            id: String(unitState.id),
-            nama: unitState.nama,
-            keterangan: unitState.keterangan || "",
-            created_at: String(unitState.created_at),
+            id: String(golonganState.id),
+            nama: golonganState.nama,
+            keterangan: golonganState.keterangan || "",
+            created_at: String(golonganState.created_at),
         };
 
-        router.put(`/unit/update/${unitState.id}`, payload, {
+        router.put(`/golongan/update/${golonganState.id}`, payload, {
             onSuccess: () => {
-                setOnChangeUnit(false);
+                setOnChangeGolongan(false);
             }
         });
     };
@@ -57,12 +57,12 @@ export default function UnitDetailsPage({ unit }: Props) {
                 <div className="space-y-3">
                     <div className="mx-auto flex items-center justify-center w-40 h-40 rounded-full border-4 border-pph-black bg-pph-green">
                         <h3 className="font-bold text-4xl text-pph-white/90">
-                            {unit.nama.split(' ').map(word => word.charAt(0).toUpperCase()).join('').slice(0, 2)}
+                            {golongan.nama.split(' ').map(word => word.charAt(0).toUpperCase()).join('').slice(0, 2)}
                         </h3>
                     </div>
                     <div className="flex flex-col items-center justify-center">
                         <p>Tanggal Didaftarkan:</p>
-                        <p>{format(unitState.created_at, 'PPPP', {
+                        <p>{format(golonganState.created_at, 'PPPP', {
                             locale: id
                         })}</p>
                     </div>
@@ -92,27 +92,27 @@ export default function UnitDetailsPage({ unit }: Props) {
                                 type="text"
                                 label="ID Unit"
                                 disabled
-                                value={unitState.id}
-                                onChange={handleUnitChange}
+                                value={golonganState.id}
+                                onChange={handleGolonganChange}
                             />
                         </div>
                         <Input
                             type="text"
-                            value={unitState.nama}
+                            value={golonganState.nama}
                             label="Nama Unit"
                             name="nama"
-                            onChange={handleUnitChange}
+                            onChange={handleGolonganChange}
                         />
                         <TextArea
-                            value={unitState.keterangan}
+                            value={golonganState.keterangan}
                             label="Keterangan"
                             name="keterangan"
-                            onChange={handleUnitChange}
+                            onChange={handleGolonganChange}
                         />
                         <Button
                             color="blue"
                             className="group *:group-disabled:text-gray-50 flex items-center justify-center h-10 gap-1 text-base"
-                            disabled={!onChangeUnit}
+                            disabled={!onChangeGolongan}
                             onClick={handleSave}
                         >
                             <span className="normal-case">

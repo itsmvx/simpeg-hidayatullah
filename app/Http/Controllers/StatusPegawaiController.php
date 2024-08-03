@@ -87,16 +87,56 @@ class StatusPegawaiController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, StatusPegawai $statusPegawai)
+    public function update(Request $request, $id)
     {
-        //
+        $validatedData = $request->validate([
+            'nama' => 'required|string|max:255',
+            'keterangan' => 'nullable|string',
+        ]);
+
+        $status = StatusPegawai::findOrFail($id);
+        $status->update($validatedData);
+
+        return redirect()->route('master.status-pegawai.index')->with('success', 'Status Pegawai berhasil diperbarui.');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(StatusPegawai $statusPegawai)
+    public function destroy(Request $request)
     {
-        //
+        $validation = Validator::make($request->only('id'), [
+            'id' => 'required|string'
+        ], [
+            'id.required' => 'Marhalah tidak boleh kosong!'
+        ]);
+        if ($validation->fails()) {
+            return Response::json([
+                'message' => $validation->errors()->first(),
+            ], 400);
+        }
+        $validated = $validation->validated();
+
+        try {
+            $statusPegawai = StatusPegawai::find($validated['id']);
+            if (!$statusPegawai) {
+                return Response::json([
+                    'message' => 'Status Pegawai tidak ditemukan!'
+                ], 400);
+            }
+            if ($statusPegawai->delete()) {
+                return Response::json([
+                    'message' => 'Status Pegawai berhasil dihapus!'
+                ]);
+            } else {
+                return Response::json([
+                    'message' => 'Status Pegawai gagal dihapus!'
+                ], 500);
+            }
+        } catch (QueryException $exception) {
+            return Response::json([
+                'message' => 'Server gagal memproses permintaan',
+            ], 500);
+        }
     }
 }

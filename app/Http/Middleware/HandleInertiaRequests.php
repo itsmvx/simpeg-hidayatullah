@@ -41,10 +41,14 @@ class HandleInertiaRequests extends Middleware
                 ] : null,
                 'pegawai' => Auth::guard('pegawai')->check() ? [
                     'id' => Auth::guard('pegawai')->id,
-                    'nama' => Auth::guard('admin')->user()->nama,
-                    'username' => Auth::guard('admin')->user()->username,
-                    'unit_id' => Auth::guard('admin')->user()->unit_id,
+                    'nama' => Auth::guard('pegawai')->user()->nama,
+                    'username' => Auth::guard('pegawai')->user()->username,
+                    'unit_id' => Auth::guard('pegawai')->user()->unit_id,
                 ] : null
+            ],
+            'flash' => [
+                'success' => fn () => $request->session()->get('success'),
+                'error' => fn () => $request->session()->get('error'),
             ],
         ];
     }
