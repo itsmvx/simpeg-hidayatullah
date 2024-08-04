@@ -1,21 +1,22 @@
 import { Input } from "@/Components/Input";
 import { AdminLayout } from "@/Layouts/AdminLayout";
-import { Head, router } from "@inertiajs/react"; // Import router dari Inertia
-import { ChangeEvent, useState } from "react";
+import { Head, router } from "@inertiajs/react";
+import { ChangeEvent, FormEvent, useState } from "react";
 import { Button, Typography } from "@material-tailwind/react";
-import { format } from "date-fns";
-import { id } from "date-fns/locale";
 import { Save } from "lucide-react";
 import { TextArea } from "@/Components/TextArea";
 import { Unit } from "@/types";
+import axios, { AxiosError } from "axios";
+import { notifyToast } from "@/Lib/Utils";
 
 interface Props {
     unit: Unit;
 }
 
 export default function UnitDetailsPage({ unit }: Props) {
-    const [unitState, setUnitState] = useState(unit);
-    const [onChangeUnit, setOnChangeUnit] = useState(false);
+    const [ unitState, setUnitState ] = useState(unit);
+    const [ onChangeUnit, setOnChangeUnit ] = useState(false);
+    const [ onSubmit, setOnSubmit ] = useState(false);
 
     const handleUnitChange = (event: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>) => {
         const payload = {
@@ -35,7 +36,9 @@ export default function UnitDetailsPage({ unit }: Props) {
         });
     };
 
-    const handleSave = () => {
+    const handleFormSubmit = (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        setOnSubmit(true);
         const payload: Record<string, string> = {
             id: String(unitState.id),
             nama: unitState.nama,
@@ -43,31 +46,35 @@ export default function UnitDetailsPage({ unit }: Props) {
             created_at: String(unitState.created_at),
         };
 
-        router.put(`/unit/update/${unitState.id}`, payload, {
-            onSuccess: () => {
+        axios.post(route('unit.update', {
+            id: String(unitState.id),
+        }), payload)
+            .then(() => {
+                notifyToast('success', 'Unit berhasil diperbarui!');
                 setOnChangeUnit(false);
-            }
-        });
+                router.reload({ only: ['unit'] })
+            })
+            .catch((err: unknown) => {
+                const errMsg = err instanceof AxiosError
+                    ? err?.response?.data.message ?? 'Error tidak diketahui terjadi!'
+                    : 'Error tidak diketahui terjadi';
+
+                notifyToast('error', errMsg);
+            })
+            .finally(() => setOnSubmit(false));
     };
 
     return (
         <>
-            <Head title="Master - Admin Details" />
+            <Head title="Master - Unit Details" />
             <AdminLayout>
                 <div className="space-y-3">
-                    <div className="mx-auto flex items-center justify-center w-40 h-40 rounded-full border-4 border-pph-black bg-pph-green">
-                        <h3 className="font-bold text-4xl text-pph-white/90">
-                            {unit.nama.split(' ').map(word => word.charAt(0).toUpperCase()).join('').slice(0, 2)}
-                        </h3>
-                    </div>
                     <div className="flex flex-col items-center justify-center">
-                        <p>Tanggal Didaftarkan:</p>
-                        <p>{format(unitState.created_at, 'PPPP', {
-                            locale: id
-                        })}</p>
+                        <Typography variant="h2">
+                            { unit.nama }
+                        </Typography>
                     </div>
-
-                    <form className="flex flex-col gap-4" onSubmit={e => e.preventDefault()}>
+                    <form className="flex flex-col gap-4" onSubmit={handleFormSubmit}>
                         <div>
                             <Typography
                                 variant="small"
@@ -111,9 +118,10 @@ export default function UnitDetailsPage({ unit }: Props) {
                         />
                         <Button
                             color="blue"
+                            type="submit"
+                            loading={onSubmit}
                             className="group *:group-disabled:text-gray-50 flex items-center justify-center h-10 gap-1 text-base"
                             disabled={!onChangeUnit}
-                            onClick={handleSave}
                         >
                             <span className="normal-case">
                                 Simpan

@@ -1,25 +1,28 @@
 import { Input } from "@/Components/Input";
 import { AdminLayout } from "@/Layouts/AdminLayout";
 import { Head, router } from "@inertiajs/react"; // Import router dari Inertia
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useState } from "react";
 import { Button, Typography } from "@material-tailwind/react";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import { Save } from "lucide-react";
 import { TextArea } from "@/Components/TextArea";
-import { Gologan, Unit } from "@/types";
+import { Golongan } from "@/types";
+import axios, { AxiosError } from "axios";
+import { notifyToast } from "@/Lib/Utils";
 
 interface Props {
-    golongan: Gologan;
+    golongan: Golongan;
 }
 
 export default function GolonganDetailsPage({ golongan }: Props) {
     const [golonganState, setGolonganState] = useState(golongan);
     const [onChangeGolongan, setOnChangeGolongan] = useState(false);
+    const [ onSubmit, setOnSubmit ] = useState(false);
 
     const handleGolonganChange = (event: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>) => {
         const payload = {
-            [event.target.name as keyof Unit]: event.target.value,
+            [event.target.name as keyof Golongan]: event.target.value,
         };
 
         setGolonganState((prevState) => {
@@ -35,7 +38,9 @@ export default function GolonganDetailsPage({ golongan }: Props) {
         });
     };
 
-    const handleSave = () => {
+    const handleFormSubmit = (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        setOnSubmit(true);
         const payload: Record<string, string> = {
             id: String(golonganState.id),
             nama: golonganState.nama,
@@ -43,31 +48,36 @@ export default function GolonganDetailsPage({ golongan }: Props) {
             created_at: String(golonganState.created_at),
         };
 
-        router.put(`/golongan/update/${golonganState.id}`, payload, {
-            onSuccess: () => {
+        axios.post(route('golongan.update', {
+            id: String(golonganState.id),
+        }), payload)
+            .then(() => {
+                notifyToast('success', 'Golongan berhasil diperbarui!');
                 setOnChangeGolongan(false);
-            }
-        });
+                router.reload({ only: ['golongan'] })
+            })
+            .catch((err: unknown) => {
+                const errMsg = err instanceof AxiosError
+                    ? err?.response?.data.message ?? 'Error tidak diketahui terjadi!'
+                    : 'Error tidak diketahui terjadi';
+
+                notifyToast('error', errMsg);
+            })
+            .finally(() => setOnSubmit(false));
     };
 
     return (
         <>
-            <Head title="Master - Admin Details" />
+            <Head title="Master - Golongan Details" />
             <AdminLayout>
                 <div className="space-y-3">
-                    <div className="mx-auto flex items-center justify-center w-40 h-40 rounded-full border-4 border-pph-black bg-pph-green">
-                        <h3 className="font-bold text-4xl text-pph-white/90">
-                            {golongan.nama.split(' ').map(word => word.charAt(0).toUpperCase()).join('').slice(0, 2)}
-                        </h3>
-                    </div>
                     <div className="flex flex-col items-center justify-center">
-                        <p>Tanggal Didaftarkan:</p>
-                        <p>{format(golonganState.created_at, 'PPPP', {
-                            locale: id
-                        })}</p>
+                        <Typography variant="h2">
+                            { golongan.nama }
+                        </Typography>
                     </div>
 
-                    <form className="flex flex-col gap-4" onSubmit={e => e.preventDefault()}>
+                    <form className="flex flex-col gap-4" onSubmit={ handleFormSubmit }>
                         <div>
                             <Typography
                                 variant="small"
@@ -86,39 +96,40 @@ export default function GolonganDetailsPage({ golongan }: Props) {
                                         clipRule="evenodd"
                                     />
                                 </svg>
-                                ID Unit
+                                ID Golongan
                             </Typography>
                             <Input
                                 type="text"
-                                label="ID Unit"
+                                label="ID Golongan"
                                 disabled
-                                value={golonganState.id}
-                                onChange={handleGolonganChange}
+                                value={ golonganState.id }
+                                onChange={ handleGolonganChange }
                             />
                         </div>
                         <Input
                             type="text"
-                            value={golonganState.nama}
-                            label="Nama Unit"
+                            value={ golonganState.nama }
+                            label="Nama Golongan"
                             name="nama"
-                            onChange={handleGolonganChange}
+                            onChange={ handleGolonganChange }
                         />
                         <TextArea
-                            value={golonganState.keterangan}
+                            value={ golonganState.keterangan }
                             label="Keterangan"
                             name="keterangan"
-                            onChange={handleGolonganChange}
+                            onChange={ handleGolonganChange }
                         />
                         <Button
                             color="blue"
+                            type="submit"
+                            loading={ onSubmit }
                             className="group *:group-disabled:text-gray-50 flex items-center justify-center h-10 gap-1 text-base"
-                            disabled={!onChangeGolongan}
-                            onClick={handleSave}
+                            disabled={ !onChangeGolongan }
                         >
                             <span className="normal-case">
                                 Simpan
                             </span>
-                            <Save />
+                            <Save/>
                         </Button>
                     </form>
                 </div>
