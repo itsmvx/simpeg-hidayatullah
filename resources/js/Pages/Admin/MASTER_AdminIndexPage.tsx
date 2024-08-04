@@ -611,30 +611,26 @@ export default function MasterManageAdminPage({ auth, admins, units }: PageProps
                                 >
                                     {
                                         units.length > 0
-                                            ? units.sort((a, b) => {
-                                                return a.nama.localeCompare(b.nama);
-                                            }).map((unit, index) => {
-                                                return index === 0
-                                                    ? (
-                                                        <Option key={unit.id} value="null">
-                                                            <div className="flex items-center justify-between ">
+                                            ? [
+                                                { id: 'null', nama: '| UNIT MASTER |' },
+                                                ...units.sort((a, b) => a.nama.localeCompare(b.nama))
+                                            ].map((unit, index) => ((
+                                                <Option key={unit.id} value={unit.id}>
+                                                    <div className="flex items-center justify-between ">
+                                                        { index === 0 ? (
+                                                            <>
                                                                 <p className="font-bold">
                                                                     | UNIT MASTER |
                                                                 </p>
                                                                 <span>
                                                                     <Chip size="sm" variant="ghost" value="Master" color="green" className="ml-3"/>
                                                                 </span>
-                                                            </div>
-                                                        </Option>
-                                                    )
-                                                    : (
-                                                        <Option key={unit.id} value={unit.id}>
-                                                            <div className="flex items-center justify-between ">
-                                                                { unit.nama }
-                                                            </div>
-                                                        </Option>
-                                                    )
-                                            }) : (
+                                                            </>
+                                                        ) : unit.nama
+                                                        }
+                                                    </div>
+                                                </Option>
+                                            ))) : (
                                                 <Option disabled>
                                                     <p className="!text-gray-900 !text-sm">
                                                         { units.length < 1

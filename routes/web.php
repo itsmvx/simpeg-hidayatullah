@@ -13,11 +13,6 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::prefix('admin')->name('admin.')->group(function () {
-    Route::get('/', [AdminUnitPagesController::class, 'loginPage'])->name('login');
-    Route::get('/{unitId}/dashboard', [AdminUnitPagesController::class, 'dashboardPage'])->name('dashboard');
-});
-
 Route::prefix('auth')->name('auth.')->group(function () {
     Route::post('/login/master', [AuthController::class, 'authAdminMaster'])->name('master');
     Route::post('/login/admin', [AuthController::class, 'authAdminUnit'])->name('admin');
@@ -45,17 +40,17 @@ Route::prefix('auth')->name('auth.')->group(function () {
 Route::prefix('unit')->name('unit.')->group(function () {
     Route::post('/exists-check', [UnitController::class, 'isExists'])->name('exists');
     Route::post('/create', [UnitController::class, 'create'])->name('create');
-    Route::put('/update/{id}', [UnitController::class, 'update'])->name('update');
+    Route::post('/update/{id}', [UnitController::class, 'update'])->name('update');
     Route::post('/delete', [UnitController::class, 'destroy'])->name('delete');
 });
 Route::prefix('golongan')->name('golongan.')->group(function () {
     Route::post('/create', [GolonganController::class, 'create'])->name('create');
-    Route::put('/update/{id}', [GolonganController::class, 'update'])->name('update');
+    Route::post('/update/{id}', [GolonganController::class, 'update'])->name('update');
     Route::post('/delete', [GolonganController::class, 'destroy'])->name('delete');
 });
 Route::prefix('marhalah')->name('marhalah.')->group(function () {
     Route::post('/create', [MarhalahController::class, 'create'])->name('create');
-    Route::put('/update/{id}', [MarhalahController::class, 'update'])->name('update');
+    Route::post('/update/{id}', [MarhalahController::class, 'update'])->name('update');
     Route::post('/delete', [MarhalahController::class, 'destroy'])->name('delete');
 });
 Route::prefix('admin')->name('admin.')->group(function () {
@@ -63,6 +58,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::post('/update', [AdminController::class, 'update'])->name('update');
     Route::post('/delete', [AdminController::class, 'destroy'])->name('delete');
     Route::post('/reset', [AdminController::class, 'reset'])->name('reset');
+    Route::get('/', [AdminUnitPagesController::class, 'loginPage'])->name('login');
+    Route::get('/{unitId}/dashboard', [AdminUnitPagesController::class, 'dashboardPage'])->name('dashboard');
+
 });
 Route::prefix('status-pegawai')->name('status-pegawai.')->group(function () {
     Route::post('/create', [StatusPegawaiController::class, 'create'])->name('create');
