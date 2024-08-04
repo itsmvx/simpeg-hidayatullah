@@ -4,7 +4,7 @@ import { Input } from "@/Components/Input";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import { DayPicker } from "react-day-picker";
-import type { FormDataDiri } from "@/Pages/Admin/MASTER_PegawaiCreatePage";
+import type { FormDataDiri } from "@/types";
 import { TriangleAlert } from "lucide-react";
 
 const PegawaiFormDataDiri = ({ formState, changeInput, changeDate, changeSelect, golongans, marhalahs, statusPegawais, units }: {
@@ -189,7 +189,7 @@ const PegawaiFormDataDiri = ({ formState, changeInput, changeDate, changeSelect,
                 label="Golongan"
                 color="teal"
                 name="golonganId"
-                value={ formState.golonganId }
+                value={ formState.golonganId ?? undefined }
                 onChange={ (value: string | undefined) => changeSelect('golonganId', value ?? '') }
             >
                 {
@@ -214,7 +214,7 @@ const PegawaiFormDataDiri = ({ formState, changeInput, changeDate, changeSelect,
                 label="Marhalah"
                 color="teal"
                 name="marhalahId"
-                value={ formState.marhalahId }
+                value={ formState.marhalahId ?? undefined }
                 onChange={ (value: string | undefined) => changeSelect('marhalahId', value ?? '') }
             >
                 {
@@ -239,7 +239,7 @@ const PegawaiFormDataDiri = ({ formState, changeInput, changeDate, changeSelect,
                 label="Status Pegawai"
                 color="teal"
                 name="statusPegawaiId"
-                value={ formState.statusPegawaiId }
+                value={ formState.statusPegawaiId ?? undefined }
                 onChange={ (value: string | undefined) => changeSelect('statusPegawaiId', value ?? '') }
             >
                 {
@@ -264,7 +264,7 @@ const PegawaiFormDataDiri = ({ formState, changeInput, changeDate, changeSelect,
                 label="Unit"
                 color="teal"
                 name="unitId"
-                value={ formState.unitId }
+                value={ formState.unitId ?? undefined }
                 onChange={ (value: string | undefined) => changeSelect('unitId', value ?? '') }
             >
                 {
@@ -309,13 +309,13 @@ const PegawaiFormDataDiri = ({ formState, changeInput, changeDate, changeSelect,
             <Input
                 type="text" color="teal" label="BPJS Kesehatan ( jika ada )"
                 name="bpjskesehatan"
-                value={ formState.bpjskesehatan }
+                value={ formState.bpjskesehatan ?? undefined }
                 onChange={ changeInput }
             />
             <Input
                 type="text" color="teal" label="BPJS Ketenagakerjaan ( jika ada )"
                 name="bpjsketenagakerjaan"
-                value={ formState.bpjsketenagakerjaan }
+                value={ formState.bpjsketenagakerjaan ?? undefined }
                 onChange={ changeInput }
             />
         </>

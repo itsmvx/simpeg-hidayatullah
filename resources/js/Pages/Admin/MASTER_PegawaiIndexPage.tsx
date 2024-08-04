@@ -358,9 +358,11 @@ export default function MASTER_PegawaiIndexPage({ auth, pegawais }: PageProps<{
                                                 <td className={ classes }>
                                                     <div className="w-32 flex gap-2.5 items-center justify-start">
                                                         <Tooltip content="Detail" className="bg-blue-600">
-                                                            <IconButton variant="text">
-                                                                <FileSearch className="h-5 w-5 text-blue-600"/>
-                                                            </IconButton>
+                                                            <Link href={route('master.pegawai.details', { q: id })}>
+                                                                <IconButton variant="text">
+                                                                    <FileSearch className="h-5 w-5 text-blue-800" />
+                                                                </IconButton>
+                                                            </Link>
                                                         </Tooltip>
                                                         <Tooltip content="Hapus" className="bg-red-400">
                                                             <IconButton

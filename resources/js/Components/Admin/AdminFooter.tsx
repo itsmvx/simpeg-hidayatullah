@@ -29,8 +29,8 @@ export const AdminFooter = ({ brandName, brandLink }: {
                     for a better web.
                 </Typography>
                 <ul className="flex items-center gap-4">
-                    {routes.map(({ name, path }) => (
-                        <li key={name}>
+                    {routes.map(({ path }) => (
+                        <li key={path}>
                             <Typography
                                 as="a"
                                 href={path}
@@ -38,7 +38,7 @@ export const AdminFooter = ({ brandName, brandLink }: {
                                 variant="small"
                                 className="py-0.5 px-1 font-normal text-inherit transition-colors hover:text-blue-500"
                             >
-                                {name}
+                                {path}
                             </Typography>
                         </li>
                     ))}

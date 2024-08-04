@@ -2,12 +2,12 @@ import { ChangeEvent, Dispatch, memo, SetStateAction } from "react";
 import { Button, Card, Option, Select, Tooltip, Typography } from "@material-tailwind/react";
 import { Input } from "@/Components/Input";
 import { ListPlus, ListX } from "lucide-react";
-import type { FormDataPendidikanFormal } from "@/Pages/Admin/MASTER_PegawaiCreatePage";
+import type { FormDataPendidikanFormal } from "@/types";
 
-const PegawaiFormDataPendidikanFormal = ({ formState, setFormState, formInitial }: {
+const PegawaiFormDataPendidikanFormal = ({ formState, setFormState, formDefault }: {
     formState: FormDataPendidikanFormal[];
     setFormState: Dispatch<SetStateAction<FormDataPendidikanFormal[]>>;
-    formInitial: FormDataPendidikanFormal;
+    formDefault: FormDataPendidikanFormal;
 }) => {
 
     const TABLE_HEAD = [
@@ -69,7 +69,7 @@ const PegawaiFormDataPendidikanFormal = ({ formState, setFormState, formInitial 
                         </tr>
                         </thead>
                         <tbody>
-                        { formState.map((_, index) => {
+                        { formState.map((form, index) => {
                             const isLast = index === 5 - 1;
                             const classes = isLast ? "p-4" : "p-4 border-b border-blue-gray-50";
 
@@ -83,6 +83,7 @@ const PegawaiFormDataPendidikanFormal = ({ formState, setFormState, formInitial 
                                             onChange={(value) => {
                                                 handleSelectChange(index, 'tingkat', value ?? '');
                                             }}
+                                            value={form.tingkat}
                                         >
                                             { TINGKAT_PENDIDIKAN.map((tingkat) => ((
                                                 <Option key={ tingkat } value={ tingkat }>
@@ -99,7 +100,7 @@ const PegawaiFormDataPendidikanFormal = ({ formState, setFormState, formInitial 
                                                 id={String(index)}
                                                 label={ label }
                                                 name={key}
-                                                value={formState[key]}
+                                                value={form[key]}
                                                 onChange={handleChangeInput}
                                             />
                                         </td>
@@ -127,7 +128,7 @@ const PegawaiFormDataPendidikanFormal = ({ formState, setFormState, formInitial 
                         <Button
                             className=" w-11 h-11 rounded-full !py-2.5 !px-3"
                             onClick={ () => {
-                                setFormState((prevState) => ([ ...prevState, formInitial ]))
+                                setFormState((prevState) => ([ ...prevState, formDefault ]))
                             } }
                         >
                             <ListPlus className="text-white" width={ 25 }/>

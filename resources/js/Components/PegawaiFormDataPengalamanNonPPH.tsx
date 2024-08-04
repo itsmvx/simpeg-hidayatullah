@@ -2,12 +2,12 @@ import { ChangeEvent, Dispatch, memo, SetStateAction } from "react";
 import { Button, Card, Tooltip, Typography } from "@material-tailwind/react";
 import { Input } from "@/Components/Input";
 import { ListPlus, ListX } from "lucide-react";
-import type { FormDataPengalamanNonPPH } from "@/Pages/Admin/MASTER_PegawaiCreatePage";
+import type { FormDataPengalamanNonPPH } from "@/types";
 
-const PegawaiFormDataPengalamanNonPPH = ({ formState, setFormState, formInitial }: {
+const PegawaiFormDataPengalamanNonPPH = ({ formState, setFormState, formDefault }: {
     formState: FormDataPengalamanNonPPH[];
     setFormState: Dispatch<SetStateAction<FormDataPengalamanNonPPH[]>>;
-    formInitial: FormDataPengalamanNonPPH;
+    formDefault: FormDataPengalamanNonPPH;
 }) => {
 
     const TABLE_HEAD = [
@@ -56,7 +56,7 @@ const PegawaiFormDataPengalamanNonPPH = ({ formState, setFormState, formInitial 
                         </tr>
                         </thead>
                         <tbody>
-                        { formState.map((_, index) => {
+                        { formState.map((form, index) => {
                             const isLast = index === 5 - 1;
                             const classes = isLast ? "p-4" : "p-4 border-b border-blue-gray-50";
 
@@ -69,7 +69,7 @@ const PegawaiFormDataPengalamanNonPPH = ({ formState, setFormState, formInitial 
                                                 type="text"
                                                 id={String(index)}
                                                 name={key}
-                                                value={formState[key]}
+                                                value={form[key]}
                                                 onChange={handleChangeInput}
                                                 label={ label }
                                             />
@@ -89,7 +89,7 @@ const PegawaiFormDataPengalamanNonPPH = ({ formState, setFormState, formInitial 
                             disabled={ formState.length <= 1 }
                             onClick={ () => {
                                 setFormState((prevState) => prevState.filter((filt, index) => index + 1 < prevState.length));
-                            } }
+                            }}
                         >
                             <ListX className="text-white" width={ 25 }/>
                         </Button>
@@ -98,7 +98,7 @@ const PegawaiFormDataPengalamanNonPPH = ({ formState, setFormState, formInitial 
                         <Button
                             className=" w-11 h-11 rounded-full !py-2.5 !px-3"
                             onClick={ () => {
-                                setFormState((prevState) => ([ ...prevState, formInitial ]))
+                                setFormState((prevState) => ([ ...prevState, formDefault ]))
                             } }
                         >
                             <ListPlus className="text-white" width={ 25 }/>
