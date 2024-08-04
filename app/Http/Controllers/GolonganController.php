@@ -86,9 +86,17 @@ class GolonganController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Golongan $golongan)
+    public function update(Request $request, $id)
     {
-        //
+        $validatedData = $request->validate([
+            'nama' => 'required|string|max:255',
+            'keterangan' => 'nullable|string',
+        ]);
+
+        $golongan = Golongan::findOrFail($id);
+        $golongan->update($validatedData);
+
+        return redirect()->route('master.golongan.index')->with('success', 'Gologan berhasil diperbarui.');
     }
 
     /**

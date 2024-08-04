@@ -21,8 +21,8 @@ import { AdminLoadingOverlay } from "@/Components/Admin/AdminLoadingOverlay";
 
 export const AdminNavbar = () => {
     const { theme } = useTheme();
-    const [ openNavbar, setOpenNavbar ] = useState(false);
-    const [ onFetchLogout, setFetchLogout ] = useState(false);
+    const [openNavbar, setOpenNavbar] = useState(false);
+    const [onFetchLogout, setFetchLogout] = useState(false);
     const pathNames = window.location.pathname.split("/").filter((path) => Boolean(path));
     const handleLogout = () => {
         setFetchLogout(true);
@@ -56,7 +56,7 @@ export const AdminNavbar = () => {
                         {
                             pathNames.map((path) => ((
                                 <Link key={path} href={path}>
-                                    { path }
+                                    {path}
                                 </Link>
                             )))
                         }
@@ -123,9 +123,9 @@ export const AdminNavbar = () => {
                                     ripple={false}
                                     className="group flex flex-row items-center justify-end w-40 gap-2"
                                 >
-                                <span>
-                                    ORANG
-                                </span>
+                                    <span>
+                                        ORANG
+                                    </span>
                                     <div className="flex">
                                         <Avatar src={HarunaPP} size="sm" />
                                         <ChevronDown width={18} className="group-aria-expanded:rotate-180 rotate-0 transition-rotate duration-150" />
@@ -159,7 +159,7 @@ export const AdminNavbar = () => {
                 </Collapse>
             </Navbar>
             {
-                onFetchLogout && ( <AdminLoadingOverlay /> )
+                onFetchLogout && (<AdminLoadingOverlay />)
             }
         </>
     );

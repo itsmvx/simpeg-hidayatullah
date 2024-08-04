@@ -13,6 +13,7 @@ Route::prefix('master')->name('master.')->middleware('admin.master')->group(func
     });
     Route::prefix('/golongan')->name('golongan.')->group(function () {
         Route::get('/', [AdminMasterPagesController::class, 'golonganIndexPage'])->name('index');
+        Route::get('/details', [AdminMasterPagesController::class, 'golonganDetailsPage'])->name('details');
     });
     Route::prefix('/marhalah')->name('marhalah.')->group(function () {
         Route::get('/', [AdminMasterPagesController::class, 'marhalahIndexPage'])->name('index');
@@ -28,6 +29,7 @@ Route::prefix('master')->name('master.')->middleware('admin.master')->group(func
     });
     Route::prefix('/status-pegawai')->name('status-pegawai.')->group(function () {
         Route::get('/', [AdminMasterPagesController::class, 'statusPegawaiIndexPage'])->name('index');
+        Route::get('/details', [AdminMasterPagesController::class, 'statusPegawaiDetailsPage'])->name('details');
     });
     Route::prefix('/inventaris')->name('inventaris.')->group(function () {
         Route::get('/', [AdminMasterPagesController::class, 'unitIndexPage'])->name('index');

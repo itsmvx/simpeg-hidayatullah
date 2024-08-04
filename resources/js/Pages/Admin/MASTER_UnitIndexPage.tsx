@@ -34,7 +34,7 @@ import axios, { AxiosError } from "axios";
 import * as XLSX from "xlsx";
 import { id } from "date-fns/locale";
 
-export default function MasterManageUnitPage({ auth, units, adminCount }: PageProps<{
+export default function MasterManageUnitPage({ auth, units, adminCount, flash }: PageProps<{
     units: {
         id: string;
         nama: string;
@@ -260,6 +260,15 @@ export default function MasterManageUnitPage({ auth, units, adminCount }: PagePr
             setData(matchUnits);
         }
     }, [ search ]);
+
+    useEffect(() => {
+        if (flash?.success) {
+            notifyToast("success", flash.success, theme as "light" | "dark");
+        }
+        if (flash?.error) {
+            notifyToast("error", flash.error, theme as "light" | "dark");
+        }
+    }, [flash]);
 
     return (
         <>
