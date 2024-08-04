@@ -2,15 +2,15 @@ import { ChangeEvent, Dispatch, memo, SetStateAction } from "react";
 import { Button, Card, Option, Select, ThemeProvider, Tooltip, Typography } from "@material-tailwind/react";
 import { Input } from "@/Components/Input";
 import { ListPlus, ListX } from "lucide-react";
-import { FormDataKeluarga, type FormDataPendidikanFormal } from "@/Pages/Admin/MASTER_PegawaiCreatePage";
-import value = ThemeProvider.propTypes.value;
+import type { FormDataKeluarga } from "@/types";
 
-const PegawaiFormDataKeluarga = ({ formState, setFormState, formInitial }: {
+const PegawaiFormDataKeluarga = ({ formState, setFormState, formDefault }: {
     formState: FormDataKeluarga[];
     setFormState: Dispatch<SetStateAction<FormDataKeluarga[]>>;
-    formInitial: FormDataKeluarga;
+    formDefault: FormDataKeluarga;
 }) => {
 
+    console.log('form: ',formState);
     const TABLE_HEAD = [
         { key: 'status', label: 'Status Dalam Keluarga' },
         { key: 'nama', label: 'Nama Lengkap' },
@@ -68,10 +68,11 @@ const PegawaiFormDataKeluarga = ({ formState, setFormState, formInitial }: {
                         </tr>
                         </thead>
                         <tbody>
-                        { formState.map((_, index) => {
+                        { formState.map((form, index) => {
                             const isLast = index === 5 - 1;
                             const classes = isLast ? "p-4" : "p-4 border-b border-blue-gray-50";
 
+                            console.log('part:', typeof form);
                             return (
                                 <tr key={ index }>
                                     <td className={ classes }>
@@ -81,12 +82,13 @@ const PegawaiFormDataKeluarga = ({ formState, setFormState, formInitial }: {
                                             onChange={(value) => {
                                                 handleSelectChange(index, 'status', value ?? '');
                                             }}
+                                            value={form.status}
                                         >
                                             { STATUS_KELUARGA.map((status) => ((
                                                 <Option
                                                     key={ status }
                                                     value={ status }
-                                                                                           >
+                                                >
                                                     { status }
                                                 </Option>
                                             ))) }
@@ -101,9 +103,10 @@ const PegawaiFormDataKeluarga = ({ formState, setFormState, formInitial }: {
                                                             label="Jenis kelamin"
                                                             color="teal"
                                                             onChange={(value) => handleSelectChange(index, 'jenisKelamin', value ?? '')}
+                                                            value={form.jenisKelamin}
                                                         >
-                                                            <Option>Laki-laki</Option>
-                                                            <Option>Perempuan</Option>
+                                                            <Option value="Laki-Laki">Laki-laki</Option>
+                                                            <Option value="Perempuan">Perempuan</Option>
                                                         </Select>
                                                     ) : key === 'tanggalLahir'
                                                         ? (
@@ -113,7 +116,7 @@ const PegawaiFormDataKeluarga = ({ formState, setFormState, formInitial }: {
                                                                 id={String(index)}
                                                                 name={key}
                                                                 label={ label }
-                                                                value={formState[key]}
+                                                                value={form.tanggalLahir}
                                                                 onChange={handleChangeInput}
                                                             />
                                                         ) : (
@@ -123,7 +126,7 @@ const PegawaiFormDataKeluarga = ({ formState, setFormState, formInitial }: {
                                                                 id={String(index)}
                                                                 label={ label }
                                                                 name={key}
-                                                                value={formState[key]}
+                                                                value={form[key]}
                                                                 onChange={handleChangeInput}
                                                             />
                                                         )
@@ -153,7 +156,7 @@ const PegawaiFormDataKeluarga = ({ formState, setFormState, formInitial }: {
                         <Button
                             className=" w-11 h-11 rounded-full !py-2.5 !px-3"
                             onClick={ () => {
-                                setFormState((prevState) => ([ ...prevState, formInitial ]))
+                                setFormState((prevState) => ([ ...prevState, formDefault ]))
                             } }
                         >
                             <ListPlus className="text-white" width={ 25 }/>

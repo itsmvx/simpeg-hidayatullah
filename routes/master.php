@@ -26,6 +26,7 @@ Route::prefix('master')->name('master.')->middleware('admin.master')->group(func
     Route::prefix('/pegawai')->name('pegawai.')->group(function () {
         Route::get('/', [AdminMasterPagesController::class, 'pegawaiIndexPage'])->name('index');
         Route::get('/create', [AdminMasterPagesController::class, 'pegawaiCreatePage'])->name('create');
+        Route::get('/details', [AdminMasterPagesController::class, 'pegawaiDetailsPage'])->name('details');
     });
     Route::prefix('/status-pegawai')->name('status-pegawai.')->group(function () {
         Route::get('/', [AdminMasterPagesController::class, 'statusPegawaiIndexPage'])->name('index');

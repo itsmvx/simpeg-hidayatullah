@@ -30,4 +30,19 @@ export const notifyToast = (type: 'success' | 'error', message: string, theme: '
         theme: theme,
         transition: Bounce,
     });
-}
+};
+export const calculateAge = (birthDate: Date): {
+    years: number;
+    months: number;
+} => {
+    const now = new Date();
+    let years = now.getFullYear() - birthDate.getFullYear();
+    let months = now.getMonth() - birthDate.getMonth();
+
+    if (months < 0) {
+        years--;
+        months += 12;
+    }
+
+    return { years, months };
+};
