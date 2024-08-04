@@ -2,12 +2,12 @@ import { ChangeEvent, Dispatch, memo, SetStateAction } from "react";
 import { Button, Card, Tooltip, Typography } from "@material-tailwind/react";
 import { Input } from "@/Components/Input";
 import { ListPlus, ListX } from "lucide-react";
-import type { FormDataOrganisasi } from "@/Pages/Admin/MASTER_PegawaiCreatePage";
+import type { FormDataOrganisasi } from "@/types";
 
-const PegawaiFormDataOrganisasi = ({ formState, setFormState, formInitial }: {
+const PegawaiFormDataOrganisasi = ({ formState, setFormState, formDefault }: {
     formState: FormDataOrganisasi[];
     setFormState: Dispatch<SetStateAction<FormDataOrganisasi[]>>;
-    formInitial: FormDataOrganisasi;
+    formDefault: FormDataOrganisasi;
 }) => {
 
     const TABLE_HEAD = [
@@ -56,7 +56,7 @@ const PegawaiFormDataOrganisasi = ({ formState, setFormState, formInitial }: {
                         </tr>
                         </thead>
                         <tbody>
-                        { formState.map((_, index) => {
+                        { formState.map((form, index) => {
                             const isLast = index === 5 - 1;
                             const classes = isLast ? "p-4" : "p-4 border-b border-blue-gray-50";
 
@@ -69,7 +69,7 @@ const PegawaiFormDataOrganisasi = ({ formState, setFormState, formInitial }: {
                                                 type="text"
                                                 id={String(index)}
                                                 name={key}
-                                                value={formState[key]}
+                                                value={form[key]}
                                                 onChange={handleChangeInput}
                                                 label={ label }
                                             />
@@ -98,7 +98,7 @@ const PegawaiFormDataOrganisasi = ({ formState, setFormState, formInitial }: {
                         <Button
                             className=" w-11 h-11 rounded-full !py-2.5 !px-3"
                             onClick={ () => {
-                                setFormState((prevState) => ([ ...prevState, formInitial ]))
+                                setFormState((prevState) => ([ ...prevState, formDefault ]))
                             } }
                         >
                             <ListPlus className="text-white" width={ 25 }/>

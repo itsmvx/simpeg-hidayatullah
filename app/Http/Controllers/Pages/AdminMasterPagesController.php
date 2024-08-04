@@ -185,6 +185,32 @@ class AdminMasterPagesController extends Controller
             'units' => fn () => Unit::select('id', 'nama')->get(),
         ]);
     }
+    public function pegawaiDetailsPage(Request $request)
+    {
+        $idParam = $request->query->get('q');
+        if (!$idParam) {
+            abort(404);
+        }
+
+        try {
+            $pegawai = Pegawai::find($idParam);
+            if (!$pegawai) {
+                abort(404);
+            }
+
+            $pegawai->makeHidden(['password', 'updated_at']);
+
+            return Inertia::render('Admin/MASTER_PegawaiDetailsPage', [
+                'pegawai' => fn() => $pegawai,
+                'golongans' => fn () => Golongan::select('id', 'nama')->get(),
+                'marhalahs' => fn () => Marhalah::select('id', 'nama')->get(),
+                'statusPegawais' => fn () => StatusPegawai::select('id', 'nama')->get(),
+                'units' => fn () => Unit::select('id', 'nama')->get(),
+            ]);
+        } catch (QueryException $exception) {
+            abort(500);
+        }
+    }
 
     public function statusPegawaiIndexPage()
     {

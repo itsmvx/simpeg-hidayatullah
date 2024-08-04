@@ -24,75 +24,19 @@ import PegawaiFormDataPendidikanNonFormal from "@/Components/PegawaiFormDataPend
 import PegawaiFormDataOrganisasi from "@/Components/PegawaiFormDataOrganisasi";
 import PegawaiFormDataPengalamanPPH from "@/Components/PegawaiFormDataPengalamanPPH";
 import PegawaiFormDataPengalamanNonPPH from "@/Components/PegawaiFormDataPengalamanNonPPH";
-import { PageProps } from "@/types";
+import { FormDataDiri, PageProps } from "@/types";
 import { z } from "zod";
 import { notifyToast } from "@/Lib/Utils";
 import axios, { AxiosError } from "axios";
+import {
+    formDataKeluargaDefault,
+    formDataOrganisasiDefault,
+    formDataPendidikanFormalDefault,
+    formDataPendidikanNonFormalDefault,
+    formDataPengalamanNonPPHDefault,
+    formDataPengalamanPPHDefault
+} from "@/Lib/StaticData";
 const PegawaiFormSuccess = lazy(() => import('./../../Components/PegawaiFormSuccess'));
-
-export type FormDataDiri = {
-    nik: string;
-    nip: string;
-    namaLengkap: string;
-    sukuBangsa: string;
-    tempatLahir: string;
-    tanggalLahir?: Date;
-    usiaTahun: string;
-    usiaBulan: string;
-    jenisKelamin: string;
-    alamat: string;
-    agama: string;
-    statusPernikahan: string;
-    marhalahId: string;
-    golonganId: string;
-    statusPegawaiId: string;
-    unitId: string;
-    amanah: string;
-    amanahAtasanLangsung: string;
-    nomorHpWa: string;
-    tahunMasuk?: Date;
-    bpjskesehatan: string;
-    bpjsketenagakerjaan: string;
-};
-export type FormDataKeluarga = {
-    status: string;
-    nama: string;
-    jenisKelamin: string;
-    tempatLahir: string;
-    tanggalLahir: string;
-    pekerjaan: string;
-    pendidikan: string;
-};
-export type FormDataPendidikanFormal = {
-    tingkat: string;
-    sekolah: string;
-    lulus: string;
-};
-export type FormDataPendidikanNonFormal = {
-    jenis: string;
-    penyelenggara: string;
-    tempat: string;
-    tahun: string;
-};
-export type FormDataOrganisasi = {
-    nama: string;
-    jabatan: string;
-    masa: string;
-    keterangan: string;
-};
-export type FormDataPengalamanPPH = {
-    unit: string;
-    jabatan: string;
-    amanah: string;
-    mulai: string;
-    akhir: string;
-};
-export type FormDataPengalamanNonPPH = {
-    instansi: string;
-    jabatan: string;
-    tahun: string;
-    keterangan: string;
-};
 
 export default function MASTER_PegawaiCreatePage({ auth, golongans, marhalahs, statusPegawais, units }: PageProps<{
     golongans: {
@@ -190,46 +134,6 @@ export default function MASTER_PegawaiCreatePage({ auth, golongans, marhalahs, s
         );
     };
 
-    const formDataKeluargaInit: FormDataKeluarga =  {
-        status: '',
-        nama: '',
-        jenisKelamin: '',
-        tempatLahir: '',
-        tanggalLahir: '',
-        pekerjaan: '',
-        pendidikan: ''
-    };
-    const formDataPendidikanFormalInit: FormDataPendidikanFormal = {
-        tingkat: '',
-        sekolah: '',
-        lulus: ''
-    };
-    const formDataPendidikanNonFormalInit: FormDataPendidikanNonFormal = {
-        jenis: '',
-        penyelenggara: '',
-        tempat: '',
-        tahun: ''
-    };
-    const formDataOrganisasiInit: FormDataOrganisasi = {
-        nama: '',
-        jabatan: '',
-        masa: '',
-        keterangan: ''
-    };
-    const formDataPengalamanPPHInit: FormDataPengalamanPPH = {
-        unit: '',
-        jabatan: '',
-        amanah: '',
-        mulai: '',
-        akhir: ''
-    };
-    const formDataPengalamanNonPPHInit: FormDataPengalamanNonPPH = {
-        instansi: '',
-        jabatan: '',
-        tahun: '',
-        keterangan: ''
-    };
-
     const [ onSuccess, setOnSuccess ]  = useState<boolean>(false);
     const [ openNav, setOpenNav] = useState(false);
     const [formDataDiri, setFormDataDiri] = useState<FormDataDiri>({
@@ -262,37 +166,37 @@ export default function MASTER_PegawaiCreatePage({ auth, golongans, marhalahs, s
         tanggalLahir: string;
         pekerjaan: string;
         pendidikan: string;
-    }[]>([ formDataKeluargaInit ]);
+    }[]>([ formDataKeluargaDefault ]);
     const [ formDataPendidikanFormal, setFormDataPendidikanFormal ] = useState<{
         tingkat: string;
         sekolah: string;
         lulus: string;
-    }[]>([ formDataPendidikanFormalInit ]);
+    }[]>([ formDataPendidikanFormalDefault ]);
     const [ formDataPendidikanNonFormal, setFormDataPendidikanNonFormal ] = useState<{
         jenis: string;
         penyelenggara: string;
         tempat: string;
         tahun: string;
-    }[]>([ formDataPendidikanNonFormalInit ]);
+    }[]>([ formDataPendidikanNonFormalDefault ]);
     const [ formDataOrganisasi, setFormDataOrganisasi ] = useState<{
         nama: string;
         jabatan: string;
         masa: string;
         keterangan: string;
-    }[]>([ formDataOrganisasiInit ]);
+    }[]>([ formDataOrganisasiDefault ]);
     const [ formDataPengalamanPPH, setFormDataPengalamanPPH ] = useState<{
         unit: string;
         jabatan: string;
         amanah: string;
         mulai: string;
         akhir: string;
-    }[]>([ formDataPengalamanPPHInit ]);
+    }[]>([ formDataPengalamanPPHDefault ]);
     const [ formDataPengalamanNonPPH, setFormPengalamanNonPPH ] = useState<{
         instansi: string;
         jabatan: string;
         tahun: string;
         keterangan: string;
-    }[]>([ formDataPengalamanNonPPHInit ]);
+    }[]>([ formDataPengalamanNonPPHDefault ]);
 
     const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = event.target;
@@ -324,11 +228,16 @@ export default function MASTER_PegawaiCreatePage({ auth, golongans, marhalahs, s
             tempat_lahir: z.string({ message: "Tempat lahir tidak boleh kosong" }),
             tanggal_lahir: z.date({ message: "Tanggal lahir tidak valid" }),
             no_hp: z.string({ message: "Nomor HP tidak boleh kosong" }),
+            suku: z.string({ message: 'Input Suku bangsa tidak boleh kosong' }),
+            alamat: z.string({ message: 'Alamat tidak boleh kosong' }),
+            agama: z.string({ message: 'Agama tidak boleh kosong' }),
             status_pernikahan: z.string({ message: "Status pernikahan tidak boleh kosong" }),
             amanah: z.string({ message: "Amanah tidak boleh kosong" }),
+            amanah_atasan: z.string({ message: "Amanah Atasan tidak boleh kosong" }),
             tanggal_masuk: z.date({ message: "Tanggal masuk harus berupa tanggal yang valid" }),
             bpjs_kesehatan: z.string().nullable(),
             bpjs_ketenagakerjaan: z.string().nullable(),
+            data_keluarga: z.string({ message: "Data Keluarga tidak valid" }),
             pendidikan_formal: z.string({ message: "Data Pendidikan formal tidak valid" }),
             pendidikan_non_formal: z.string({ message: "Data Pendidikan non formal tidak valid" }),
             pengalaman_organisasi: z.string({ message: "Data Pengalaman Organisasi tidak valid" }),
@@ -349,11 +258,16 @@ export default function MASTER_PegawaiCreatePage({ auth, golongans, marhalahs, s
             tempat_lahir: formDataDiri.tempatLahir,
             tanggal_lahir: formDataDiri.tanggalLahir,
             no_hp: formDataDiri.nomorHpWa,
+            suku: formDataDiri.sukuBangsa,
+            alamat: formDataDiri.alamat,
+            agama: formDataDiri.agama,
             status_pernikahan: formDataDiri.statusPernikahan,
             amanah: formDataDiri.amanah,
+            amanah_atasan: formDataDiri.amanahAtasanLangsung,
             tanggal_masuk: formDataDiri.tahunMasuk,
             bpjs_kesehatan: formDataDiri.bpjskesehatan,
             bpjs_ketenagakerjaan: formDataDiri.bpjsketenagakerjaan,
+            data_keluarga: JSON.stringify(formDataKeluarga),
             pendidikan_formal: JSON.stringify(formDataPendidikanFormal),
             pendidikan_non_formal: JSON.stringify(formDataPendidikanNonFormal),
             pengalaman_organisasi: JSON.stringify(formDataOrganisasi),
@@ -503,7 +417,7 @@ export default function MASTER_PegawaiCreatePage({ auth, golongans, marhalahs, s
                                     <PegawaiFormDataKeluarga
                                         formState={ formDataKeluarga }
                                         setFormState={ setFormDataKeluarga }
-                                        formInitial={ formDataKeluargaInit }
+                                        formDefault={ formDataKeluargaDefault }
                                     />
 
                                     <div ref={ formDataPendidikanRef } id="data-pendidikan"
@@ -516,7 +430,7 @@ export default function MASTER_PegawaiCreatePage({ auth, golongans, marhalahs, s
                                     <PegawaiFormDataPendidikanFormal
                                         formState={ formDataPendidikanFormal }
                                         setFormState={ setFormDataPendidikanFormal }
-                                        formInitial={ formDataPendidikanFormalInit }
+                                        formDefault={ formDataPendidikanFormalDefault }
                                     />
 
                                     <div className="mt-6 col-span-1 lg:col-span-2">
@@ -528,7 +442,7 @@ export default function MASTER_PegawaiCreatePage({ auth, golongans, marhalahs, s
                                     <PegawaiFormDataPendidikanNonFormal
                                         formState={ formDataPendidikanNonFormal }
                                         setFormState={ setFormDataPendidikanNonFormal }
-                                        formInitial={ formDataPendidikanNonFormalInit }
+                                        formDefault={ formDataPendidikanNonFormalDefault }
                                     />
 
                                     <div ref={ formDataPengalaman } id="data-pengalaman"
@@ -540,7 +454,7 @@ export default function MASTER_PegawaiCreatePage({ auth, golongans, marhalahs, s
                                     <PegawaiFormDataOrganisasi
                                         formState={ formDataOrganisasi }
                                         setFormState={ setFormDataOrganisasi }
-                                        formInitial={ formDataOrganisasiInit }
+                                        formDefault={ formDataOrganisasiDefault }
                                     />
 
                                     <div className="mt-6 col-span-1 lg:col-span-2">
@@ -551,7 +465,7 @@ export default function MASTER_PegawaiCreatePage({ auth, golongans, marhalahs, s
                                     <PegawaiFormDataPengalamanPPH
                                         formState={ formDataPengalamanPPH }
                                         setFormState={ setFormDataPengalamanPPH }
-                                        formInitial={ formDataPengalamanPPHInit }
+                                        formDefault={ formDataPengalamanPPHDefault }
                                     />
 
                                     <div className="mt-6 col-span-1 lg:col-span-2">
@@ -562,7 +476,7 @@ export default function MASTER_PegawaiCreatePage({ auth, golongans, marhalahs, s
                                     <PegawaiFormDataPengalamanNonPPH
                                         formState={ formDataPengalamanNonPPH }
                                         setFormState={ setFormPengalamanNonPPH }
-                                        formInitial={ formDataPengalamanNonPPHInit }
+                                        formDefault={ formDataPengalamanNonPPHDefault }
                                     />
 
                                     <Button
