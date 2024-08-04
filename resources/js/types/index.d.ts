@@ -26,7 +26,7 @@ export interface Marhalah {
     created_at: string;
 }
 
-export interface Gologan {
+export interface Golongan {
     id: string;
     nama: string;
     keterangan: string;
