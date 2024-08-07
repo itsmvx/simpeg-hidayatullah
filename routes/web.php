@@ -1,6 +1,9 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AdminUnit\PegawaiController as AdminUnitPegawaiController;
+use App\Http\Controllers\AdminUnit\RekapPegawaiController;
+use App\Http\Controllers\AdminUnit\UnitController as AdminUnitUnitController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\GolonganController;
 use App\Http\Controllers\MarhalahController;
@@ -61,6 +64,20 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [AdminUnitPagesController::class, 'loginPage'])->name('login');
     Route::get('/{unitId}/dashboard', [AdminUnitPagesController::class, 'dashboardPage'])->name('dashboard');
 
+    Route::prefix('/admin-unit')->name('admin-unit.')->group(function () {
+        Route::prefix('/unit')->name('unit.')->group(function () {
+            Route::get('/', [AdminUnitUnitController::class, 'index'])->name('index');
+            // Route::get('/details', [UnitController::class, 'show'])->name('details');
+        });
+
+        Route::prefix('/pegawai')->name('pegawai.')->group(function () {
+            Route::get('/', [AdminUnitPegawaiController::class, 'index'])->name('index');
+            // Route::get('/create', [PegawaiController::class, 'pegawaiCreatePage'])->name('create');
+            // Route::get('/details', [PegawaiController::class, 'pegawaiDetailsPage'])->name('details');
+        });
+
+        Route::get('/rekap-pegawai', [RekapPegawaiController::class, 'index'])->name('rekap-pegawai');
+    });
 });
 Route::prefix('status-pegawai')->name('status-pegawai.')->group(function () {
     Route::post('/create', [StatusPegawaiController::class, 'create'])->name('create');
@@ -81,6 +98,6 @@ Route::get('/form-pelamar', function () {
     return Inertia::render('PelamarFormPage');
 });
 
-require __DIR__.'/admin.php';
-require __DIR__.'/master.php';
-require __DIR__.'/pegawai.php';
+require __DIR__ . '/admin.php';
+require __DIR__ . '/master.php';
+require __DIR__ . '/pegawai.php';
