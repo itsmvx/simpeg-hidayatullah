@@ -13,7 +13,7 @@ class AdminUnitPagesController extends Controller
 {
     public function loginPage()
     {
-        return Inertia::render('Admin/ADMIN_AdminLoginPage', [
+        return Inertia::render('Admin/AdminUnit/ADMIN_AdminLoginPage', [
             'units' => Unit::select('id', 'nama', 'keterangan')->get()
         ]);
     }
@@ -21,7 +21,7 @@ class AdminUnitPagesController extends Controller
     {
         $authAdmin = Auth::guard('admin')->user();
         if ($authAdmin && $unitId == $authAdmin->unit_id) {
-            return Inertia::render('Admin/AdminDashboardPage', [
+            return Inertia::render('Admin/AdminUnit/AdminDashboardPage', [
                 'pegawais' => Pegawai::where('unit_id', $unitId)->get(),
             ]);
         }
