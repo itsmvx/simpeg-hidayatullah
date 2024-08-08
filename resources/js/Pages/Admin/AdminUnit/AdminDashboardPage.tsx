@@ -2,7 +2,7 @@ import { Card, CardBody, CardFooter, CardHeader, Typography } from "@material-ta
 import { BarChartBig } from "lucide-react";
 import { useTheme } from "@/Hooks/useTheme";
 import { MTColor, PageProps } from "@/types";
-import { AdminLayout } from "@/Layouts/AdminLayout";
+import { AdminUnitLayout } from "@/Layouts/AdminUnitLayout";
 
 export default function AdminDashboardPage({ auth, pegawais }: PageProps<{
     pegawais: {}[]
@@ -58,7 +58,7 @@ export default function AdminDashboardPage({ auth, pegawais }: PageProps<{
 
     return (
         <>
-            <AdminLayout>
+            <AdminUnitLayout>
                 <div className="mt-12">
                     <div className="mb-12 grid gap-y-10 gap-x-6 md:grid-cols-2 xl:grid-cols-4">
                         { cardData.map(({ icon, title, footer, color, value }) => (
@@ -95,7 +95,7 @@ export default function AdminDashboardPage({ auth, pegawais }: PageProps<{
                         )) }
                     </div>
                 </div>
-            </AdminLayout>
+            </AdminUnitLayout>
         </>
     );
 }
