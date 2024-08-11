@@ -157,7 +157,7 @@ export default function MasterManageAdminPage({ auth, admins, units }: PageProps
     }>(resetPasswordInit);
 
     // @ts-ignore
-    const formSubmitDisabled = (): boolean => (!formInput.nama || !formInput.username || !formInput.password || (typeof formInput.unitId !== null ? formInput.unitId?.length < 1 : false));
+    // const formSubmitDisabled = (): boolean => (!formInput.nama || !formInput.username || !formInput.password || (typeof formInput.unitId !== null ? formInput.unitId?.length < 1 : false));
     const handleFormSubmit = (event: SyntheticEvent<HTMLFormElement>) => {
         event.preventDefault();
         const { nama, username, password, unitId } = formInput
@@ -300,6 +300,8 @@ export default function MasterManageAdminPage({ auth, admins, units }: PageProps
             setData(matchadmins);
         }
     }, [ search ]);
+
+    console.log()
 
     return (
         <>
@@ -605,7 +607,7 @@ export default function MasterManageAdminPage({ auth, admins, units }: PageProps
                                     onChange={(value) => {
                                         setFormInput((prevState) => ({
                                             ...prevState,
-                                            unitId: value === "null" ? null : value ?? '',
+                                            periodeId: value === "null" ? null : value ?? '',
                                         }))
                                     }}
                                 >
@@ -654,7 +656,7 @@ export default function MasterManageAdminPage({ auth, admins, units }: PageProps
                                 <Button
                                     type="submit"
                                     loading={formInput.onSubmit}
-                                    disabled={formSubmitDisabled()}
+                                    // disabled={formSubmitDisabled()}
                                     onClick={handleOpenForm}
                                     fullWidth
                                 >

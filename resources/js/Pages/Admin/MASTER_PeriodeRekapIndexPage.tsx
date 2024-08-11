@@ -4,19 +4,16 @@ import {
     CardBody,
     CardFooter,
     CardHeader, Dialog, DialogBody, DialogFooter, DialogHeader,
-    IconButton,
+    IconButton, Option, Select,
     Tooltip,
     Typography
 } from "@material-tailwind/react";
 import {
     ArrowLeft, ArrowRight,
-    BarChartBig,
-    Building2,
-    ChevronDown, Download, FileSearch,
-    NotebookText,
+    CalendarDays, Check,
+    ChevronDown, FileSearch, LoaderCircle, LockKeyholeOpen,
     Plus,
-    Search, Trash2,
-    User2
+    Search, Trash2, X,
 } from "lucide-react";
 import { MTColor, PageProps } from "@/types";
 import { AdminLayout } from "@/Layouts/AdminLayout";
@@ -27,70 +24,69 @@ import { id as localeID } from "date-fns/locale/id";
 import { TextArea } from "@/Components/TextArea";
 import { Checkbox } from "@/Components/Checkbox";
 import { useTheme } from "@/Hooks/useTheme";
-import { SyntheticEvent, useEffect, useMemo, useState } from "react";
+import { Fragment, SyntheticEvent, useEffect, useMemo, useState } from "react";
 import { Bounce, toast } from "react-toastify";
 import {  z } from "zod";
 import axios, { AxiosError } from "axios";
-import * as XLSX from "xlsx";
-import { id } from "date-fns/locale";
+import { Switch } from "@headlessui/react";
 
-export default function MasterManageUnitPage({ auth, units, adminCount }: PageProps<{
-    units: {
+export type FormPeriodeRekap = {
+    nama: string;
+    jenis: ''|'mingguan'|'bulanan'|'semesteran'|'tahunan';
+    keterangan: string;
+    awal: string;
+    akhir: string;
+    status: boolean;
+    error: {
+        nama: boolean;
+        keterangan: boolean;
+    };
+    onSubmit: boolean;
+};
+export type JenisPeriodeRekap = 'mingguan'|'bulanan'|'semesteran'|'tahunan';
+export const jenisPeriodeRekap: JenisPeriodeRekap[] = ['mingguan', 'bulanan', 'semesteran', 'tahunan'];
+
+export default function MASTER_PeriodeRekapIndexPage({ auth, periodes, opensCount }: PageProps<{
+    periodes: {
         id: string;
         nama: string;
         keterangan: string;
-        created_at: string;
-        admin: {
-            id: string;
-            username: string;
-            unit_id: string;
-        }[] | []
+        awal: string;
+        akhir: string;
+        status: 0 | 1;
     }[] | [];
-    adminCount: number;
+    opensCount: number;
 }>) {
-    const TABLE_HEAD = ['No', 'Nama', 'Admin', 'Tanggal daftar', 'Aksi'];
+    const TABLE_HEAD = ['No', 'Nama Periode', 'Keterangan', 'Masa Periode', 'Status', 'Aksi'];
     const cardData = [
         {
             color: "gray",
-            icon: <Building2 />,
-            title: "Jumlah Unit terdaftar",
-            value: units.length,
+            icon: <CalendarDays />,
+            title: "Jumlah Periode Terdaftar",
+            value: periodes.length,
         },
         {
             color: "gray",
-            icon: <User2 />,
-            title: "Jumlah Akun Unit aktif",
-            value: adminCount,
-        },
-        {
-            color: "gray",
-            icon: <NotebookText />,
-            title: "Pengajuan Promosi Unit",
-            value: "1",
-        },
-        {
-            color: "gray",
-            icon: <BarChartBig />,
-            title: "Lorem ipsum",
-            value: "704",
+            icon: <LockKeyholeOpen />,
+            title: "Jumlah Periode status",
+            value: opensCount,
         },
     ];
     const deleteDialogInit = {
         open: false,
-        unitId: '',
-        admins: []
+        periodeId: '',
     };
     const { theme } = useTheme();
     const [ openFormDialog, setOpenFormDialog ] = useState(false);
     const [ deleteDialog, setDeleteDialog ] = useState<{
         open: boolean;
-        unitId: string;
-        admins: {
-            id: string;
-            username: string;
-            unit_id: string;
-        }[]
+        periodeId: string;
     }>(deleteDialogInit);
+    const [ onSwitchStatus, setOnSwitchStatus ] = useState({
+        status: false,
+        index: -1
+    });
+
     const [ sortBy, setSortBy ] = useState('');
     const [ currPage, setCurrPage ] = useState(1);
     const [ viewPerPage, setViewPerPage ] = useState(10);
@@ -111,10 +107,10 @@ export default function MasterManageUnitPage({ auth, units, adminCount }: PagePr
         const startIndex = (currPage - 1) * viewPerPage;
         const lastIndex = startIndex + viewPerPage;
 
-        return units.slice(startIndex, lastIndex);
-    }, [ units, viewPerPage ]);
+        return periodes.slice(startIndex, lastIndex);
+    }, [ periodes, viewPerPage ]);
 
-    const [data, setData] = useState(adjustData);
+    const [ data, setData ] = useState(adjustData);
     const [ search, setSearch ] = useState('');
     const getItemProps = (index: number) =>
         ({
@@ -124,7 +120,7 @@ export default function MasterManageUnitPage({ auth, units, adminCount }: PagePr
         } as any);
 
     const nextPage = () => {
-        const totalPages = Math.ceil(units.length / viewPerPage);
+        const totalPages = Math.ceil(periodes.length / viewPerPage);
         currPage < totalPages && setCurrPage(currPage + 1);
     };
     const prevPage = () => {
@@ -136,78 +132,90 @@ export default function MasterManageUnitPage({ auth, units, adminCount }: PagePr
         ...prevState,
         open: true
     }));
-    const formInputInit = {
+    const handleSwitchStatus = (val: boolean, index: number) => {
+        setOnSwitchStatus({
+            status: true,
+            index: index
+        });
+        axios.post(route('periode-rekap.update-status'), {
+            id: data[index].id,
+            status: val
+        })
+            .then(() => {
+                notifyToast('success', 'Periode Rekap berhasil diperbarui!');
+                setData((prevState) => {
+                    return prevState.map((prev, idx) => {
+                        return idx === index
+                            ? { ...prev, status: Number((!prev.status)) as 0 | 1 }
+                            : prev;
+                    });
+                });
+            })
+            .catch(() => {
+                notifyToast('error', 'Server gagal memproses permintaan');
+            })
+            .finally(() => setOnSwitchStatus({
+                status: false,
+                index: -1
+            }));
+    };
+
+    const formInputInit: FormPeriodeRekap = {
         nama: '',
+        jenis: '',
         keterangan: '',
+        awal: '',
+        akhir: '',
+        status: false,
         error: {
             nama: false,
-            keterangan: false
+            keterangan: false,
         },
         onSubmit: false
     };
-    const [ formInput, setFormInput ] = useState<{
-        nama: string;
-        keterangan: string;
-        error: {
-            nama: boolean;
-            keterangan: boolean;
-        };
-        onSubmit: boolean;
-    }>(formInputInit);
-
-    const handleXLSXDownload = () => {
-        const workbook = XLSX.utils.book_new();
-        const data = units.map((unit) => ({
-            nama: unit.nama,
-            keterangan: unit.keterangan,
-            tanggal_daftar: format(unit.created_at, 'PPPP', {
-                locale: id
-            })
-        }))
-        const sheet = XLSX.utils.json_to_sheet(data, {
-            header: ['nama', 'keterangan', 'tanggal_daftar'],
-        });
-        XLSX.utils.book_append_sheet(workbook, sheet, 'Sheet1');
-
-        const wbout = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-        const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = 'data.xlsx';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    };
-    const formSubmitDisabled = (): boolean => (!formInput.nama || !formInput.keterangan);
+    const [ formInput, setFormInput ] = useState<FormPeriodeRekap>(formInputInit);
+    const formSubmitDisabled = (): boolean => (!formInput.nama || !formInput.jenis || !formInput.keterangan || !formInput.awal || !formInput.akhir);
     const handleFormSubmit = (event: SyntheticEvent<HTMLFormElement>) => {
         event.preventDefault();
-        const { nama, keterangan } = formInput
+        const { nama, keterangan, awal, akhir, jenis, status } = formInput
 
         setFormInput((prevState) => ({
             ...prevState,
             onSubmit: true
         }));
-        const unitSchema = z.object({
-            nama: z.string().min(1, { message: "Nama Unit tidak boleh kosong" }),
-            keterangan: z.string().min(1, { message: "Keterangan Unit tidak boleh kosong" })
+        const periodeSchema = z.object({
+            nama: z.string().min(1, { message: "Nama Periode tidak boleh kosong" }),
+            jenis: z.enum(['mingguan', 'bulanan', 'semesteran', 'tahunan'], { message: "Jenis Periode tidak valid" }),
+            keterangan: z.string().min(1, { message: "Keterangan Periode tidak boleh kosong" }),
+            awal: z.string({ message: "Awal Periode tidak boleh kosong euy" }),
+            akhir: z.string({ message: "Awal Periode tidak boleh kosong" }),
+            status: z.boolean({ message: 'Indikator status error' })
         });
-        const zodUnitResult = unitSchema.safeParse({
+        const zodPeriodeResult = periodeSchema.safeParse({
             nama: nama,
-            keterangan: keterangan
+            jenis: jenis,
+            keterangan: keterangan,
+            awal: awal,
+            akhir: akhir,
+            status: status
         });
-        if (!zodUnitResult.success) {
-            const errorMessages = zodUnitResult.error.issues[0].message;
+        if (!zodPeriodeResult.success) {
+            const errorMessages = zodPeriodeResult.error.issues[0].message;
             notifyToast('error', errorMessages, theme as 'light' | 'dark');
+            return;
         }
 
-        axios.post(route('unit.create'), {
+        axios.post(route('periode-rekap.create'), {
             nama: nama,
+            jenis: jenis,
             keterangan: keterangan,
+            awal: awal,
+            akhir: akhir,
+            status: status
         })
             .then(() => {
-                notifyToast('success', 'Unit berhasil ditambahkan!', theme as 'light' | 'dark');
-                router.reload({ only: ['units'] });
+                notifyToast('success', 'Periode Rekap berhasil ditambahkan!', theme as 'light' | 'dark');
+                router.reload({ only: ['periodes'] });
                 setOpenFormDialog(false);
             })
             .catch((err: unknown) => {
@@ -220,16 +228,13 @@ export default function MasterManageUnitPage({ auth, units, adminCount }: PagePr
                 setFormInput((prevState) => ({ ...prevState, onSubmit: false }))
             });
     };
-    const handleDeleteUnit = () => {
-        axios.post(route('unit.delete'), {
-            id: deleteDialog.unitId,
-            admins: deleteDialog.admins.length > 0
-                ? deleteDialog.admins.map((admin) => admin.id)
-                : []
+    const handleDeletePeriode = () => {
+        axios.post(route('periode-rekap.delete'), {
+            id: deleteDialog.periodeId,
         })
             .then(() => {
-                notifyToast('success', 'Unit terpilih berhasil dihapus!');
-                setData((prevState) => prevState.filter((filt) => filt.id !== deleteDialog.unitId));
+                notifyToast('success', 'Periode Rekap terpilih berhasil dihapus!');
+                router.reload({ only: [ 'periodes ']});
                 setDeleteDialog(deleteDialogInit);
             })
             .catch((err: unknown) => {
@@ -247,23 +252,22 @@ export default function MasterManageUnitPage({ auth, units, adminCount }: PagePr
     }, [ openFormDialog ]);
     useEffect(() => {
         setData(adjustData);
-    }, [ units, viewPerPage ]);
+    }, [ periodes, viewPerPage ]);
     useEffect(() => {
         if (search.length < 1) {
             setData(adjustData);
         } else {
             setCurrPage(1);
-            const matchUnits = units.filter(unit =>
-                unit.nama.toLowerCase().includes(search.toLowerCase()) ||
-                unit.admin.some(admin => admin.username.toLowerCase().includes(search.toLowerCase()))
+            const matchPeriodes = periodes.filter(unit =>
+                unit.nama.toLowerCase().includes(search.toLowerCase())
             );
-            setData(matchUnits);
+            setData(matchPeriodes);
         }
     }, [ search ]);
 
     return (
         <>
-            <Head title="Master - Unit" />
+            <Head title="Master - Periode Rekap" />
             <AdminLayout>
                 <section className="mb-1 grid gap-y-10 gap-x-6 md:grid-cols-2 xl:grid-cols-4">
                     { cardData.map(({ icon, title, color, value }) => (
@@ -294,10 +298,10 @@ export default function MasterManageUnitPage({ auth, units, adminCount }: PagePr
                         <div className="mb-8 flex items-center justify-between gap-x-3">
                             <div>
                                 <Typography variant="h5" color="blue-gray">
-                                    Daftar Unit
+                                    Daftar Periode
                                 </Typography>
                                 <Typography color="gray" className="mt-1 font-normal">
-                                    Informasi mengenai Unit yang terdaftar
+                                    Informasi mengenai Periode yang terdaftar
                                 </Typography>
                             </div>
                             <div className="flex flex-col shrink-0 gap-2 lg:flex-row">
@@ -306,14 +310,7 @@ export default function MasterManageUnitPage({ auth, units, adminCount }: PagePr
                                     className="flex items-center gap-1.5 capitalize font-medium text-base" size="sm"
                                 >
                                     <Plus />
-                                    Tambahkan Unit baru
-                                </Button>
-                                <Button
-                                    onClick={handleXLSXDownload}
-                                    className="flex items-center gap-1.5 capitalize font-medium text-base" size="sm"
-                                >
-                                    <Download />
-                                    Unduh Data (XLSX)
+                                    Tambahkan Periode baru
                                 </Button>
                             </div>
                         </div>
@@ -358,7 +355,7 @@ export default function MasterManageUnitPage({ auth, units, adminCount }: PagePr
                             <tbody>
                             {
                                 data.map(
-                                    ({ id, nama, admin, created_at }, index) => {
+                                    ({ id, nama, keterangan, awal, akhir, status }, index) => {
                                         const isLast = index === data.length - 1;
                                         const classes = isLast
                                             ? "p-4"
@@ -366,13 +363,13 @@ export default function MasterManageUnitPage({ auth, units, adminCount }: PagePr
 
                                         return (
                                             <tr key={ id }>
-                                                <td className={ `${ classes } w-3`}>
+                                                <td className={ `${ classes } w-3` }>
                                                     <Typography
                                                         variant="small"
                                                         color="blue-gray"
                                                         className="font-normal text-center"
                                                     >
-                                                        { index + 1}
+                                                        { index + 1 }
                                                     </Typography>
                                                 </td>
                                                 <td className={ `${ classes } min-w-52` }>
@@ -390,26 +387,17 @@ export default function MasterManageUnitPage({ auth, units, adminCount }: PagePr
                                                     </div>
                                                 </td>
                                                 <td className={ `${ classes } min-w-52` }>
-                                                    <div className="flex flex-col gap-1">
-                                                        {
-                                                            admin.length < 1
-                                                                ? (
-                                                                    <div
-                                                                        className="flex items-center justify-start text-xs text-gray-400">
-                                                                        Belum ada Admin untuk unit ini
-                                                                    </div>
-                                                                )
-                                                                : admin.map((admn, index) => ((
-                                                                    <Link
-                                                                        href={route('master.admin.details')}
-                                                                        data={{ q: admn.id }}
-                                                                        key={ index }
-                                                                        className="font-normal text-sm hover:text-blue-600"
-                                                                    >
-                                                                        { admn.username }
-                                                                    </Link>
-                                                                )))
-                                                        }
+                                                    <div className="flex items-center gap-3">
+                                                        {/*<Avatar src={img} alt={name} size="sm" />*/ }
+                                                        <div className="flex flex-col">
+                                                            <Typography
+                                                                variant="small"
+                                                                color="blue-gray"
+                                                                className="font-normal"
+                                                            >
+                                                                { keterangan }
+                                                            </Typography>
+                                                        </div>
                                                     </div>
                                                 </td>
                                                 <td className={ `${ classes } min-w-40` }>
@@ -418,15 +406,45 @@ export default function MasterManageUnitPage({ auth, units, adminCount }: PagePr
                                                         color="blue-gray"
                                                         className="font-normal"
                                                     >
-                                                        { format(created_at, 'PPpp', {
+                                                        { format(awal, 'PPP', {
                                                             locale: localeID
-                                                        }) }
+                                                        }) } - { format(akhir, 'PPP', {
+                                                        locale: localeID
+                                                    }) }
+                                                    </Typography>
+                                                </td>
+                                                <td className={ `${ classes } min-w-32` }>
+                                                    <Typography
+                                                        variant="small"
+                                                        color="blue-gray"
+                                                        className="font-normal flex items-center justify-center gap-x-1.5"
+                                                    >
+                                                        <Switch checked={Boolean(status)} onChange={(val) => handleSwitchStatus(val, index)} as={Fragment} disabled={onSwitchStatus.status && onSwitchStatus.index === index}>
+                                                            {({ checked }) => (
+                                                                <button
+                                                                    className={ `group inline-flex h-6 w-11 items-center rounded-full ${ checked ? 'bg-blue-600' : 'bg-gray-200' } ` }
+                                                                >
+                                                                     <span className={ `size-4 flex items-center justify-center rounded-full bg-white transition ${ checked ? 'translate-x-6' : 'translate-x-1' }` }>
+                                                                         {
+                                                                             onSwitchStatus.status && onSwitchStatus.index === index
+                                                                                 ? <LoaderCircle className="animate-spin font-bold " width={12} />
+                                                                                 : ''
+                                                                         }
+                                                                     </span>
+                                                                </button>
+                                                            ) }
+                                                        </Switch>
+                                                        <span
+                                                            className="text-gray-600 font-mono text-xs italic font-bold">
+                                                            { Boolean(status) ? 'Dibuka' : 'Ditutup' }
+                                                        </span>
                                                     </Typography>
                                                 </td>
                                                 <td className={ classes }>
                                                     <div className="w-32 flex gap-2.5 items-center justify-start">
                                                         <Tooltip content="Detail">
-                                                            <Link href={route('master.unit.details', { q: data[index].id })}>
+                                                            <Link
+                                                                href={ route('master.periode-rekap.details', { q: data[index].id }) }>
                                                                 <IconButton variant="text">
                                                                     <FileSearch className="h-5 w-5 text-blue-800"/>
                                                                 </IconButton>
@@ -435,14 +453,13 @@ export default function MasterManageUnitPage({ auth, units, adminCount }: PagePr
                                                         <Tooltip content="Hapus" className="bg-red-400">
                                                             <IconButton
                                                                 variant="text"
-                                                                onClick={() => {
+                                                                onClick={ () => {
                                                                     setDeleteDialog((prevState) => ({
                                                                         ...prevState,
                                                                         open: true,
-                                                                        unitId: id,
-                                                                        admins: admin
+                                                                        periodeId: id,
                                                                     }))
-                                                                }}
+                                                                } }
                                                             >
                                                                 <Trash2 className="h-5 w-5 text-red-600"/>
                                                             </IconButton>
@@ -505,22 +522,64 @@ export default function MasterManageUnitPage({ auth, units, adminCount }: PagePr
                         <Card>
                             <CardBody className="flex flex-col gap-4">
                                 <Typography variant="h4" color="blue-gray">
-                                    Menambahkan Unit baru
+                                    Menambahkan Periode baru
                                 </Typography>
                                 <Input
-                                    label="Nama unit"
+                                    label="Nama periode"
                                     size="lg"
                                     required={true}
-                                    error={formInput.error.nama}
                                     value={formInput.nama}
                                     onChange={(event) => {
                                         setFormInput((prevState) => ({
                                             ...prevState,
                                             nama: event.target.value,
-                                            error: {
-                                                ...prevState.error,
-                                                nama: event.target.value.length < 1
-                                            }
+                                        }));
+                                    }}
+                                />
+                                <Select
+                                    label="Jenis Periode Rekap"
+                                    value={formInput.jenis}
+                                    onChange={(val: string | undefined) => {
+                                        if (jenisPeriodeRekap.includes(val as JenisPeriodeRekap)) {
+                                            setFormInput((prevState) => ({
+                                                ...prevState,
+                                                jenis: val as JenisPeriodeRekap
+                                            }));
+                                        }
+                                    }}
+                                    className="capitalize"
+                                >
+                                    {
+                                        jenisPeriodeRekap.map((jenis, index) => ((
+                                            <Option key={index} value={jenis} className="capitalize">
+                                                { jenis }
+                                            </Option>
+                                        )))
+                                    }
+                                </Select>
+                                <Input
+                                    label="Masa Awal periode"
+                                    size="lg"
+                                    required={true}
+                                    type="date"
+                                    value={formInput.awal}
+                                    onChange={(event) => {
+                                        setFormInput((prevState) => ({
+                                            ...prevState,
+                                            awal: event.target.value,
+                                        }));
+                                    }}
+                                />
+                                <Input
+                                    label="Masa Akhir periode"
+                                    size="lg"
+                                    required={true}
+                                    type="date"
+                                    value={formInput.akhir}
+                                    onChange={(event) => {
+                                        setFormInput((prevState) => ({
+                                            ...prevState,
+                                            akhir: event.target.value,
                                         }));
                                     }}
                                 />
@@ -529,40 +588,27 @@ export default function MasterManageUnitPage({ auth, units, adminCount }: PagePr
                                     size="lg"
                                     value={formInput.keterangan}
                                     required={true}
-                                    error={formInput.error.keterangan}
                                     onChange={(event) => {
                                         setFormInput((prevState) => ({
                                             ...prevState,
                                             keterangan: event.target.value,
-                                            error: {
-                                                ...prevState.error,
-                                                keterangan: event.target.value.length < 1
-                                            }
                                         }));
                                     }}
                                 />
-                                {/*<Checkbox*/}
-                                {/*    checked={formInput.isMaster}*/}
-                                {/*    onChange={() => {*/}
-                                {/*        setFormInput((prevState) => ({*/}
-                                {/*            ...prevState, isMaster: !prevState.isMaster*/}
-                                {/*        }));*/}
-                                {/*    }}*/}
-                                {/*    label={*/}
-                                {/*        <Typography color="blue-gray" className="flex font-medium">*/}
-                                {/*            Berikan Hak Master. Apa itu Hak master?*/}
-                                {/*            <Typography*/}
-                                {/*                as="a"*/}
-                                {/*                href="#"*/}
-                                {/*                color="blue"*/}
-                                {/*                className="font-medium transition-colors hover:text-blue-700"*/}
-                                {/*            >*/}
-                                {/*                &nbsp;Pelajari selengkapnya*/}
-                                {/*            </Typography>*/}
-                                {/*            .*/}
-                                {/*        </Typography>*/}
-                                {/*    }*/}
-                                {/*/>*/}
+                                <Checkbox
+                                    checked={formInput.status}
+                                    onChange={() => {
+                                        setFormInput((prevState) => ({
+                                            ...prevState,
+                                            status: !prevState.status
+                                        }));
+                                    }}
+                                    label={
+                                        <Typography color="blue-gray" className="flex font-medium">
+                                            Langsung buka periode
+                                        </Typography>
+                                    }
+                                />
                             </CardBody>
                             <CardFooter className="pt-0 flex gap-3 justify-between">
                                 <Button
@@ -588,34 +634,16 @@ export default function MasterManageUnitPage({ auth, units, adminCount }: PagePr
 
                 <Dialog open={deleteDialog.open} handler={handleOpenDelete}>
                     <DialogHeader className="text-gray-900">
-                        Hapus Unit terpilih?
+                        Hapus Periode terpilih?
                     </DialogHeader>
                     <DialogBody>
                         <Typography variant="h6" className="text-gray-900 truncate">
                             Anda akan menghapus
-                            Unit:&nbsp;
+                            Periode:&nbsp;
                             <span className="font-bold">
-                                " { units.find((unit) => unit.id === deleteDialog.unitId)?.nama ?? '-' } "
+                                " { periodes.find((periode) => periode.id === deleteDialog.periodeId)?.nama ?? '-' } "
                             </span>
                         </Typography>
-                        <p className="mt-1.5 text-sm text-gray-900 font-medium">
-                                <span className="text-red-600 font-bold">
-                                    *
-                                </span>
-                            Admin yang terhubung dengan Unit akan ikut dihapus:
-                        </p>
-                        <ul className="flex flex-col gap-1.5 h-40 overflow-auto p-2 border-2 text-gray-800 font-medium">
-                            {
-                                deleteDialog.admins.map((admin) => ((
-                                    <li key={admin.id}>
-                                        <span>-</span> { admin.username }
-                                    </li>
-                                )))
-                            }
-                            {
-                                deleteDialog.admins.length < 1 && ( <p className="text-sm italic font-medium">Unit belum memiliki Admin</p>)
-                            }
-                        </ul>
                     </DialogBody>
                     <DialogFooter>
                         <Button
@@ -625,7 +653,7 @@ export default function MasterManageUnitPage({ auth, units, adminCount }: PagePr
                         >
                         <span>Batal</span>
                         </Button>
-                        <Button color="red" onClick={handleDeleteUnit}>
+                        <Button color="red" onClick={handleDeletePeriode}>
                             <span>Hapus</span>
                         </Button>
                     </DialogFooter>

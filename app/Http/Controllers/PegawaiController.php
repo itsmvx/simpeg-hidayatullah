@@ -153,9 +153,58 @@ class PegawaiController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Pegawai $pegawai)
+    public function show(Request $request)
     {
-        //
+        try {
+            $validation = Validator::make($request->only('id'), [
+                'id' => 'required',
+            ], [
+                'id.required' => 'Input Pegawai tidak boleh kosong',
+            ]);
+            if ($validation->fails()) {
+                return Response::json([
+                    'message' => $validation->errors()->first()
+                ], 404);
+            }
+            $pegawai = Pegawai::select(
+                'pegawai.nip',
+                'pegawai.nama',
+                'pegawai.foto',
+                'pegawai.tanggal_masuk as tanggalMasuk',
+                'pegawai.tempat_lahir as tempatLahir',
+                'pegawai.tanggal_lahir as tanggalLahir',
+                'pegawai.no_hp as noHp',
+                'pegawai.alamat',
+                'pegawai.pendidikan_formal',
+                'pegawai.keahlian',
+                'unit.nama as unit',
+                'status_pegawai.nama as statusPegawai',
+                'marhalah.nama as marhalah',
+                'golongan.nama as golongan',
+            )
+                ->leftjoin('unit', 'unit.id', '=', 'pegawai.unit_id')
+                ->leftjoin('status_pegawai', 'status_pegawai.id', '=', 'pegawai.status_pegawai_id')
+                ->leftjoin('marhalah', 'marhalah.id', '=', 'pegawai.marhalah_id')
+                ->leftjoin('golongan', 'golongan.id', '=', 'pegawai.golongan_id')
+                ->where('pegawai.id', '=', $request->id)
+                ->first();
+
+            if (!$pegawai) {
+                return Response::json([
+                    'message' => 'Data Pegawai tidak ditemukan',
+                ], 404);
+            }
+
+            return Response::json([
+                'data' => $pegawai
+            ]);
+        } catch (QueryException $exception) {
+            return Response::json([
+                'message' => 'Server gagal memproses permintaan'
+            ], 500);
+        }
+
+
     }
 
     /**
@@ -336,6 +385,52 @@ class PegawaiController extends Controller
             ]);
         } catch (QueryException $exception) {
             DB::rollBack();
+            return Response::json([
+                'message' => 'Server gagal memproses permintaan',
+            ], 500);
+        }
+    }
+    public function dataToRekap(Request $request)
+    {
+        try {
+            $validation = Validator::make($request->only(['unit_id']), [
+                'unit_id' => 'required|uuid|exists:unit,id',
+            ], [
+                'unit_id.required' => 'Unit tidak boleh kosong',
+                'unit_id.uuid' => 'Format Unit tidak valid',
+                'unit_id.exists' => 'Unit tidak ditemukan',
+            ]);
+            if ($validation->fails()) {
+                return Response::json([
+                    'message' => $validation->errors()->first()
+                ], 422);
+            }
+
+            $pegawais = Pegawai::where('unit_id', '=', $request->get('unit_id'))
+                ->select([
+                    'id',
+                    'nama',
+                    'jenis_kelamin',
+                    'unit_id',
+                    'status_pegawai_id',
+                    'marhalah_id',
+                    'golongan_id'
+                ])
+                ->with([
+                    'unit:id,nama',
+                    'status_pegawai:id,nama',
+                    'marhalah:id,nama',
+                    'golongan:id,nama'
+                ])
+                ->get();
+            $pegawais->makeHidden(['unit_id', 'status_pegawai_id', 'marhalah_id', 'golongan_id']);
+
+            return Response::json([
+                'message' => 'Berhasil mengambil data',
+                'data' => $pegawais
+            ]);
+
+        } catch (QueryException $exception) {
             return Response::json([
                 'message' => 'Server gagal memproses permintaan',
             ], 500);

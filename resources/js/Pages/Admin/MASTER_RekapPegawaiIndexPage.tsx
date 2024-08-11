@@ -34,8 +34,9 @@ import axios, { AxiosError } from "axios";
 import * as XLSX from "xlsx";
 import { id } from "date-fns/locale";
 
-export default function MasterManageUnitPage({ auth, units, adminCount }: PageProps<{
-    units: {
+
+export default function MASTER_RekapPegawaiIndexPage({ auth, rekaps, adminCount }: PageProps<{
+    rekaps: {
         id: string;
         nama: string;
         keterangan: string;
@@ -43,53 +44,36 @@ export default function MasterManageUnitPage({ auth, units, adminCount }: PagePr
         admin: {
             id: string;
             username: string;
-            unit_id: string;
+            rekap_id: string;
         }[] | []
     }[] | [];
     adminCount: number;
 }>) {
-    const TABLE_HEAD = ['No', 'Nama', 'Admin', 'Tanggal daftar', 'Aksi'];
+
+    const TABLE_HEAD = ['No', 'Rekap', 'Pegawai', 'Periode', 'Tanggal', 'Aksi'];
     const cardData = [
         {
             color: "gray",
             icon: <Building2 />,
-            title: "Jumlah Unit terdaftar",
-            value: units.length,
+            title: "Total Jumlah Laporan Rekap",
+            value: rekaps.length,
         },
         {
             color: "gray",
             icon: <User2 />,
-            title: "Jumlah Akun Unit aktif",
+            title: "Jumlah Rekap belum diverifikasi",
             value: adminCount,
-        },
-        {
-            color: "gray",
-            icon: <NotebookText />,
-            title: "Pengajuan Promosi Unit",
-            value: "1",
-        },
-        {
-            color: "gray",
-            icon: <BarChartBig />,
-            title: "Lorem ipsum",
-            value: "704",
-        },
+        }
     ];
+
     const deleteDialogInit = {
         open: false,
-        unitId: '',
-        admins: []
+        rekapId: '',
     };
     const { theme } = useTheme();
-    const [ openFormDialog, setOpenFormDialog ] = useState(false);
     const [ deleteDialog, setDeleteDialog ] = useState<{
         open: boolean;
-        unitId: string;
-        admins: {
-            id: string;
-            username: string;
-            unit_id: string;
-        }[]
+        rekapId: string;
     }>(deleteDialogInit);
     const [ sortBy, setSortBy ] = useState('');
     const [ currPage, setCurrPage ] = useState(1);
@@ -111,10 +95,10 @@ export default function MasterManageUnitPage({ auth, units, adminCount }: PagePr
         const startIndex = (currPage - 1) * viewPerPage;
         const lastIndex = startIndex + viewPerPage;
 
-        return units.slice(startIndex, lastIndex);
-    }, [ units, viewPerPage ]);
+        return rekaps.slice(startIndex, lastIndex);
+    }, [ rekaps, viewPerPage ]);
 
-    const [data, setData] = useState(adjustData);
+    const [ data, setData ] = useState(adjustData);
     const [ search, setSearch ] = useState('');
     const getItemProps = (index: number) =>
         ({
@@ -124,112 +108,24 @@ export default function MasterManageUnitPage({ auth, units, adminCount }: PagePr
         } as any);
 
     const nextPage = () => {
-        const totalPages = Math.ceil(units.length / viewPerPage);
+        const totalPages = Math.ceil(rekaps.length / viewPerPage);
         currPage < totalPages && setCurrPage(currPage + 1);
     };
     const prevPage = () => {
         currPage > 1 && setCurrPage(currPage - 1);
     };
-
-    const handleOpenForm = () => setOpenFormDialog(true);
     const handleOpenDelete = () => setDeleteDialog((prevState) => ({
         ...prevState,
         open: true
     }));
-    const formInputInit = {
-        nama: '',
-        keterangan: '',
-        error: {
-            nama: false,
-            keterangan: false
-        },
-        onSubmit: false
-    };
-    const [ formInput, setFormInput ] = useState<{
-        nama: string;
-        keterangan: string;
-        error: {
-            nama: boolean;
-            keterangan: boolean;
-        };
-        onSubmit: boolean;
-    }>(formInputInit);
 
-    const handleXLSXDownload = () => {
-        const workbook = XLSX.utils.book_new();
-        const data = units.map((unit) => ({
-            nama: unit.nama,
-            keterangan: unit.keterangan,
-            tanggal_daftar: format(unit.created_at, 'PPPP', {
-                locale: id
-            })
-        }))
-        const sheet = XLSX.utils.json_to_sheet(data, {
-            header: ['nama', 'keterangan', 'tanggal_daftar'],
-        });
-        XLSX.utils.book_append_sheet(workbook, sheet, 'Sheet1');
-
-        const wbout = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-        const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = 'data.xlsx';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    };
-    const formSubmitDisabled = (): boolean => (!formInput.nama || !formInput.keterangan);
-    const handleFormSubmit = (event: SyntheticEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        const { nama, keterangan } = formInput
-
-        setFormInput((prevState) => ({
-            ...prevState,
-            onSubmit: true
-        }));
-        const unitSchema = z.object({
-            nama: z.string().min(1, { message: "Nama Unit tidak boleh kosong" }),
-            keterangan: z.string().min(1, { message: "Keterangan Unit tidak boleh kosong" })
-        });
-        const zodUnitResult = unitSchema.safeParse({
-            nama: nama,
-            keterangan: keterangan
-        });
-        if (!zodUnitResult.success) {
-            const errorMessages = zodUnitResult.error.issues[0].message;
-            notifyToast('error', errorMessages, theme as 'light' | 'dark');
-        }
-
-        axios.post(route('unit.create'), {
-            nama: nama,
-            keterangan: keterangan,
+    const handleDeleteRekap = () => {
+        axios.post(route('rekap.delete'), {
+            id: deleteDialog.rekapId,
         })
             .then(() => {
-                notifyToast('success', 'Unit berhasil ditambahkan!', theme as 'light' | 'dark');
-                router.reload({ only: ['units'] });
-                setOpenFormDialog(false);
-            })
-            .catch((err: unknown) => {
-                const errMsg = err instanceof AxiosError
-                    ? err.response?.data.message as string ?? 'Error tidak diketahui terjadi!'
-                    : 'Error tidak diketahui terjadi!'
-                notifyToast('error', errMsg, theme as 'light' | 'dark');
-            })
-            .finally(() => {
-                setFormInput((prevState) => ({ ...prevState, onSubmit: false }))
-            });
-    };
-    const handleDeleteUnit = () => {
-        axios.post(route('unit.delete'), {
-            id: deleteDialog.unitId,
-            admins: deleteDialog.admins.length > 0
-                ? deleteDialog.admins.map((admin) => admin.id)
-                : []
-        })
-            .then(() => {
-                notifyToast('success', 'Unit terpilih berhasil dihapus!');
-                setData((prevState) => prevState.filter((filt) => filt.id !== deleteDialog.unitId));
+                notifyToast('success', 'Rekap Pegawai terpilih berhasil dihapus!');
+                setData((prevState) => prevState.filter((filt) => filt.id !== deleteDialog.rekapId));
                 setDeleteDialog(deleteDialogInit);
             })
             .catch((err: unknown) => {
@@ -241,29 +137,24 @@ export default function MasterManageUnitPage({ auth, units, adminCount }: PagePr
     };
 
     useEffect(() => {
-        if (!openFormDialog) {
-            setFormInput(formInputInit);
-        }
-    }, [ openFormDialog ]);
-    useEffect(() => {
         setData(adjustData);
-    }, [ units, viewPerPage ]);
+    }, [ rekaps, viewPerPage ]);
     useEffect(() => {
         if (search.length < 1) {
             setData(adjustData);
         } else {
             setCurrPage(1);
-            const matchUnits = units.filter(unit =>
-                unit.nama.toLowerCase().includes(search.toLowerCase()) ||
-                unit.admin.some(admin => admin.username.toLowerCase().includes(search.toLowerCase()))
+            const matchRekaps = rekaps.filter(rekap =>
+                rekap.nama.toLowerCase().includes(search.toLowerCase()) ||
+                rekap.admin.some(admin => admin.username.toLowerCase().includes(search.toLowerCase()))
             );
-            setData(matchUnits);
+            setData(matchRekaps);
         }
     }, [ search ]);
 
     return (
         <>
-            <Head title="Master - Unit" />
+            <Head title="Master - Rekap" />
             <AdminLayout>
                 <section className="mb-1 grid gap-y-10 gap-x-6 md:grid-cols-2 xl:grid-cols-4">
                     { cardData.map(({ icon, title, color, value }) => (
@@ -294,26 +185,21 @@ export default function MasterManageUnitPage({ auth, units, adminCount }: PagePr
                         <div className="mb-8 flex items-center justify-between gap-x-3">
                             <div>
                                 <Typography variant="h5" color="blue-gray">
-                                    Daftar Unit
+                                    Daftar Rekap
                                 </Typography>
                                 <Typography color="gray" className="mt-1 font-normal">
-                                    Informasi mengenai Unit yang terdaftar
+                                    Informasi mengenai Rekap yang terdaftar
                                 </Typography>
                             </div>
                             <div className="flex flex-col shrink-0 gap-2 lg:flex-row">
                                 <Button
-                                    onClick={() => setOpenFormDialog(true)}
+                                    onClick={() => {
+                                        router.visit(route('master.rekap-pegawai.create'));
+                                    }}
                                     className="flex items-center gap-1.5 capitalize font-medium text-base" size="sm"
                                 >
                                     <Plus />
-                                    Tambahkan Unit baru
-                                </Button>
-                                <Button
-                                    onClick={handleXLSXDownload}
-                                    className="flex items-center gap-1.5 capitalize font-medium text-base" size="sm"
-                                >
-                                    <Download />
-                                    Unduh Data (XLSX)
+                                    Buat Rekap Pegawai baru
                                 </Button>
                             </div>
                         </div>
@@ -396,7 +282,7 @@ export default function MasterManageUnitPage({ auth, units, adminCount }: PagePr
                                                                 ? (
                                                                     <div
                                                                         className="flex items-center justify-start text-xs text-gray-400">
-                                                                        Belum ada Admin untuk unit ini
+                                                                        Belum ada Admin untuk rekap ini
                                                                     </div>
                                                                 )
                                                                 : admin.map((admn, index) => ((
@@ -426,7 +312,7 @@ export default function MasterManageUnitPage({ auth, units, adminCount }: PagePr
                                                 <td className={ classes }>
                                                     <div className="w-32 flex gap-2.5 items-center justify-start">
                                                         <Tooltip content="Detail">
-                                                            <Link href={route('master.unit.details', { q: data[index].id })}>
+                                                            <Link href={route('master.rekap.details', { q: rekaps[index].id })}>
                                                                 <IconButton variant="text">
                                                                     <FileSearch className="h-5 w-5 text-blue-800"/>
                                                                 </IconButton>
@@ -439,7 +325,7 @@ export default function MasterManageUnitPage({ auth, units, adminCount }: PagePr
                                                                     setDeleteDialog((prevState) => ({
                                                                         ...prevState,
                                                                         open: true,
-                                                                        unitId: id,
+                                                                        periodeId: id,
                                                                         admins: admin
                                                                     }))
                                                                 }}
@@ -495,127 +381,19 @@ export default function MasterManageUnitPage({ auth, units, adminCount }: PagePr
                         </div>
                     </CardFooter>
                 </Card>
-                <Dialog
-                    size="lg"
-                    open={openFormDialog}
-                    handler={handleOpenForm}
-                    className="bg-transparent shadow-none backdrop-blur-none"
-                >
-                    <form className="mx-auto w-full" onSubmit={handleFormSubmit}>
-                        <Card>
-                            <CardBody className="flex flex-col gap-4">
-                                <Typography variant="h4" color="blue-gray">
-                                    Menambahkan Unit baru
-                                </Typography>
-                                <Input
-                                    label="Nama unit"
-                                    size="lg"
-                                    required={true}
-                                    error={formInput.error.nama}
-                                    value={formInput.nama}
-                                    onChange={(event) => {
-                                        setFormInput((prevState) => ({
-                                            ...prevState,
-                                            nama: event.target.value,
-                                            error: {
-                                                ...prevState.error,
-                                                nama: event.target.value.length < 1
-                                            }
-                                        }));
-                                    }}
-                                />
-                                <TextArea
-                                    label="Keterangan"
-                                    size="lg"
-                                    value={formInput.keterangan}
-                                    required={true}
-                                    error={formInput.error.keterangan}
-                                    onChange={(event) => {
-                                        setFormInput((prevState) => ({
-                                            ...prevState,
-                                            keterangan: event.target.value,
-                                            error: {
-                                                ...prevState.error,
-                                                keterangan: event.target.value.length < 1
-                                            }
-                                        }));
-                                    }}
-                                />
-                                {/*<Checkbox*/}
-                                {/*    checked={formInput.isMaster}*/}
-                                {/*    onChange={() => {*/}
-                                {/*        setFormInput((prevState) => ({*/}
-                                {/*            ...prevState, isMaster: !prevState.isMaster*/}
-                                {/*        }));*/}
-                                {/*    }}*/}
-                                {/*    label={*/}
-                                {/*        <Typography color="blue-gray" className="flex font-medium">*/}
-                                {/*            Berikan Hak Master. Apa itu Hak master?*/}
-                                {/*            <Typography*/}
-                                {/*                as="a"*/}
-                                {/*                href="#"*/}
-                                {/*                color="blue"*/}
-                                {/*                className="font-medium transition-colors hover:text-blue-700"*/}
-                                {/*            >*/}
-                                {/*                &nbsp;Pelajari selengkapnya*/}
-                                {/*            </Typography>*/}
-                                {/*            .*/}
-                                {/*        </Typography>*/}
-                                {/*    }*/}
-                                {/*/>*/}
-                            </CardBody>
-                            <CardFooter className="pt-0 flex gap-3 justify-between">
-                                <Button
-                                    color="red"
-                                    onClick={() => setOpenFormDialog(false)}
-                                    fullWidth
-                                >
-                                    Batal
-                                </Button>
-                                <Button
-                                    type="submit"
-                                    loading={formInput.onSubmit}
-                                    disabled={formSubmitDisabled()}
-                                    onClick={handleOpenForm}
-                                    fullWidth
-                                >
-                                    Buat
-                                </Button>
-                            </CardFooter>
-                        </Card>
-                    </form>
-                </Dialog>
 
                 <Dialog open={deleteDialog.open} handler={handleOpenDelete}>
                     <DialogHeader className="text-gray-900">
-                        Hapus Unit terpilih?
+                        Hapus Rekap terpilih?
                     </DialogHeader>
                     <DialogBody>
                         <Typography variant="h6" className="text-gray-900 truncate">
                             Anda akan menghapus
-                            Unit:&nbsp;
+                            Rekap:&nbsp;
                             <span className="font-bold">
-                                " { units.find((unit) => unit.id === deleteDialog.unitId)?.nama ?? '-' } "
+                                " { rekaps.find((rekap) => rekap.id === deleteDialog.rekapId)?.nama ?? '-' } "
                             </span>
                         </Typography>
-                        <p className="mt-1.5 text-sm text-gray-900 font-medium">
-                                <span className="text-red-600 font-bold">
-                                    *
-                                </span>
-                            Admin yang terhubung dengan Unit akan ikut dihapus:
-                        </p>
-                        <ul className="flex flex-col gap-1.5 h-40 overflow-auto p-2 border-2 text-gray-800 font-medium">
-                            {
-                                deleteDialog.admins.map((admin) => ((
-                                    <li key={admin.id}>
-                                        <span>-</span> { admin.username }
-                                    </li>
-                                )))
-                            }
-                            {
-                                deleteDialog.admins.length < 1 && ( <p className="text-sm italic font-medium">Unit belum memiliki Admin</p>)
-                            }
-                        </ul>
                     </DialogBody>
                     <DialogFooter>
                         <Button
@@ -625,7 +403,7 @@ export default function MasterManageUnitPage({ auth, units, adminCount }: PagePr
                         >
                         <span>Batal</span>
                         </Button>
-                        <Button color="red" onClick={handleDeleteUnit}>
+                        <Button color="red" onClick={handleDeleteRekap}>
                             <span>Hapus</span>
                         </Button>
                     </DialogFooter>

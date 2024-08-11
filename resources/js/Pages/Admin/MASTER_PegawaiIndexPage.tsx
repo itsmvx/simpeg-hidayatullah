@@ -14,19 +14,22 @@ import {
     Plus,
     Search, Trash2, UserRound,
 } from "lucide-react";
-import { MTColor, PageProps } from "@/types";
+import { ModelWithoutColumns, MTColor, PageProps, Pegawai } from "@/types";
 import { AdminLayout } from "@/Layouts/AdminLayout";
 import { Head, Link, router } from "@inertiajs/react";
 import { Input } from "@/Components/Input";
 import { format } from "date-fns";
 import { id as localeID } from "date-fns/locale/id";
 import { useTheme } from "@/Hooks/useTheme";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Bounce, toast } from "react-toastify";
 import {  z } from "zod";
-import axios, { AxiosError } from "axios";
+import axios, { AxiosError, AxiosProgressEvent } from "axios";
 import { DragNDropFile } from "@/Components/DragAndDropFile";
 import * as XLSX from "xlsx";
+import CV_PDFGenerator, { PegawaiExportCV } from "@/Lib/CV_PDFGenerator";
+import { pdf } from "@react-pdf/renderer";
+import { saveAs } from "file-saver";
 
 export default function MASTER_PegawaiIndexPage({ auth, pegawais }: PageProps<{
     pegawais: {
@@ -49,6 +52,7 @@ export default function MASTER_PegawaiIndexPage({ auth, pegawais }: PageProps<{
             value: pegawais.length,
         }
     ];
+    const toastId = useRef(null);
     const { theme } = useTheme();
     const [ deleteDialog, setDeleteDialog ] = useState<{
         open: boolean;
@@ -64,6 +68,7 @@ export default function MASTER_PegawaiIndexPage({ auth, pegawais }: PageProps<{
     const [ sortBy, setSortBy ] = useState('');
     const [ currPage, setCurrPage ] = useState(1);
     const [ viewPerPage, setViewPerPage ] = useState(10);
+    const [ onDownloadPDF, setOnDownloadPDF ] = useState<boolean>(false);
 
     const notifyToast = (type: 'success' | 'error', message: string, theme: 'light' | 'dark' = 'light') => {
         toast[type](message, {
@@ -137,7 +142,7 @@ export default function MASTER_PegawaiIndexPage({ auth, pegawais }: PageProps<{
         }
 
         axios.post(route('pegawai.delete'), {
-            id: id,
+            id: id
         })
             .then(() => {
                 notifyToast('success', 'Pegawai berhasil dihapus!', theme as 'light' | 'dark');
@@ -152,6 +157,34 @@ export default function MASTER_PegawaiIndexPage({ auth, pegawais }: PageProps<{
             .finally(() => {
                 setDeleteDialog((prevState) => ({ ...prevState, onSubmit: false, open: false }));
             });
+    };
+    const downloadPDF = async (index: number) => {
+        setOnDownloadPDF(true);
+        const toastId = toast.loading('Meminta Data dari Server..', { autoClose: 5000 });
+        try {
+            const pegawai = await axios.post<{ data: PegawaiExportCV }>(route('pegawai.data'), {
+                id: pegawais[index].id
+            }, {
+                onUploadProgress: (p: AxiosProgressEvent) => {
+                    const progress: number = (p.loaded * 0.8) / (p.total ?? 100);
+                    toast.update(toastId, { type: "info", isLoading: true, progress: progress });
+                },
+            });
+            toast.update(toastId, { type: "info", isLoading: true, progress: 0.87, render: 'Memproses File..' });
+            const blob = await pdf(<CV_PDFGenerator pegawai={pegawai.data.data as PegawaiExportCV} />).toBlob();
+            saveAs(blob, `${pegawais[index].nip}_${pegawais[index].nama}.pdf`);
+            toast.update(toastId, { type: 'success', isLoading: false, progress: 0.99, render: 'Berhasil mengunduh!' });
+        } catch (err: unknown) {
+            const errMsg = err instanceof AxiosError
+                ? 'Server gagal memproses permintaan'
+                : 'Gagal memproses permintaan';
+            toast.update(toastId, { type: 'error', isLoading: false, render: errMsg });
+        } finally {
+            setOnDownloadPDF(false);
+            setTimeout(() => {
+                toast.dismiss(toastId);
+            }, 4000);
+        }
     };
     useEffect(() => {
         setData(adjustData);
@@ -382,6 +415,7 @@ export default function MASTER_PegawaiIndexPage({ auth, pegawais }: PageProps<{
                                                         <Tooltip content="Unduh Data" className="bg-black">
                                                             <IconButton
                                                                 variant="text"
+                                                                onClick={(() => downloadPDF(index))}
                                                             >
                                                                 <Download className="h-5 w-5"/>
                                                             </IconButton>
