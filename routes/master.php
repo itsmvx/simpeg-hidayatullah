@@ -35,10 +35,16 @@ Route::prefix('master')->name('master.')->middleware('admin.master')->group(func
         Route::get('/', [AdminMasterPagesController::class, 'statusPegawaiIndexPage'])->name('index');
         Route::get('/details', [AdminMasterPagesController::class, 'statusPegawaiDetailsPage'])->name('details');
     });
+    Route::prefix('/rekap-pegawai')->name('rekap-pegawai.')->group(function () {
+        Route::get('/', [AdminMasterPagesController::class, 'rekapPegawaiIndexPage'])->name('index');
+        Route::get('/create', [AdminMasterPagesController::class, 'rekapPegawaiCreatePage'])->name('create');
+    });
+    Route::prefix('/periode-rekap')->name('periode-rekap.')->group(function () {
+        Route::get('/', [AdminMasterPagesController::class, 'periodeRekapIndexPage'])->name('index');
+        Route::get('/details', [AdminMasterPagesController::class, 'periodeRekapDetailsPage'])->name('details');
+    });
     Route::prefix('/inventaris')->name('inventaris.')->group(function () {
         Route::get('/', [AdminMasterPagesController::class, 'unitIndexPage'])->name('index');
     });
-
-    Route::get('/rekap-pegawai', [AdminMasterPagesController::class, 'unitIndexPage'])->name('rekap-pegawai');
 });
 

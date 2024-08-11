@@ -7,6 +7,8 @@ use App\Models\Admin;
 use App\Models\Golongan;
 use App\Models\Marhalah;
 use App\Models\Pegawai;
+use App\Models\PeriodeRekap;
+use App\Models\RekapPegawai;
 use App\Models\StatusPegawai;
 use App\Models\Unit;
 use Illuminate\Database\QueryException;
@@ -217,5 +219,62 @@ class AdminMasterPagesController extends Controller
         return Inertia::render('Admin/MASTER_StatusPegawaiIndexPage', [
             'statusPegawais' => fn () => StatusPegawai::select('id', 'nama', 'keterangan', 'created_at')->get()
         ]);
+    }
+
+    public function rekapPegawaiIndexPage()
+    {
+        return Inertia::render('Admin/MASTER_RekapPegawaiIndexPage', [
+            'rekaps' => fn() => RekapPegawai::select(
+                'id',
+                'amanah',
+//                'skill_manajerial',
+//                'skill_leadership',
+//                'kedisiplinan',
+//                'ketuntasan_kerja',
+//                'catatan_negatif',
+//                'prestasi'
+            )
+                ->with(['unit:id,nama','statusPegawai:id,nama', 'marhalah:id,nama', 'golongan:id,nama'])
+                ->get()
+        ]);
+    }
+    public function rekapPegawaiCreatePage()
+    {
+        try {
+            return Inertia::render('Admin/MASTER_RekapPegawaiCreatePage', [
+                'units' => Unit::select('id', 'nama')->get(),
+                'periodes' => PeriodeRekap::select('id', 'nama')->get(),
+            ]);
+        } catch (QueryException $exception) {
+            abort(500);
+        }
+    }
+
+    public function periodeRekapIndexPage()
+    {
+        return Inertia::render('Admin/MASTER_PeriodeRekapIndexPage', [
+            'periodes' => fn() => PeriodeRekap::select('id', 'nama', 'keterangan', 'awal', 'akhir', 'jenis', 'status')->get(),
+            'opensCount' => fn() => PeriodeRekap::where('status', '=', true)->count()
+        ]);
+    }
+    public function periodeRekapDetailsPage(Request $request)
+    {
+        $idParam = $request->query->get('q');
+        if (!$idParam) {
+            abort(404);
+        }
+
+        try {
+            $periode = PeriodeRekap::find($idParam);
+            if (!$periode) {
+                abort(404);
+            }
+            $periode->makeHidden(['created_at', 'updated_at']);
+            return Inertia::render('Admin/MASTER_PeriodeRekapDetailsPage', [
+                'periode' => $periode
+            ]);
+        } catch (QueryException $exception) {
+            abort(500);
+        }
     }
 }

@@ -19,4 +19,8 @@ class Marhalah extends Model
     {
         return $this->hasMany(Pegawai::class, 'marhalah_id', 'id');
     }
+    public function rekap_pegawai(): HasMany
+    {
+        return $this->hasMany(RekapPegawai::class, 'marhalah_id', 'id');
+    }
 }

@@ -30,6 +30,7 @@ return new class extends Migration
             $table->string('amanah');
             $table->string('amanah_atasan');
             $table->date('tanggal_masuk');
+            $table->date('tanggal_promosi')->default(now('Asia/Jakarta'));
             $table->string('bpjs_kesehatan')->nullable();
             $table->string('bpjs_ketenagakerjaan')->nullable();
             $table->longText('data_keluarga')->comment('Array[] stringify');

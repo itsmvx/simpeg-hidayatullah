@@ -1,7 +1,7 @@
 import { Fragment, useState } from "react";
 import {
     Award,
-    Building2,
+    Building2, CalendarDays,
     ChevronDown, CircleUserRound,
     Dock,
     Newspaper, ShieldCheck,
@@ -60,9 +60,15 @@ const navListMenuItems = [
 
     {
         title: "Rekap kepegawaian",
-        description: "mengatur periode dan menerima rekap pegawaian",
+        description: "mengatur dan menerima rekap pegawaian",
         icon: <Newspaper />,
-        link: route('master.rekap-pegawai')
+        link: route('master.rekap-pegawai.index')
+    },
+    {
+        title: "Periode Rekap",
+        description: "mengatur Periode rekap pegawai",
+        icon: <CalendarDays />,
+        link: route('master.periode-rekap.index')
     },
     {
         title: "Inventaris",

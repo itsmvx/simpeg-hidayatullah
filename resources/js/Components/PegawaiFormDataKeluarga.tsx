@@ -10,7 +10,6 @@ const PegawaiFormDataKeluarga = ({ formState, setFormState, formDefault }: {
     formDefault: FormDataKeluarga;
 }) => {
 
-    console.log('form: ',formState);
     const TABLE_HEAD = [
         { key: 'status', label: 'Status Dalam Keluarga' },
         { key: 'nama', label: 'Nama Lengkap' },
