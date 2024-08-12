@@ -19,4 +19,8 @@ class Golongan extends Model
     {
         return $this->hasMany(Pegawai::class, 'golongan_id', 'id');
     }
+    public function rekap_pegawai(): HasMany
+    {
+        return $this->hasMany(RekapPegawai::class, 'golongan_id', 'id');
+    }
 }
