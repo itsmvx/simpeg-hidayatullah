@@ -18,6 +18,15 @@ export interface StatusPegawai {
     keterangan: string;
     created_at: string;
 }
+export interface Admin {
+    id: string;
+    nama: string;
+    username: string;
+    password: string;
+    unit_id: Unit;
+    created_at?: string;
+    updated_at?: string;
+}
 
 export interface Marhalah {
     id: string;
@@ -141,6 +150,7 @@ export type ModelWithColumns<T, U> = T & U;
 export type PageProps<T extends Record<string, unknown> = Record<string, unknown>> = T & {
     flash: { success?: string; error?: string };
     auth: {
+        admin: Admin;
         user: User;
         role: 'master' | 'unit';
     };

@@ -11,15 +11,17 @@ import {
     Typography
 } from "@material-tailwind/react";
 import { X, Menu as MenuIcon, Home, ChevronDown, CircleUserRound, LogOut } from "lucide-react";
-import { Link, router } from "@inertiajs/react";
+import { Link, router, usePage } from "@inertiajs/react";
 import { HarunaPP, PPHLogo } from "@/Lib/StaticImages";
 import axios, { AxiosError } from "axios";
 import { notifyToast } from "@/Lib/Utils";
 import { useTheme } from "@/Hooks/useTheme";
 import { AdminLoadingOverlay } from "@/Components/Admin/AdminLoadingOverlay";
 import { AdminUnitNavbarLists } from "@/Fragments/AdminUnitNavbarList";
+import { PageProps } from "@/types";
 
 export const AdminUnitNavbar = () => {
+    const user = usePage<PageProps>().props.auth;
     const { theme } = useTheme();
     const [openNavbar, setOpenNavbar] = useState(false);
     const [onFetchLogout, setFetchLogout] = useState(false);
@@ -74,7 +76,7 @@ export const AdminUnitNavbar = () => {
                                     className="group flex flex-row items-center justify-between min-w-40"
                                 >
                                     <Typography variant="h6" className="capitalize">
-                                        Orang
+                                        {user.admin.nama}
                                     </Typography>
                                     <div className="flex items-center">
                                         <CircleUserRound className="h-5 w-5 text-blue-gray-500" />
@@ -90,7 +92,7 @@ export const AdminUnitNavbar = () => {
                                         color="blue-gray"
                                         className="mb-1 font-normal"
                                     >
-                                        Akun
+                                        {user.admin.nama}
                                     </Typography>
                                 </MenuItem>
                                 <MenuItem
@@ -124,7 +126,7 @@ export const AdminUnitNavbar = () => {
                                     className="group flex flex-row items-center justify-end w-40 gap-2"
                                 >
                                     <span>
-                                        ORANG
+                                        {user.admin.nama}
                                     </span>
                                     <div className="flex">
                                         <Avatar src={HarunaPP} size="sm" />
