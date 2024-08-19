@@ -21,7 +21,7 @@ class RekapPegawai extends Model
     }
     public function unit()
     {
-        return $this->belongsTo(User::class, 'unit_id', 'id');
+        return $this->belongsTo(Unit::class, 'unit_id', 'id');
     }
     public function marhalah()
     {
@@ -34,5 +34,9 @@ class RekapPegawai extends Model
     public function status_pegawai(): BelongsTo
     {
         return $this->belongsTo(StatusPegawai::class, 'status_pegawai_id', 'id');
+    }
+    public function periode_rekap(): BelongsTo
+    {
+        return $this->belongsTo(PeriodeRekap::class, 'periode_rekap_id', 'id');
     }
 }

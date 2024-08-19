@@ -50,7 +50,7 @@ class RekapPegawaiController extends Controller
             'marhalah_id' => 'required|uuid|exists:marhalah,id',
             'periode_rekap_id' => 'required|uuid|exists:periode_rekap,id',
             'amanah' => 'required|string|max:255',
-            'organisasi' => 'required|string|max:255',
+            'organisasi' => 'nullable|string|max:255',
             'gaji' => 'required|integer|min:0',
             'skill_manajerial' => 'nullable|string|max:255',
             'skill_leadership' => 'nullable|string|max:255',
@@ -79,7 +79,9 @@ class RekapPegawaiController extends Controller
             'gaji.required' => 'Gaji tidak boleh kosong',
             'gaji.integer' => 'Gaji harus berupa angka',
             'gaji.min' => 'Gaji tidak boleh kurang dari 0',
+            'skill_manajerial.string' => 'format Skill manajerial tidak valid',
             'skill_manajerial.max' => 'Skill manajerial tidak boleh lebih dari 255 karakter',
+            'skill_leadership.string' => 'format Skill leadership tidak valid',
             'skill_leadership.max' => 'Skill leadership tidak boleh lebih dari 255 karakter',
             'raport_profesi.required' => 'Raport profesi tidak boleh kosong',
             'raport_profesi.max' => 'Raport profesi tidak boleh lebih dari 255 karakter',
@@ -105,7 +107,8 @@ class RekapPegawaiController extends Controller
             ], 201);
         } catch (QueryException $exception) {
             return Response::json([
-                'message' => 'Server gagal memproses permintaan',
+//                'message' => 'Server gagal memproses permintaan',
+                'message' => $exception->getMessage()
             ], 500);
         }
     }

@@ -20,15 +20,15 @@ return new class extends Migration
             $table->foreignUuid('marhalah_id')->constrained('marhalah');
             $table->foreignUuid('periode_rekap_id')->constrained('periode_rekap');
             $table->string('amanah');
-            $table->string('organisasi');
+            $table->string('organisasi')->nullable();
             $table->integer('gaji');
-            $table->string('skill_manajerial');
-            $table->string('skill_leadership');
+            $table->string('skill_manajerial')->nullable();
+            $table->string('skill_leadership')->nullable();
             $table->string('raport_profesi');
             $table->string('kedisiplinan');
             $table->string('ketuntasan_kerja');
-            $table->string('catatan_negatif');
-            $table->string('prestasi');
+            $table->string('catatan_negatif')->nullable();
+            $table->string('prestasi')->nullable();
             $table->boolean('terverifikasi')->default(false);
             $table->timestamps();
 
