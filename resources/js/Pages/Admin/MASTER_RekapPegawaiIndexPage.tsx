@@ -3,68 +3,128 @@ import {
     Card,
     CardBody,
     CardFooter,
-    CardHeader, Dialog, DialogBody, DialogFooter, DialogHeader,
+    CardHeader,
+    Dialog,
+    DialogBody,
+    DialogFooter,
+    DialogHeader,
     IconButton,
+    List,
+    ListItem,
+    ListItemPrefix,
     Tooltip,
     Typography
 } from "@material-tailwind/react";
-import {
-    ArrowLeft, ArrowRight,
-    BarChartBig,
-    Building2,
-    ChevronDown, Download, FileSearch,
-    NotebookText,
-    Plus,
-    Search, Trash2,
-    User2
-} from "lucide-react";
-import { MTColor, PageProps } from "@/types";
+import { Building2, ChevronDown, FileSearch, Pencil, Plus, Search, Trash2, User2, X } from "lucide-react";
+import { JenisKelamin, MTColor, PageProps } from "@/types";
 import { AdminLayout } from "@/Layouts/AdminLayout";
 import { Head, Link, router } from "@inertiajs/react";
 import { Input } from "@/Components/Input";
 import { format } from "date-fns";
 import { id as localeID } from "date-fns/locale/id";
-import { TextArea } from "@/Components/TextArea";
 import { Checkbox } from "@/Components/Checkbox";
 import { useTheme } from "@/Hooks/useTheme";
-import { SyntheticEvent, useEffect, useMemo, useState } from "react";
+import { ChangeEvent, useState } from "react";
 import { Bounce, toast } from "react-toastify";
-import {  z } from "zod";
 import axios, { AxiosError } from "axios";
-import * as XLSX from "xlsx";
-import { id } from "date-fns/locale";
+import Pagination from "@/Components/Pagination";
 
+type PaginationLink = {
+    url: string | null;
+    label: string;
+    active: boolean;
+};
 
-export default function MASTER_RekapPegawaiIndexPage({ auth, rekaps, adminCount }: PageProps<{
-    rekaps: {
-        id: string;
-        nama: string;
-        keterangan: string;
-        created_at: string;
-        admin: {
-            id: string;
-            username: string;
-            rekap_id: string;
-        }[] | []
-    }[] | [];
-    adminCount: number;
+type Unit = {
+    id: string;
+    nama: string;
+};
+
+type Pegawai = {
+    id: string;
+    nama: string;
+    jenis_kelamin: string;
+};
+
+type StatusPegawai = {
+    id: string;
+    nama: string;
+};
+
+type Marhalah = {
+    id: string;
+    nama: string;
+};
+
+type Golongan = {
+    id: string;
+    nama: string;
+};
+
+type PeriodeRekap = {
+    id: string;
+    nama: string;
+};
+
+type Rekap = {
+    id: string;
+    amanah: string;
+    unit_id: string;
+    pegawai_id: string;
+    status_pegawai_id: string;
+    marhalah_id: string;
+    golongan_id: string;
+    periode_rekap_id: string;
+    created_at: string;
+    unit: Unit;
+    pegawai: Pegawai;
+    status_pegawai: StatusPegawai;
+    marhalah: Marhalah;
+    golongan: Golongan;
+    periode_rekap: PeriodeRekap;
+};
+
+type PaginationData = {
+    current_page: number;
+    data: Rekap[];
+    first_page_url: string;
+    from: number;
+    last_page: number;
+    last_page_url: string;
+    links: PaginationLink[];
+    next_page_url: string | null;
+    path: string;
+    per_page: number;
+    prev_page_url: string | null;
+    to: number;
+    total: number;
+};
+
+export default function MASTER_RekapPegawaiIndexPage({ auth, unverifiedCount, marhalahs, golongans, statusPegawais, units, pagination, }: PageProps<{
+    unverifiedCount: number;
+    marhalahs: { id: string; nama: string }[];
+    golongans: { id: string; nama: string }[];
+    statusPegawais: { id: string; nama: string }[];
+    units: { id: string; nama: string }[];
+    pagination: PaginationData;
 }>) {
 
-    const TABLE_HEAD = ['No', 'Rekap', 'Pegawai', 'Periode', 'Tanggal', 'Aksi'];
+    const TABLE_HEAD = ['No', 'Unit', 'Pegawai', 'Periode', 'Amanah', 'Status Pegawai', 'Golongan dan Marhalah', 'Tanggal pelaporan', 'Aksi'];
     const cardData = [
         {
             color: "gray",
             icon: <Building2 />,
             title: "Total Jumlah Laporan Rekap",
-            value: rekaps.length,
+            value: pagination.data.length,
         },
         {
             color: "gray",
             icon: <User2 />,
             title: "Jumlah Rekap belum diverifikasi",
-            value: adminCount,
+            value: unverifiedCount,
         }
     ];
+    const jenisKelamin: JenisKelamin[] = ['Laki-Laki', 'Perempuan'];
 
     const deleteDialogInit = {
         open: false,
@@ -76,8 +136,63 @@ export default function MASTER_RekapPegawaiIndexPage({ auth, rekaps, adminCount 
         rekapId: string;
     }>(deleteDialogInit);
     const [ sortBy, setSortBy ] = useState('');
-    const [ currPage, setCurrPage ] = useState(1);
-    const [ viewPerPage, setViewPerPage ] = useState(10);
+    const [viewPerPage, setViewPerPage] = useState(() => {
+        const searchParams = new URLSearchParams(window.location.search);
+        const viewParam = searchParams.get('view');
+        return viewParam ? parseInt(viewParam, 10) : 25;
+    });
+    type FilterBy = {
+        marhalah: string[];
+        golongan: string[];
+        statusPegawai: string[];
+        jenisKelamin: string[];
+        unit: string[];
+    };
+    const filterByInit: FilterBy = {
+        marhalah: [],
+        golongan: [],
+        statusPegawai: [],
+        jenisKelamin: [],
+        unit: []
+    };
+    const [ filterBy, setFilterBy ] = useState<FilterBy>(() => {
+        const searchParams = new URLSearchParams(window.location.search);
+        const filterParam = searchParams.get('filter');
+        if (filterParam) {
+            return JSON.parse(atob(filterParam)) as FilterBy;
+        }
+        return filterByInit;
+    });
+    const [ openFilterBy, setOpenFilterBy ] = useState(false);
+    const handleChangeFilterBy = (by: keyof FilterBy, event: ChangeEvent<HTMLInputElement>) => {
+        const { value } = event.target;
+        setFilterBy((prevState) => ({
+            ...prevState,
+            [by]: prevState[by].includes(value)
+                ? prevState[by].filter((filt) => filt !== value)
+                : [ ...prevState[by], value ],
+        }));
+    };
+    const handleSetFilterBy = () => {
+        const isEmpty = Object.values(filterBy).every((filters) => filters.length === 0);
+
+        const filterBase64 = btoa(JSON.stringify(filterBy));
+        const searchParams = new URLSearchParams(window.location.search);
+
+        if (isEmpty) {
+            searchParams.delete('filter');
+        } else {
+            searchParams.set('filter', filterBase64);
+        }
+
+        router.visit(window.location.pathname + '?' + searchParams.toString(), {
+            preserveState: true,
+            preserveScroll: true,
+        });
+
+        setOpenFilterBy(false);
+    };
+
 
     const notifyToast = (type: 'success' | 'error', message: string, theme: 'light' | 'dark' = 'light') => {
         toast[type](message, {
@@ -91,29 +206,8 @@ export default function MASTER_RekapPegawaiIndexPage({ auth, rekaps, adminCount 
             transition: Bounce,
         });
     }
-    const adjustData = useMemo(() => {
-        const startIndex = (currPage - 1) * viewPerPage;
-        const lastIndex = startIndex + viewPerPage;
-
-        return rekaps.slice(startIndex, lastIndex);
-    }, [ rekaps, viewPerPage ]);
-
-    const [ data, setData ] = useState(adjustData);
     const [ search, setSearch ] = useState('');
-    const getItemProps = (index: number) =>
-        ({
-            variant: currPage === index ? "filled" : "text",
-            color: "gray",
-            className: "rounded-full",
-        } as any);
 
-    const nextPage = () => {
-        const totalPages = Math.ceil(rekaps.length / viewPerPage);
-        currPage < totalPages && setCurrPage(currPage + 1);
-    };
-    const prevPage = () => {
-        currPage > 1 && setCurrPage(currPage - 1);
-    };
     const handleOpenDelete = () => setDeleteDialog((prevState) => ({
         ...prevState,
         open: true
@@ -125,8 +219,8 @@ export default function MASTER_RekapPegawaiIndexPage({ auth, rekaps, adminCount 
         })
             .then(() => {
                 notifyToast('success', 'Rekap Pegawai terpilih berhasil dihapus!');
-                setData((prevState) => prevState.filter((filt) => filt.id !== deleteDialog.rekapId));
                 setDeleteDialog(deleteDialogInit);
+                router.reload({ only: [ 'pagination' ]});
             })
             .catch((err: unknown) => {
                 const errMsg = err instanceof AxiosError
@@ -135,22 +229,6 @@ export default function MASTER_RekapPegawaiIndexPage({ auth, rekaps, adminCount 
                 notifyToast('error', errMsg);
             });
     };
-
-    useEffect(() => {
-        setData(adjustData);
-    }, [ rekaps, viewPerPage ]);
-    useEffect(() => {
-        if (search.length < 1) {
-            setData(adjustData);
-        } else {
-            setCurrPage(1);
-            const matchRekaps = rekaps.filter(rekap =>
-                rekap.nama.toLowerCase().includes(search.toLowerCase()) ||
-                rekap.admin.some(admin => admin.username.toLowerCase().includes(search.toLowerCase()))
-            );
-            setData(matchRekaps);
-        }
-    }, [ search ]);
 
     return (
         <>
@@ -203,28 +281,211 @@ export default function MASTER_RekapPegawaiIndexPage({ auth, rekaps, adminCount 
                                 </Button>
                             </div>
                         </div>
-                        <div className="flex flex-col items-center justify-end gap-4 md:flex-row">
-                            <div className="w-full md:w-72">
+                        <div className="w-full flex flex-col md:flex-row items-start justify-between gap-4">
+                            <div className="flex-1 h-full max-w-xl space-y-0.5 content-start">
+                                <div className="flex flex-row gap-2.5 items-center">
+                                    <Typography variant="h5" color="blue-gray">
+                                        Filter berdasarkan
+                                    </Typography>
+                                    <Button
+                                        variant="text"
+                                        size="sm"
+                                        color="blue-gray"
+                                        className="!p-2"
+                                        onClick={() => setOpenFilterBy(true)}
+                                    >
+                                        <Pencil width={20} />
+                                    </Button>
+                                </div>
+                                <div className="flex flex-row gap-1.5 text-sm">
+                                    <p className="min-w-28">
+                                        Unit
+                                    </p>
+                                    <p>:&nbsp;
+                                        { filterBy.unit.length < 1
+                                            ? 'Semua'
+                                            : filterBy.unit.length === units.length
+                                                ? 'Semua'
+                                                : filterBy.unit.flat().join(', ')
+                                        }
+                                    </p>
+                                </div>
+                                <div className="flex flex-row gap-1.5 text-sm">
+                                    <p className="min-w-28">
+                                        Marhalah
+                                    </p>
+                                    <p>:&nbsp;
+                                        { filterBy.marhalah.length < 1
+                                            ? 'Semua'
+                                            : filterBy.marhalah.length === marhalahs.length
+                                                ? 'Semua'
+                                                : filterBy.marhalah.flat().join(', ')
+                                        }
+                                    </p>
+                                </div>
+                                <div className="flex flex-row gap-1.5 text-sm ">
+                                    <p className="min-w-28">
+                                        Golongan
+                                    </p>
+                                    <p>:&nbsp;
+                                        { filterBy.golongan.length < 1
+                                            ? 'Semua'
+                                            : filterBy.golongan.length === golongans.length
+                                                ? 'Semua'
+                                                : filterBy.golongan.flat().join(', ')
+                                        }
+                                    </p>
+                                </div>
+                                <div className="flex flex-row gap-1.5 text-sm ">
+                                    <p className="min-w-28">
+                                        Jenis Kelamin
+                                    </p>
+                                    <p>:&nbsp;
+                                        { filterBy.jenisKelamin.length < 1
+                                            ? 'Semua'
+                                            : filterBy.jenisKelamin.length === jenisKelamin.length
+                                                ? 'Semua'
+                                                : filterBy.jenisKelamin.flat().join(', ')
+                                        }
+                                    </p>
+                                </div>
+                                <div className="flex flex-row gap-1.5 text-sm ">
+                                    <p className="min-w-28">
+                                        Status Pegawai
+                                    </p>
+                                    <p>:&nbsp;
+                                        { filterBy.statusPegawai.length < 1
+                                            ? 'Semua'
+                                            : filterBy.statusPegawai.length === statusPegawais.length
+                                                ? 'Semua'
+                                                : filterBy.statusPegawai.flat().join(', ')
+                                        }
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="w-full md:w-72 flex flex-col justify-end gap-2">
+                                <div className="w-min text-sm *:!min-w-16 -space-y-1.5">
+                                    <Typography variant="h6" color="blue-gray" className="ml-0 md:ml-3">
+                                        Data per Halaman
+                                    </Typography>
+                                    <List className="flex-row">
+                                        <ListItem className="p-0 !gap-1" ripple={false}>
+                                            <label
+                                                htmlFor="show-10"
+                                                className="flex w-full cursor-pointer items-center px-3 py-2 *:!text-sm"
+                                            >
+                                                <ListItemPrefix className="mr-3">
+                                                    <Checkbox
+                                                        id="show-10"
+                                                        ripple={false}
+                                                        className="hover:before:opacity-0"
+                                                        containerProps={{
+                                                            className: "p-0",
+                                                        }}
+                                                        value={10}
+                                                        checked={viewPerPage === 10}
+                                                        onChange={() => setViewPerPage(10)}
+                                                    />
+                                                </ListItemPrefix>
+                                                <Typography color="blue-gray" className="font-medium">
+                                                    10
+                                                </Typography>
+                                            </label>
+                                        </ListItem>
+                                        <ListItem className="p-0" ripple={false}>
+                                            <label
+                                                htmlFor="show-25"
+                                                className="flex w-full cursor-pointer items-center px-3 py-2 *:!text-sm"
+                                            >
+                                                <ListItemPrefix className="mr-3">
+                                                    <Checkbox
+                                                        id="show-25"
+                                                        ripple={false}
+                                                        className="hover:before:opacity-0"
+                                                        containerProps={{
+                                                            className: "p-0",
+                                                        }}
+                                                        value={25}
+                                                        checked={viewPerPage === 25}
+                                                        onChange={() => setViewPerPage(25)}
+                                                    />
+                                                </ListItemPrefix>
+                                                <Typography color="blue-gray" className="font-medium">
+                                                    25
+                                                </Typography>
+                                            </label>
+                                        </ListItem>
+                                    </List>
+                                    <List className="flex-row !gap-1.5">
+                                        <ListItem className="p-0" ripple={false}>
+                                            <label
+                                                htmlFor="show-50"
+                                                className="flex w-full cursor-pointer items-center px-3 py-2 *:!text-sm"
+                                            >
+                                                <ListItemPrefix className="mr-3">
+                                                    <Checkbox
+                                                        id="show-50"
+                                                        ripple={false}
+                                                        className="hover:before:opacity-0"
+                                                        containerProps={{
+                                                            className: "p-0",
+                                                        }}
+                                                        value={50}
+                                                        checked={viewPerPage === 50}
+                                                        onChange={() => setViewPerPage(50)}
+                                                    />
+                                                </ListItemPrefix>
+                                                <Typography color="blue-gray" className="font-medium">
+                                                    50
+                                                </Typography>
+                                            </label>
+                                        </ListItem>
+                                        <ListItem className="p-0" ripple={false}>
+                                            <label
+                                                htmlFor="show-100"
+                                                className="flex w-full cursor-pointer items-center px-3 py-2 *:!text-sm"
+                                            >
+                                                <ListItemPrefix className="mr-3">
+                                                    <Checkbox
+                                                        id="show-100"
+                                                        ripple={false}
+                                                        className="hover:before:opacity-0"
+                                                        containerProps={{
+                                                            className: "p-0",
+                                                        }}
+                                                        value={100}
+                                                        checked={viewPerPage === 100}
+                                                        onChange={() => setViewPerPage(100)}
+                                                    />
+                                                </ListItemPrefix>
+                                                <Typography color="blue-gray" className="font-medium">
+                                                    100
+                                                </Typography>
+                                            </label>
+                                        </ListItem>
+                                    </List>
+                                </div>
+
                                 <Input
                                     label="Pencarian"
                                     placeholder="cari berdasarkan nama"
-                                    value={search}
-                                    onChange={(event) => {
+                                    value={ search }
+                                    onChange={ (event) => {
                                         setSearch(event.target.value);
-                                    }}
-                                    icon={<Search className="h-5 w-5"/>}
+                                    } }
+                                    icon={ <Search className="h-5 w-5"/> }
                                 />
                             </div>
                         </div>
                     </CardHeader>
                     <CardBody className="overflow-auto px-0">
-                        <table className="mt-4 w-full min-w-max table-auto text-left">
+                    <table className="mt-4 w-full min-w-max table-auto text-left">
                             <thead>
                             <tr>
-                                {TABLE_HEAD.map((head, index) => (
+                                { TABLE_HEAD.map((head, index) => (
                                     <th
-                                        key={head}
-                                        onClick={() => setSortBy(head)}
+                                        key={ head }
+                                        onClick={ () => setSortBy(head) }
                                         className="cursor-pointer border-y border-blue-gray-100 bg-blue-gray-50/50 p-4 transition-colors hover:bg-blue-gray-50 last:cursor-auto last:hover:bg-blue-gray-50/50"
                                     >
                                         <Typography
@@ -232,33 +493,43 @@ export default function MASTER_RekapPegawaiIndexPage({ auth, rekaps, adminCount 
                                             color="blue-gray"
                                             className="flex items-center justify-between gap-2 font-normal leading-none opacity-70"
                                         >
-                                            {head}{" "}
-                                            {index !== TABLE_HEAD.length - 1 && (
-                                                <ChevronDown strokeWidth={2} className="h-4 w-4" />
-                                            )}
+                                            { head }{ " " }
+                                            { index !== TABLE_HEAD.length - 1 && (
+                                                <ChevronDown strokeWidth={ 2 } className="h-4 w-4"/>
+                                            ) }
                                         </Typography>
                                     </th>
-                                ))}
+                                )) }
                             </tr>
                             </thead>
                             <tbody>
                             {
-                                data.map(
-                                    ({ id, nama, admin, created_at }, index) => {
-                                        const isLast = index === data.length - 1;
+                                pagination.data.map(
+                                    ({
+                                         id,
+                                         amanah,
+                                         unit,
+                                         pegawai,
+                                         status_pegawai,
+                                         golongan,
+                                         marhalah,
+                                         periode_rekap,
+                                         created_at
+                                     }, index) => {
+                                        const isLast = index === pagination.data.length - 1;
                                         const classes = isLast
                                             ? "p-4"
                                             : "p-4 border-b border-blue-gray-50";
 
                                         return (
                                             <tr key={ id }>
-                                                <td className={ `${ classes } w-3`}>
+                                                <td className={ `${ classes } w-3` }>
                                                     <Typography
                                                         variant="small"
                                                         color="blue-gray"
                                                         className="font-normal text-center"
                                                     >
-                                                        { index + 1}
+                                                        { index + 1 }
                                                     </Typography>
                                                 </td>
                                                 <td className={ `${ classes } min-w-52` }>
@@ -270,32 +541,80 @@ export default function MASTER_RekapPegawaiIndexPage({ auth, rekaps, adminCount 
                                                                 color="blue-gray"
                                                                 className="font-normal"
                                                             >
-                                                                { nama }
+                                                                { unit.nama }
+                                                            </Typography>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className={ `${ classes } min-w-56` }>
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="flex flex-col">
+                                                            <Typography
+                                                                variant="small"
+                                                                color="blue-gray"
+                                                                className="font-normal"
+                                                            >
+                                                                { pegawai.nama }
+                                                            </Typography>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className={ `${ classes } min-w-40` }>
+                                                    <div className="flex items-center gap-3">
+                                                        {/*<Avatar src={img} alt={name} size="sm" />*/ }
+                                                        <div className="flex flex-col">
+                                                            <Typography
+                                                                variant="small"
+                                                                color="blue-gray"
+                                                                className="font-normal"
+                                                            >
+                                                                { periode_rekap.nama }
+                                                            </Typography>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className={ `${ classes } min-w-40` }>
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="flex flex-col">
+                                                            <Typography
+                                                                variant="small"
+                                                                color="blue-gray"
+                                                                className="font-normal"
+                                                            >
+                                                                { amanah }
+                                                            </Typography>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className={ `${ classes } min-w-44` }>
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="flex flex-col">
+                                                            <Typography
+                                                                variant="small"
+                                                                color="blue-gray"
+                                                                className="font-normal"
+                                                            >
+                                                                { status_pegawai.nama }
                                                             </Typography>
                                                         </div>
                                                     </div>
                                                 </td>
                                                 <td className={ `${ classes } min-w-52` }>
                                                     <div className="flex flex-col gap-1">
-                                                        {
-                                                            admin.length < 1
-                                                                ? (
-                                                                    <div
-                                                                        className="flex items-center justify-start text-xs text-gray-400">
-                                                                        Belum ada Admin untuk rekap ini
-                                                                    </div>
-                                                                )
-                                                                : admin.map((admn, index) => ((
-                                                                    <Link
-                                                                        href={route('master.admin.details')}
-                                                                        data={{ q: admn.id }}
-                                                                        key={ index }
-                                                                        className="font-normal text-sm hover:text-blue-600"
-                                                                    >
-                                                                        { admn.username }
-                                                                    </Link>
-                                                                )))
-                                                        }
+                                                        <Typography
+                                                            variant="small"
+                                                            color="blue-gray"
+                                                            className="font-normal"
+                                                        >
+                                                            { golongan.nama }
+                                                        </Typography>
+                                                        <Typography
+                                                            variant="small"
+                                                            color="blue-gray"
+                                                            className="font-normal"
+                                                        >
+                                                            { marhalah.nama }
+                                                        </Typography>
                                                     </div>
                                                 </td>
                                                 <td className={ `${ classes } min-w-40` }>
@@ -304,7 +623,7 @@ export default function MASTER_RekapPegawaiIndexPage({ auth, rekaps, adminCount 
                                                         color="blue-gray"
                                                         className="font-normal"
                                                     >
-                                                        { format(created_at, 'PPpp', {
+                                                        { format(created_at, 'PPPPpp', {
                                                             locale: localeID
                                                         }) }
                                                     </Typography>
@@ -312,7 +631,8 @@ export default function MASTER_RekapPegawaiIndexPage({ auth, rekaps, adminCount 
                                                 <td className={ classes }>
                                                     <div className="w-32 flex gap-2.5 items-center justify-start">
                                                         <Tooltip content="Detail">
-                                                            <Link href={route('master.rekap.details', { q: rekaps[index].id })}>
+                                                            <Link
+                                                                href={ route('master.unit.details', { q: pagination.data[index].id }) }>
                                                                 <IconButton variant="text">
                                                                     <FileSearch className="h-5 w-5 text-blue-800"/>
                                                                 </IconButton>
@@ -321,14 +641,13 @@ export default function MASTER_RekapPegawaiIndexPage({ auth, rekaps, adminCount 
                                                         <Tooltip content="Hapus" className="bg-red-400">
                                                             <IconButton
                                                                 variant="text"
-                                                                onClick={() => {
+                                                                onClick={ () => {
                                                                     setDeleteDialog((prevState) => ({
                                                                         ...prevState,
                                                                         open: true,
-                                                                        periodeId: id,
-                                                                        admins: admin
+                                                                        rekapId: id,
                                                                     }))
-                                                                }}
+                                                                } }
                                                             >
                                                                 <Trash2 className="h-5 w-5 text-red-600"/>
                                                             </IconButton>
@@ -344,45 +663,203 @@ export default function MASTER_RekapPegawaiIndexPage({ auth, rekaps, adminCount 
                         </table>
                     </CardBody>
                     <CardFooter className="flex items-center justify-between border-t border-blue-gray-50 p-4">
-                        <Typography variant="small" color="blue-gray" className="font-normal">
-                            Halaman { currPage } dari { Math.ceil(data.length / viewPerPage) }
-                        </Typography>
-                        <div className="flex items-center gap-4">
-                            <Button
-                                variant="text"
-                                className="flex items-center gap-2 rounded-full"
-                                onClick={ prevPage }
-                                disabled={ currPage === 1 }
-                            >
-                                <ArrowLeft strokeWidth={ 2 } className="h-4 w-4"/> Previous
-                            </Button>
-                            <div className="flex items-center gap-2">
-                                {
-                                    Array.from({ length: Math.ceil(data.length / viewPerPage) }).map((_, index) => (
-                                        <IconButton
-                                            key={index}
-                                            { ...getItemProps(index + 1) }
-                                            onClick={() => setCurrPage(index + 1)}
-                                        >
-                                            { index + 1 }
-                                        </IconButton>
-                                    ))
-                                }
-                            </div>
-                            <Button
-                                variant="text"
-                                className="flex items-center gap-2 rounded-full"
-                                onClick={ nextPage }
-                                disabled={ currPage === Math.ceil(data.length / viewPerPage) || data.length < 1 }
-                            >
-                                Next
-                                <ArrowRight strokeWidth={ 2 } className="h-4 w-4"/>
-                            </Button>
-                        </div>
+                        <Pagination paginateItems={pagination} />
                     </CardFooter>
                 </Card>
 
-                <Dialog open={deleteDialog.open} handler={handleOpenDelete}>
+                <Dialog size="xl" open={openFilterBy} handler={() => setOpenFilterBy(true)} className="p-4">
+                    <DialogHeader className="relative m-0 block">
+                        <Typography variant="h4" color="blue-gray">
+                            Filter berdasarkan
+                        </Typography>
+                        <Typography className="mt-1 font-normal text-gray-600">
+                            Dapat memilih lebih dari opsi
+                        </Typography>
+                        <IconButton
+                            size="sm"
+                            variant="text"
+                            className="!absolute right-3.5 top-3.5"
+                            onClick={() => setOpenFilterBy(false)}
+                        >
+                            <X className="h-4 w-4 stroke-2" />
+                        </IconButton>
+                    </DialogHeader>
+                    <DialogBody className="h-80 overflow-auto">
+                        <div className="flex flex-col md:flex-row flex-wrap gap-2 justify-around">
+                            <div>
+                                <Typography variant="h6">
+                                    Unit
+                                </Typography>
+                                <List>
+                                    {
+                                        units.sort((a, b) => a.nama.localeCompare(b.nama)).map((unit, index) => ((
+                                            <ListItem className="p-0" key={unit.id}>
+                                                <label
+                                                    htmlFor={ unit.id }
+                                                    className="flex w-full cursor-pointer items-center px-3 py-2"
+                                                >
+                                                    <ListItemPrefix className="mr-3">
+                                                        <Checkbox
+                                                            id={ unit.id }
+                                                            ripple={ false }
+                                                            className="hover:before:opacity-0"
+                                                            containerProps={ {
+                                                                className: "p-0",
+                                                            } }
+                                                            value={ unit.nama }
+                                                            checked={ filterBy.unit.includes(unit.nama) }
+                                                            onChange={ (event) => handleChangeFilterBy('unit', event) }
+                                                        />
+                                                    </ListItemPrefix>
+                                                    <Typography color="blue-gray" className="text-sm font-medium">
+                                                        { unit.nama }
+                                                    </Typography>
+                                                </label>
+                                            </ListItem>
+                                        )))
+                                    }
+                                </List>
+                                <Typography variant="h6">
+                                    Status Pegawai
+                                </Typography>
+                                <List>
+                                    {
+                                        statusPegawais.sort((a, b) => a.nama.localeCompare(b.nama)).map((status, index) => ((
+                                            <ListItem className="p-0" key={status.id}>
+                                                <label
+                                                    htmlFor={ status.id }
+                                                    className="flex w-full cursor-pointer items-center px-3 py-2"
+                                                >
+                                                    <ListItemPrefix className="mr-3">
+                                                        <Checkbox
+                                                            id={ status.id }
+                                                            ripple={ false }
+                                                            className="hover:before:opacity-0"
+                                                            containerProps={ {
+                                                                className: "p-0",
+                                                            } }
+                                                            value={ status.nama }
+                                                            checked={ filterBy.statusPegawai.includes(status.nama) }
+                                                            onChange={ (event) => handleChangeFilterBy('statusPegawai', event) }
+                                                        />
+                                                    </ListItemPrefix>
+                                                    <Typography color="blue-gray" className="text-sm font-medium">
+                                                        { status.nama }
+                                                    </Typography>
+                                                </label>
+                                            </ListItem>
+                                        )))
+                                    }
+                                </List>
+
+                                <Typography variant="h6">
+                                    Jenis Kelamin
+                                </Typography>
+                                <List>
+                                    {
+                                        jenisKelamin.map((jenis, index) => ((
+                                            <ListItem className="p-0" key={jenis}>
+                                                <label
+                                                    htmlFor={ jenis }
+                                                    className="flex w-full cursor-pointer items-center px-3 py-2"
+                                                >
+                                                    <ListItemPrefix className="mr-3">
+                                                        <Checkbox
+                                                            id={ jenis }
+                                                            ripple={ false }
+                                                            className="hover:before:opacity-0"
+                                                            containerProps={ {
+                                                                className: "p-0",
+                                                            } }
+                                                            value={ jenis }
+                                                            checked={ filterBy.jenisKelamin.includes(jenis) }
+                                                            onChange={ (event) => handleChangeFilterBy('jenisKelamin', event) }
+                                                        />
+                                                    </ListItemPrefix>
+                                                    <Typography color="blue-gray" className="text-sm font-medium">
+                                                        { jenis }
+                                                    </Typography>
+                                                </label>
+                                            </ListItem>
+                                        )))
+                                    }
+                                </List>
+                            </div>
+                            <div>
+                                <Typography variant="h6">
+                                    Marhalah
+                                </Typography>
+                                <List>
+                                    {
+                                        marhalahs.sort((a, b) => a.nama.localeCompare(b.nama)).map((marhalah, index) => ((
+                                            <ListItem className="p-0" key={marhalah.id}>
+                                                <label
+                                                    htmlFor={ marhalah.id }
+                                                    className="flex w-full cursor-pointer items-center px-3 py-2"
+                                                >
+                                                    <ListItemPrefix className="mr-3">
+                                                        <Checkbox
+                                                            id={ marhalah.id }
+                                                            ripple={ false }
+                                                            className="hover:before:opacity-0"
+                                                            containerProps={ {
+                                                                className: "p-0",
+                                                            } }
+                                                            value={ marhalah.nama }
+                                                            checked={ filterBy.marhalah.includes(marhalah.nama) }
+                                                            onChange={ (event) => handleChangeFilterBy('marhalah', event) }
+                                                        />
+                                                    </ListItemPrefix>
+                                                    <Typography color="blue-gray" className="text-sm font-medium">
+                                                        { marhalah.nama }
+                                                    </Typography>
+                                                </label>
+                                            </ListItem>
+                                        )))
+                                    }
+                                </List>
+                                <Typography variant="h6">
+                                    Golongan
+                                </Typography>
+                                <List>
+                                    {
+                                        golongans.sort((a, b) => a.nama.localeCompare(b.nama)).map((golongan, index) => ((
+                                            <ListItem className="p-0" key={golongan.id}>
+                                                <label
+                                                    htmlFor={ golongan.id }
+                                                    className="flex w-full cursor-pointer items-center px-3 py-2"
+                                                >
+                                                    <ListItemPrefix className="mr-3">
+                                                        <Checkbox
+                                                            id={ golongan.id }
+                                                            ripple={ false }
+                                                            className="hover:before:opacity-0"
+                                                            containerProps={ {
+                                                                className: "p-0",
+                                                            } }
+                                                            value={ golongan.nama }
+                                                            checked={ filterBy.golongan.includes(golongan.nama) }
+                                                            onChange={ (event) => handleChangeFilterBy('golongan', event) }
+                                                        />
+                                                    </ListItemPrefix>
+                                                    <Typography color="blue-gray" className="text-sm font-medium">
+                                                        { golongan.nama }
+                                                    </Typography>
+                                                </label>
+                                            </ListItem>
+                                        )))
+                                    }
+                                </List>
+                            </div>
+                        </div>
+                    </DialogBody>
+                    <DialogFooter>
+                        <Button className="ml-auto" onClick={ handleSetFilterBy }>
+                            Simpan Filter
+                        </Button>
+                    </DialogFooter>
+                </Dialog>
+                <Dialog open={ deleteDialog.open } handler={ handleOpenDelete }>
                     <DialogHeader className="text-gray-900">
                         Hapus Rekap terpilih?
                     </DialogHeader>
@@ -391,19 +868,19 @@ export default function MASTER_RekapPegawaiIndexPage({ auth, rekaps, adminCount 
                             Anda akan menghapus
                             Rekap:&nbsp;
                             <span className="font-bold">
-                                " { rekaps.find((rekap) => rekap.id === deleteDialog.rekapId)?.nama ?? '-' } "
+                                " { pagination.data.find((rekap) => rekap.id === deleteDialog.rekapId)?.pegawai.nama ?? '-' } "
                             </span>
                         </Typography>
                     </DialogBody>
                     <DialogFooter>
                         <Button
                             color="black"
-                            onClick={ () => setDeleteDialog(deleteDialogInit)}
+                            onClick={ () => setDeleteDialog(deleteDialogInit) }
                             className="mr-1"
                         >
-                        <span>Batal</span>
+                            <span>Batal</span>
                         </Button>
-                        <Button color="red" onClick={handleDeleteRekap}>
+                        <Button color="red" onClick={ handleDeleteRekap }>
                             <span>Hapus</span>
                         </Button>
                     </DialogFooter>

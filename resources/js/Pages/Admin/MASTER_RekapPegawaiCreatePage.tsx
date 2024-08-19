@@ -119,6 +119,7 @@ export default function MASTER_RekapPegawaiCreatePage({ auth, units, periodes }:
     const formSubmitDisabled = (): boolean => Object.keys(formInput).filter((filt) => !['skill_manajerial', 'skill_leadership', 'catatan_negatif', 'prestasi'].includes(filt)).some((key) => !formInput[key]);
     const handleFormSubmit = (event: SyntheticEvent<HTMLFormElement>) => {
         event.preventDefault();
+        console.log(formInput);
         setFormInput((prevState) => ({
             ...prevState,
             onSubmit: true
@@ -131,6 +132,7 @@ export default function MASTER_RekapPegawaiCreatePage({ auth, units, periodes }:
             marhalah_id: z.string({ message: 'Marhalah belum dipilih' }).uuid({ message: 'Format Marhalah tidak valid' }),
             periode_rekap_id: z.string({ message: 'Periode rekap belum dipilih' }).uuid({ message: 'Format Periode rekap tidak valid' }),
             amanah: z.string({ message: 'Amanah tidak boleh kosong' }),
+            organisasi: z.string({ message: 'Format Amanah Organisasi tidak valid' }).nullable(),
             gaji: z.number({ message: 'Gaji harus berupa angka' }).int({ message: 'Gaji harus berupa angka bulat' }),
             skill_manajerial: z.string({ message: 'Skill Manajerial tidak boleh kosong' }).nullable(),
             skill_leadership: z.string({ message: 'Skill Leadership tidak boleh kosong' }).nullable(),
@@ -141,7 +143,8 @@ export default function MASTER_RekapPegawaiCreatePage({ auth, units, periodes }:
             prestasi: z.string({ message: 'Prestasi tidak boleh kosong' }).nullable(),
         });
         const zodRekapResult = rekapSchema.safeParse({
-            ...formInput
+            ...formInput,
+            gaji: Number(formInput.gaji),
         });
         if (!zodRekapResult.success) {
             const errorMessages = zodRekapResult.error.issues[0].message;
