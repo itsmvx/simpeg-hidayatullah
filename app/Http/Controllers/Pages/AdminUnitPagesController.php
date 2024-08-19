@@ -7,6 +7,7 @@ use App\Models\Pegawai;
 use App\Models\Unit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class AdminUnitPagesController extends Controller
@@ -26,5 +27,24 @@ class AdminUnitPagesController extends Controller
             ]);
         }
         abort(403);
+    }
+    public function pegawaiIndexPage()
+    {
+        return Inertia::render('Admin/AdminUnit/Pegawai/Index', [
+            'pegawais' => fn () => DB::table('pegawai')
+                ->select(
+                    'pegawai.id',
+                    'pegawai.nip',
+                    'pegawai.nama',
+                    'pegawai.unit_id',
+                    'pegawai.status_pegawai_id as statusPegawaiId',
+                    'pegawai.created_at',
+                    'unit.nama as unit_nama',
+                    'status_pegawai.nama as statusPegawai_nama'
+                )
+                ->leftJoin('unit', 'pegawai.unit_id', '=', 'unit.id')
+                ->leftJoin('status_pegawai', 'pegawai.status_pegawai_id', '=', 'status_pegawai.id')
+                ->get()
+        ]);
     }
 }

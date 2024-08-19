@@ -221,29 +221,84 @@ class AdminMasterPagesController extends Controller
         ]);
     }
 
-    public function rekapPegawaiIndexPage()
+    public function rekapPegawaiIndexPage(Request $request)
     {
+        $viewPerPage = $request->query('view');
+
+        if (!is_numeric($viewPerPage) || intval($viewPerPage) <= 0) {
+            $viewPerPage = 10;
+        } else {
+            $viewPerPage = intval($viewPerPage);
+        }
+
+        $query = RekapPegawai::select([
+            'id',
+            'amanah',
+            'unit_id',
+            'pegawai_id',
+            'status_pegawai_id',
+            'marhalah_id',
+            'golongan_id',
+            'periode_rekap_id',
+            'created_at',
+        ])->with([
+            'unit:id,nama',
+            'pegawai:id,nama,jenis_kelamin',
+            'status_pegawai:id,nama',
+            'marhalah:id,nama',
+            'golongan:id,nama',
+            'periode_rekap:id,nama',
+        ]);
+
+        if ($request->has('filter')) {
+            $filters = json_decode(base64_decode($request->query('filter')), true);
+
+            if (!empty($filters['marhalah'])) {
+                $query->whereHas('marhalah', function ($q) use ($filters) {
+                    $q->whereIn('nama', $filters['marhalah']);
+                });
+            }
+            if (!empty($filters['golongan'])) {
+                $query->whereHas('golongan', function ($q) use ($filters) {
+                    $q->whereIn('nama', $filters['golongan']);
+                });
+            }
+            if (!empty($filters['statusPegawai'])) {
+                $query->whereHas('status_pegawai', function ($q) use ($filters) {
+                    $q->whereIn('nama', $filters['statusPegawai']);
+                });
+            }
+            if (!empty($filters['jenisKelamin'])) {
+                $query->whereHas('pegawai', function ($q) use ($filters) {
+                    $q->whereIn('jenis_kelamin', $filters['jenisKelamin']);
+                });
+            }
+            if (!empty($filters['unit'])) {
+                $query->whereHas('unit', function ($q) use ($filters) {
+                    $q->whereIn('nama', $filters['unit']);
+                });
+            }
+        }
+
+        $rekaps = $query->paginate($viewPerPage)->withQueryString();
+
         return Inertia::render('Admin/MASTER_RekapPegawaiIndexPage', [
-            'rekaps' => fn() => RekapPegawai::select(
-                'id',
-                'amanah',
-//                'skill_manajerial',
-//                'skill_leadership',
-//                'kedisiplinan',
-//                'ketuntasan_kerja',
-//                'catatan_negatif',
-//                'prestasi'
-            )
-                ->with(['unit:id,nama','statusPegawai:id,nama', 'marhalah:id,nama', 'golongan:id,nama'])
-                ->get()
+            'pagination' => fn() => $rekaps,
+            'golongans' => fn() => Golongan::select('id', 'nama')->get(),
+            'marhalahs' => fn() => Marhalah::select('id', 'nama')->get(),
+            'statusPegawais' => fn() => StatusPegawai::select('id', 'nama')->get(),
+            'units' => fn() => Unit::select('id', 'nama')->get(),
+            'unverifiedCount' => RekapPegawai::where('terverifikasi', '=', false)->count(),
         ]);
     }
+
+
     public function rekapPegawaiCreatePage()
     {
         try {
             return Inertia::render('Admin/MASTER_RekapPegawaiCreatePage', [
                 'units' => Unit::select('id', 'nama')->get(),
-                'periodes' => PeriodeRekap::select('id', 'nama')->get(),
+                'periodes' => PeriodeRekap::select('id', 'nama')->where('status', '=', true)->get(),
             ]);
         } catch (QueryException $exception) {
             abort(500);

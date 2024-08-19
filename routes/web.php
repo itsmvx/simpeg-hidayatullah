@@ -2,12 +2,11 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminUnit\PegawaiController as AdminUnitPegawaiController;
-use App\Http\Controllers\AdminUnit\RekapPegawaiController;
+use App\Http\Controllers\RekapPegawaiController;
 use App\Http\Controllers\AdminUnit\UnitController as AdminUnitUnitController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\GolonganController;
 use App\Http\Controllers\MarhalahController;
-use App\Http\Controllers\Pages\AdminMasterPagesController;
 use App\Http\Controllers\Pages\AdminUnitPagesController;
 use App\Http\Controllers\PegawaiController;
 use App\Http\Controllers\PeriodeRekapController;
@@ -97,6 +96,9 @@ Route::prefix('periode-rekap')->name('periode-rekap.')->group(function () {
     Route::post('/update', [PeriodeRekapController::class, 'update'])->name('update');
     Route::post('/update-status', [PeriodeRekapController::class, 'updateStatus'])->name('update-status');
     Route::post('/delete', [PeriodeRekapController::class, 'destroy'])->name('delete');
+});
+Route::prefix('rekap-pegawai')->name('rekap-pegawai.')->group(function () {
+    Route::post('/create', [RekapPegawaiController::class, 'create'])->name('create');
 });
 Route::get('/dashboard', function () {
     return Inertia::render('DashboardPage');
