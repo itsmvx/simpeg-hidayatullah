@@ -8,7 +8,7 @@ import {
 import {
     CircleUser,
     GraduationCap, Medal,
-    Menu as MenuIcon, Moon, Save,
+    Menu as MenuIcon, Moon, Pencil, Save,
     Star, Sun,
     Users,
     X
@@ -35,12 +35,14 @@ import type {
 } from "@/types";
 import { z } from "zod";
 import { calculateAge, notifyToast } from "@/Lib/Utils";
-import axios, { AxiosError } from "axios";
+import axios, { AxiosError, AxiosProgressEvent } from "axios";
 import {
     formDataKeluargaDefault, formDataOrganisasiDefault,
     formDataPendidikanFormalDefault,
     formDataPendidikanNonFormalDefault, formDataPengalamanNonPPHDefault, formDataPengalamanPPHDefault
 } from "@/Lib/StaticData";
+import { toast } from "react-toastify";
+import { HarunaPP } from "@/Lib/StaticImages";
 const PegawaiFormSuccess = lazy(() => import('./../../Components/PegawaiFormSuccess'));
 
 export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, marhalahs, statusPegawais, units }: PageProps<{
@@ -226,6 +228,7 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
     const [ onChangeDataPengalamanPPH, setOnChangeDataPengalamanPPH ] = useState(false);
     const [ onChangeDataPengalamanNonPPH, setOnChangeDataPengalamanNonPPH ] = useState(false);
     const [ onSubmit, setOnSubmit ] = useState(false);
+    const [ onLoadImage, setOnLoadImage ] = useState(false);
     const onChangeForm = (): boolean => onChangeDataDiri
         || onChangeDataKeluarga
         || onChangeDataOrganisasi
@@ -348,6 +351,34 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
             })
             .finally(() => setOnSubmit(false));
     };
+    const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files.length > 0) {
+            const file = e.target.files[0];
+            if (file && file.size > 2 * 1024 * 1024) {
+                notifyToast('error','Ukuran file maksimal adalah 2MB!');
+                return;
+            }
+            const formData = new FormData();
+            formData.append('image', file);
+            formData.append('id', pegawai.id);
+            const id = toast.loading("Mengunggah Foto...");
+            axios.post(route('pegawai.upload-foto'), formData, {
+                onUploadProgress: (p: AxiosProgressEvent) => {
+                    const progress: number = p.loaded / (p.total ?? 100);
+                    toast.update(id, { type: "info", isLoading: true, progress: progress });
+                }
+            })
+                .then(() => {
+                    setOnLoadImage(true);
+                    router.reload({ only: [ 'pegawai' ] });
+                    notifyToast('success', 'Berhasil mengunggah foto');
+                })
+                .catch(() => {
+                    notifyToast('error', 'Gagal mengunggah foto')
+                });
+        }
+    };
+
 
     useEffect(() => {
         if (formDataDiri.tanggalLahir) {
@@ -424,25 +455,42 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
                                         <div className="mr-4 hidden lg:block">
                                             <NavLists/>
                                         </div>
-                                        <IconButton
-                                            variant="text"
-                                            size="sm"
-                                            onClick={ () => setTheme((prevState) => prevState === 'light' ? 'dark' : 'light') }
-                                            className="lg:justify-self-end"
-                                        >
-                                            {
-                                                theme === 'light'
-                                                    ? (<Sun/>)
-                                                    : (<Moon/>)
-                                            }
-                                        </IconButton>
                                     </div>
                                 </div>
                                 <Collapse open={ openNav }>
                                     <NavLists/>
                                 </Collapse>
                             </header>
-                            <Card className="w-full px-6">
+                            <Card className="w-full px-6 pt-5">
+                                <div className="mx-auto relative">
+                                    <div className="rounded-full flex items-center justify-center w-44 h-44 overflow-hidden border-4 border-pph-black/70">
+                                        <img
+                                            src={ pegawai.foto ? `/storage/${ pegawai.foto }` : HarunaPP }
+                                            alt={ pegawai.foto ? `${ pegawai.nama }-profil` : 'no-pict' }
+                                            width={ pegawai.foto ? 200 : 200 }
+                                            className="object-cover object-center mx-auto"
+                                            onLoad={ () => setOnLoadImage(false) }
+                                        />
+                                        <div className={ `${ onLoadImage ? 'absolute' : 'hidden' } absolute inset-0 flex items-center justify-center bg-gray-300/85 rounded-full` }>
+                                        <span
+                                            className="animate-spin border-4 border-l-transparent border-gray-700/80 rounded-full w-10 h-10 inline-block align-middle m-auto"></span>
+                                        </div>
+                                    </div>
+                                    <div className="absolute w-7 h-7 top-0 -right-8">
+                                        <div className="relative">
+                                            <label htmlFor="file-input" className="w-full h-full cursor-pointer">
+                                                <Pencil width={25}/>
+                                            </label>
+                                            <input
+                                                id="file-input"
+                                                type="file"
+                                                accept="image/*"
+                                                className="absolute hidden inset-0 w-7 h-7 opacity-0 !cursor-pointer z-30 text-sm text-stone-500 file:mr-5 file:py-1 file:px-3 file:border-[1px] file:text-xs file:font-medium file:bg-stone-50 file:text-stone-700 hover:file:cursor-pointer hover:file:bg-blue-50 hover:file:text-blue-700"
+                                                onChange={ handleImageChange }
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
                                 <form onSubmit={ handleFormSubmit }
                                       className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-4 p-5 dark:bg-gray-900">
                                     <div ref={ formDataDiriRef } className="col-span-1 lg:col-span-2">
@@ -537,8 +585,8 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
 
                                     <Button
                                         type="submit"
-                                        disabled={!onChangeForm() || onSubmit}
-                                        loading={onSubmit}
+                                        disabled={ !onChangeForm() || onSubmit }
+                                        loading={ onSubmit }
                                         className="col-span-1 lg:col-span-2 w-52 min-h-14 ml-auto flex items-center justify-center gap-3"
                                     >
                                         {

@@ -38,6 +38,7 @@ Route::prefix('master')->name('master.')->middleware('admin.master')->group(func
     Route::prefix('/rekap-pegawai')->name('rekap-pegawai.')->group(function () {
         Route::get('/', [AdminMasterPagesController::class, 'rekapPegawaiIndexPage'])->name('index');
         Route::get('/create', [AdminMasterPagesController::class, 'rekapPegawaiCreatePage'])->name('create');
+        Route::get('/details', [AdminMasterPagesController::class, 'rekapPegawaiDetailsPage'])->name('details');
     });
     Route::prefix('/periode-rekap')->name('periode-rekap.')->group(function () {
         Route::get('/', [AdminMasterPagesController::class, 'periodeRekapIndexPage'])->name('index');
