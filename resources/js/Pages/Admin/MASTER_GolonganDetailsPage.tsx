@@ -16,8 +16,8 @@ interface Props {
 }
 
 export default function GolonganDetailsPage({ golongan }: Props) {
-    const [golonganState, setGolonganState] = useState(golongan);
-    const [onChangeGolongan, setOnChangeGolongan] = useState(false);
+    const [ golonganState, setGolonganState ] = useState(golongan);
+    const [ onChangeGolongan, setOnChangeGolongan ] = useState(false);
     const [ onSubmit, setOnSubmit ] = useState(false);
 
     const handleGolonganChange = (event: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>) => {

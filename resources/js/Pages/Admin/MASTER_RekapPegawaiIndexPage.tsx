@@ -135,12 +135,8 @@ export default function MASTER_RekapPegawaiIndexPage({ auth, unverifiedCount, ma
         open: boolean;
         rekapId: string;
     }>(deleteDialogInit);
+    const [ onSubmitDelete, setOnSubmitDelete ] = useState(false);
     const [ sortBy, setSortBy ] = useState('');
-    const [viewPerPage, setViewPerPage] = useState(() => {
-        const searchParams = new URLSearchParams(window.location.search);
-        const viewParam = searchParams.get('view');
-        return viewParam ? parseInt(viewParam, 10) : 25;
-    });
     type FilterBy = {
         marhalah: string[];
         golongan: string[];
@@ -193,6 +189,25 @@ export default function MASTER_RekapPegawaiIndexPage({ auth, unverifiedCount, ma
         setOpenFilterBy(false);
     };
 
+    const [viewPerPage, setViewPerPage] = useState(() => {
+        const searchParams = new URLSearchParams(window.location.search);
+        const viewParam = searchParams.get('view');
+        return viewParam ? parseInt(viewParam, 10) : 10;
+    });
+    const handleSetViewPerPage = (value: number) => {
+        const searchParams = new URLSearchParams(window.location.search);
+        if (value === 10) {
+            searchParams.delete('view');
+        } else {
+            searchParams.set('view', String(value));
+        }
+        setViewPerPage(value);
+        router.visit(window.location.pathname + '?' + searchParams.toString(), {
+            preserveState: true,
+            preserveScroll: true,
+        });
+    };
+
 
     const notifyToast = (type: 'success' | 'error', message: string, theme: 'light' | 'dark' = 'light') => {
         toast[type](message, {
@@ -214,7 +229,8 @@ export default function MASTER_RekapPegawaiIndexPage({ auth, unverifiedCount, ma
     }));
 
     const handleDeleteRekap = () => {
-        axios.post(route('rekap.delete'), {
+        setOnSubmitDelete(true);
+        axios.post(route('rekap-pegawai.delete'), {
             id: deleteDialog.rekapId,
         })
             .then(() => {
@@ -227,7 +243,8 @@ export default function MASTER_RekapPegawaiIndexPage({ auth, unverifiedCount, ma
                     ? err?.response?.data.message ?? 'Error tidak diketahui terjadi'
                     : 'Error tidak diketahui terjadi';
                 notifyToast('error', errMsg);
-            });
+            })
+            .finally(() => setOnSubmitDelete(false));
     };
 
     return (
@@ -384,7 +401,7 @@ export default function MASTER_RekapPegawaiIndexPage({ auth, unverifiedCount, ma
                                                         }}
                                                         value={10}
                                                         checked={viewPerPage === 10}
-                                                        onChange={() => setViewPerPage(10)}
+                                                        onChange={() => handleSetViewPerPage(10)}
                                                     />
                                                 </ListItemPrefix>
                                                 <Typography color="blue-gray" className="font-medium">
@@ -407,7 +424,7 @@ export default function MASTER_RekapPegawaiIndexPage({ auth, unverifiedCount, ma
                                                         }}
                                                         value={25}
                                                         checked={viewPerPage === 25}
-                                                        onChange={() => setViewPerPage(25)}
+                                                        onChange={() => handleSetViewPerPage(25)}
                                                     />
                                                 </ListItemPrefix>
                                                 <Typography color="blue-gray" className="font-medium">
@@ -432,7 +449,7 @@ export default function MASTER_RekapPegawaiIndexPage({ auth, unverifiedCount, ma
                                                         }}
                                                         value={50}
                                                         checked={viewPerPage === 50}
-                                                        onChange={() => setViewPerPage(50)}
+                                                        onChange={() => handleSetViewPerPage(50)}
                                                     />
                                                 </ListItemPrefix>
                                                 <Typography color="blue-gray" className="font-medium">
@@ -455,7 +472,7 @@ export default function MASTER_RekapPegawaiIndexPage({ auth, unverifiedCount, ma
                                                         }}
                                                         value={100}
                                                         checked={viewPerPage === 100}
-                                                        onChange={() => setViewPerPage(100)}
+                                                        onChange={() => handleSetViewPerPage(100)}
                                                     />
                                                 </ListItemPrefix>
                                                 <Typography color="blue-gray" className="font-medium">
@@ -632,7 +649,7 @@ export default function MASTER_RekapPegawaiIndexPage({ auth, unverifiedCount, ma
                                                     <div className="w-32 flex gap-2.5 items-center justify-start">
                                                         <Tooltip content="Detail">
                                                             <Link
-                                                                href={ route('master.unit.details', { q: pagination.data[index].id }) }>
+                                                                href={ route('master.rekap-pegawai.details', { q: pagination.data[index].id }) }>
                                                                 <IconButton variant="text">
                                                                     <FileSearch className="h-5 w-5 text-blue-800"/>
                                                                 </IconButton>
@@ -864,13 +881,21 @@ export default function MASTER_RekapPegawaiIndexPage({ auth, unverifiedCount, ma
                         Hapus Rekap terpilih?
                     </DialogHeader>
                     <DialogBody>
-                        <Typography variant="h6" className="text-gray-900 truncate">
-                            Anda akan menghapus
-                            Rekap:&nbsp;
-                            <span className="font-bold">
-                                " { pagination.data.find((rekap) => rekap.id === deleteDialog.rekapId)?.pegawai.nama ?? '-' } "
-                            </span>
-                        </Typography>
+                        <div className="p-3 border border-gray-300 rounded bg-gray-100">
+                            <Typography variant="h6" className="text-gray-900 truncate">
+                                Anda akan menghapus
+                                Rekap Pegawai:&nbsp;
+                                <span className="font-bold">
+                                    " { pagination.data.find((rekap) => rekap.id === deleteDialog.rekapId)?.pegawai.nama ?? '-' } "
+                                </span>
+                            </Typography>
+                            <Typography variant="h6" className="text-gray-900 truncate">
+                               Untuk Periode:&nbsp;
+                                <span className="font-bold">
+                                    { pagination.data.find((rekap) => rekap.id === deleteDialog.rekapId)?.periode_rekap.nama ?? '-' }
+                                </span>
+                            </Typography>
+                        </div>
                     </DialogBody>
                     <DialogFooter>
                         <Button
@@ -880,7 +905,7 @@ export default function MASTER_RekapPegawaiIndexPage({ auth, unverifiedCount, ma
                         >
                             <span>Batal</span>
                         </Button>
-                        <Button color="red" onClick={ handleDeleteRekap }>
+                        <Button color="red" onClick={ handleDeleteRekap } loading={onSubmitDelete} className="flex justify-items-center">
                             <span>Hapus</span>
                         </Button>
                     </DialogFooter>

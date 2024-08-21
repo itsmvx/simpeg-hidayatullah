@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\PeriodeRekap;
+use App\Models\RekapPegawai;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
@@ -219,4 +220,38 @@ class PeriodeRekapController extends Controller
             ], 500);
         }
     }
+
+    public function periodesToRekap(Request $request)
+    {
+        $validation = Validator::make($request->only('pegawai_id'), [
+            'pegawai_id' => 'required|uuid|exists:pegawai,id',
+        ], [
+            'pegawai_id.required' => 'Pegawai tidak boleh kosong',
+            'pegawai_id.uuid' => 'Pegawai ID tidak valid',
+            'pegawai_id.exists' => 'Pegawai ID tidak ditemukan!'
+        ]);
+
+        if ($validation->fails()) {
+            return Response::json([
+                'message' => $validation->errors()->first()
+            ], 422);
+        }
+
+        $pegawaiId = $request->get('pegawai_id');
+        $periodes = PeriodeRekap::where('status', true)
+            ->select('id', 'nama', 'awal', 'akhir')
+            ->get()
+            ->map(function ($periode) use ($pegawaiId) {
+                $periode->available = !RekapPegawai::where('pegawai_id', $pegawaiId)
+                    ->where('periode_rekap_id', $periode->id)
+                    ->exists();
+                return $periode;
+            });
+
+        return Response::json([
+            'message' => 'Berhasil mengambil data',
+            'data' => $periodes
+        ]);
+    }
+
 }

@@ -90,15 +90,18 @@ Route::prefix('pegawai')->name('pegawai.')->group(function () {
     Route::post('/update', [PegawaiController::class, 'update'])->name('update');
     Route::post('/delete', [PegawaiController::class, 'destroy'])->name('delete');
     Route::post('/data-to-rekap', [PegawaiController::class, 'dataToRekap'])->name('data-to-rekap');
+    Route::post('/upload-foto', [PegawaiController::class, 'uploadFoto'])->name('upload-foto');
 });
 Route::prefix('periode-rekap')->name('periode-rekap.')->group(function () {
     Route::post('/create', [PeriodeRekapController::class, 'create'])->name('create');
     Route::post('/update', [PeriodeRekapController::class, 'update'])->name('update');
     Route::post('/update-status', [PeriodeRekapController::class, 'updateStatus'])->name('update-status');
     Route::post('/delete', [PeriodeRekapController::class, 'destroy'])->name('delete');
+    Route::post('/periodes-to-rekap', [PeriodeRekapController::class, 'periodesToRekap'])->name('periodes-to-rekap');
 });
 Route::prefix('rekap-pegawai')->name('rekap-pegawai.')->group(function () {
     Route::post('/create', [RekapPegawaiController::class, 'create'])->name('create');
+    Route::post('/delete', [RekapPegawaiController::class, 'destroy'])->name('delete');
 });
 Route::get('/dashboard', function () {
     return Inertia::render('DashboardPage');

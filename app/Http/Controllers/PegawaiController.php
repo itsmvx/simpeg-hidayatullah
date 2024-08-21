@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
@@ -435,5 +436,51 @@ class PegawaiController extends Controller
                 'message' => 'Server gagal memproses permintaan',
             ], 500);
         }
+    }
+
+    public function uploadFoto(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required|exists:pegawai,id',
+            'image' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+        ], [
+            'id.required' => 'Input Pegawai tidak boleh kosong!',
+            'id.exists' => 'Pegawai tidak ditemukan',
+            'image.required' => 'Foto tidak boleh kosong',
+            'image.image' => 'Format Foto tidak valid',
+            'image.mimes' => 'Format Foto tidak valid',
+            'image.max' => 'Ukuran Foto maksimal 2MB'
+        ]);
+
+        if ($validator->fails()) {
+            return Response::json(['message' => $validator->errors()->first()], 422);
+        }
+
+        $pegawai = Pegawai::find($request->get('id'));
+        if (!$pegawai) {
+            return  Response::json([
+                'message' => 'Pegawai tidak ditemukan',
+            ], 404);
+        }
+
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $fileName = $pegawai->id. '_' .time() . '_' . $file->getClientOriginalName();
+            $filePath = $file->storeAs('foto', $fileName, 'public');
+
+            if ($pegawai->foto) {
+                Storage::disk('public')->delete($pegawai->foto);
+            }
+
+            $pegawai->foto = $filePath;
+            $pegawai->save();
+
+            return Response::json([
+                'message' => 'Foto berhasil diupload',
+                'foto_url' => Storage::url($filePath)
+            ]);
+        }
+
+        return Response::json(['message' => 'Foto tidak ditemukan'], 400);
     }
 }

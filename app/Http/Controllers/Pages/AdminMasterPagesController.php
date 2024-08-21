@@ -13,6 +13,7 @@ use App\Models\StatusPegawai;
 use App\Models\Unit;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
@@ -223,9 +224,10 @@ class AdminMasterPagesController extends Controller
 
     public function rekapPegawaiIndexPage(Request $request)
     {
+        $viewList = [10,25,50,100];
         $viewPerPage = $request->query('view');
 
-        if (!is_numeric($viewPerPage) || intval($viewPerPage) <= 0) {
+        if (!is_numeric($viewPerPage) || intval($viewPerPage) <= 0 || !Arr::has($viewList, $viewPerPage)) {
             $viewPerPage = 10;
         } else {
             $viewPerPage = intval($viewPerPage);
@@ -298,7 +300,36 @@ class AdminMasterPagesController extends Controller
         try {
             return Inertia::render('Admin/MASTER_RekapPegawaiCreatePage', [
                 'units' => Unit::select('id', 'nama')->get(),
-                'periodes' => PeriodeRekap::select('id', 'nama')->where('status', '=', true)->get(),
+                'golongans' => fn() => Golongan::select('id', 'nama')->get(),
+                'marhalahs' => fn() => Marhalah::select('id', 'nama')->get(),
+                'statusPegawais' => fn() => StatusPegawai::select('id', 'nama')->get()
+            ]);
+        } catch (QueryException $exception) {
+            abort(500);
+        }
+    }
+    public function rekapPegawaiDetailsPage(Request $request)
+    {
+        $idParam = $request->query->get('q');
+        if (!$idParam) {
+            abort(404);
+        }
+
+        try {
+            $rekapPegawai = RekapPegawai::find($idParam)->with([
+                'golongan:id,nama',
+                'unit:id,nama',
+                'periode_rekap:id,nama',
+                'status_pegawai:id,nama',
+                'marhalah:id,nama',
+                'pegawai:id,nama',
+            ])->first();
+            if (!$rekapPegawai) {
+                abort(404);
+            }
+            $rekapPegawai->makeHidden(['created_at', 'updated_at']);
+            return Inertia::render('Admin/MASTER_RekapPegawaiDetailsPage', [
+                'rekap' => $rekapPegawai
             ]);
         } catch (QueryException $exception) {
             abort(500);

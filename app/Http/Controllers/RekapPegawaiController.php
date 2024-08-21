@@ -149,8 +149,40 @@ class RekapPegawaiController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(RekapPegawai $rekapPegawai)
+    public function destroy(Request $request)
     {
-        //
+        $validation = Validator::make($request->only('id'), [
+            'id' => 'required|string'
+        ], [
+            'id.required' => 'Rekap Pegawai tidak boleh kosong!'
+        ]);
+        if ($validation->fails()) {
+            return Response::json([
+                'message' => $validation->errors()->first(),
+            ], 422);
+        }
+        $validated = $validation->validated();
+
+        try {
+            $rekapPegawai = RekapPegawai::find($validated['id']);
+            if (!$rekapPegawai) {
+                return Response::json([
+                    'message' => 'Rekap Pegawai tidak ditemukan!'
+                ], 404);
+            }
+            if ($rekapPegawai->delete()) {
+                return Response::json([
+                    'message' => 'Rekap Pegawai berhasil dihapus!'
+                ]);
+            } else {
+                return Response::json([
+                    'message' => 'Rekap Pegawai gagal dihapus!'
+                ], 500);
+            }
+        } catch (QueryException $exception) {
+            return Response::json([
+                'message' => 'Server gagal memproses permintaan',
+            ], 500);
+        }
     }
 }
