@@ -171,7 +171,7 @@ export default function MASTER_PegawaiIndexPage({ auth, pegawais }: PageProps<{
                 },
             });
             toast.update(toastId, { type: "info", isLoading: true, progress: 0.87, render: 'Memproses File..' });
-            const blob = await pdf(<CV_PDFGenerator pegawai={pegawai.data.data as PegawaiExportCV} />).toBlob();
+            const blob = await pdf(<CV_PDFGenerator data={pegawai.data.data as PegawaiExportCV} />).toBlob();
             saveAs(blob, `${pegawais[index].nip}_${pegawais[index].nama}.pdf`);
             toast.update(toastId, { type: 'success', isLoading: false, progress: 0.99, render: 'Berhasil mengunduh!' });
         } catch (err: unknown) {
@@ -247,7 +247,7 @@ export default function MASTER_PegawaiIndexPage({ auth, pegawais }: PageProps<{
 
                 <Card className="h-full w-full" shadow={false}>
                     <CardHeader floated={false} shadow={false} className="rounded-none">
-                        <div className="mb-8 flex items-center justify-between gap-x-3">
+                        <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-3">
                             <div>
                                 <Typography variant="h5" color="blue-gray">
                                     Daftar Pegawai
