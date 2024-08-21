@@ -6,6 +6,7 @@ import {
     Typography, Button
 } from "@material-tailwind/react";
 import {
+    CircleAlert,
     CircleUser,
     GraduationCap, Medal,
     Menu as MenuIcon, Moon, Save,
@@ -78,17 +79,30 @@ export type PegawaisToRekap = {
         nama: string;
     };
 }[];
+export type PeriodesToRekap = {
+    id: string;
+    nama: string;
+    awal: string;
+    akhir: string;
+    available: boolean;
+}[];
 
-export default function MASTER_RekapPegawaiCreatePage({ auth, units, periodes }: PageProps<{
+export default function MASTER_RekapPegawaiCreatePage({ auth, units, marhalahs, golongans, statusPegawais }: PageProps<{
     units: {
         id: string;
         nama: string;
     }[];
-    periodes: {
+    marhalahs: {
         id: string;
         nama: string;
-        awal: string;
-        akhir: string;
+    }[];
+    golongans: {
+        id: string;
+        nama: string;
+    }[];
+    statusPegawais: {
+        id: string;
+        nama: string;
     }[];
 }>) {
 
@@ -115,11 +129,12 @@ export default function MASTER_RekapPegawaiCreatePage({ auth, units, periodes }:
 
     const [ formInput, setFormInput ] = useState<FormRekapPegawai>(formRekapPegawaiInit);
     const [ pegawais, setPegawais ] = useState<PegawaisToRekap>([]);
-    const [ onLoadPegawais, setOnloadPegawais ] = useState(false);
+    const [ periodes, setPeriodes ] = useState<PeriodesToRekap>([]);
+    const [ onLoadPegawais, setOnLoadPegawais ] = useState(false);
+    const [ onLoadPeriodes, setOnLoadPeriodes ] = useState(false);
     const formSubmitDisabled = (): boolean => Object.keys(formInput).filter((filt) => !['skill_manajerial', 'skill_leadership', 'catatan_negatif', 'prestasi'].includes(filt)).some((key) => !formInput[key]);
     const handleFormSubmit = (event: SyntheticEvent<HTMLFormElement>) => {
         event.preventDefault();
-        console.log(formInput);
         setFormInput((prevState) => ({
             ...prevState,
             onSubmit: true
@@ -156,7 +171,9 @@ export default function MASTER_RekapPegawaiCreatePage({ auth, units, periodes }:
         })
             .then(() => {
                 notifyToast('success', 'Rekap Pegawai berhasil ditambahkan!', theme as 'light' | 'dark');
-                router.reload({ only: ['rekaps'] });
+                setTimeout(() => {
+                    router.visit(route('master.rekap-pegawai.index'));
+                }, 1500);
             })
             .catch((err: unknown) => {
                 const errMsg = err instanceof AxiosError
@@ -171,7 +188,7 @@ export default function MASTER_RekapPegawaiCreatePage({ auth, units, periodes }:
 
     useEffect(() => {
         if (formInput.unit_id) {
-            setOnloadPegawais(true);
+            setOnLoadPegawais(true);
             setFormInput((prevState) => ({
                 ...prevState,
                 marhalah_id: '',
@@ -203,47 +220,90 @@ export default function MASTER_RekapPegawaiCreatePage({ auth, units, periodes }:
                         : 'Server gagal memproses permintaan';
                     notifyToast('error', errMsg);
                 })
-                .finally(() => setOnloadPegawais(false));
+                .finally(() => setOnLoadPegawais(false));
         }
     }, [ formInput.unit_id ]);
-
-    console.log(pegawais);
     useEffect(() => {
         if (formInput.pegawai_id) {
-            const selectedPegawai = pegawais.find((pegawai) => pegawai.id === formInput.pegawai_id);
-            setFormInput((prevState) => ({
-                ...prevState,
-                marhalah_id: selectedPegawai ? selectedPegawai.marhalah.id : '',
-                golongan_id: selectedPegawai ? selectedPegawai.golongan.id : '',
-                status_pegawai_id: selectedPegawai ? selectedPegawai.status_pegawai.id : ''
-            }));
+            setOnLoadPeriodes(true);
+            axios.post<{ data: PeriodesToRekap }>(route('periode-rekap.periodes-to-rekap'), {
+                pegawai_id: formInput.pegawai_id,
+            })
+                .then((res) => {
+                    setPeriodes(res.data.data);
+                    if (res.data.data.length < 1) {
+                        toast.warn('Tidak ada Periode yang tersedia!', {
+                            position: "top-right",
+                            autoClose: 5000,
+                            hideProgressBar: false,
+                            closeOnClick: true,
+                            pauseOnHover: true,
+                            draggable: true,
+                            progress: undefined,
+                            theme: "light",
+                            transition: Bounce,
+                        });
+                    }
+                })
+                .catch((err: unknown) => {
+                    const errMsg = err instanceof AxiosError && err.status !== 500
+                        ? err?.response?.data.message ?? 'Server gagal memproses permintaan'
+                        : 'Server gagal memproses permintaan';
+                    notifyToast('error', errMsg);
+                })
+                .finally(() => setOnLoadPeriodes(false));
         }
     }, [ formInput.pegawai_id ]);
 
+    useEffect(() => {
+        if (!formInput.pegawai_id) {
+            setFormInput((prevState) => ({
+                ...prevState,
+                marhalah_id: '',
+                golongan_id: '',
+                status_pegawai_id: '',
+                periode_rekap_id: ''
+            }));
+        } else {
+            const selectedPegawai = pegawais.find((pegawai) => pegawai.id === formInput.pegawai_id);
+            setFormInput((prevState) => ({
+                ...prevState,
+                marhalah_id: selectedPegawai?.marhalah?.id || '',
+                golongan_id: selectedPegawai?.golongan?.id || '',
+                status_pegawai_id: selectedPegawai?.status_pegawai?.id || '',
+            }));
+        }
+    }, [formInput.pegawai_id, pegawais]);
+
     return (
         <>
-            <Head title="Form Pegawai"/>
+            <Head title="Buat Rekap Pegawai"/>
             <AdminLayout>
                 <main className="w-full min-h-screen bg-gray-50 space-y-4">
-                    <header
-                        className="my-5 px-6 sticky top-16 z-10 py-2 bg-white rounded-md rounded-b-none border ">
-                        <div className="flex items-center justify-between text-blue-gray-900">
-                            <Typography
-                                className="cursor-pointer py-1.5 font-medium w-40"
-                            >
-                                Form Rekap Pegawai PPH Surabaya
-                            </Typography>
-                        </div>
+                    <header className="px-6 py-2 bg-white rounded-md rounded-b-none border ">
+                        <Typography className="flex justify-items-center gap-1.5 font-semibold text-lg">
+                            <span>
+                                <CircleAlert/>
+                            </span>
+                            Informasi
+                        </Typography>
+                        <ul className="list-disc list-inside px-2 font-medium text-sm">
+                            <li>Opsi Pegawai disediakan berdasarkan unit yang dipilih</li>
+                            <li>Marhalah, Golongan dan Status Pegawai otomatis menyinkron dengan data pegawai terpilih</li>
+                            <li>Untuk mengubah informasi Marhalah, Golongan, atau Status Pegawai dapat diubah di manajemen Pegawai</li>
+                        </ul>
                     </header>
                     <Card className="w-full px-6">
-                        <form onSubmit={ handleFormSubmit }
-                              className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-4 p-5 dark:bg-gray-900">
+                    <form onSubmit={ handleFormSubmit } className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-4 p-5 dark:bg-gray-900">
                             <RekapPegawaiForm
                                 formState={ formInput }
                                 setFormState={setFormInput}
                                 units={ units }
-                                periodes={periodes}
                                 pegawais={pegawais}
+                                periodes={periodes}
+                                marhalahs={marhalahs}
+                                golongans={golongans}
+                                statusPegawais={statusPegawais}
                                 onLoadPegawais={onLoadPegawais}
                             />
                             <Button
