@@ -162,11 +162,13 @@ class PegawaiController extends Controller
             ], [
                 'id.required' => 'Input Pegawai tidak boleh kosong',
             ]);
+
             if ($validation->fails()) {
                 return Response::json([
                     'message' => $validation->errors()->first()
                 ], 404);
             }
+
             $pegawai = Pegawai::select(
                 'pegawai.nip',
                 'pegawai.nama',
@@ -181,12 +183,12 @@ class PegawaiController extends Controller
                 'unit.nama as unit',
                 'status_pegawai.nama as statusPegawai',
                 'marhalah.nama as marhalah',
-                'golongan.nama as golongan',
+                'golongan.nama as golongan'
             )
-                ->leftjoin('unit', 'unit.id', '=', 'pegawai.unit_id')
-                ->leftjoin('status_pegawai', 'status_pegawai.id', '=', 'pegawai.status_pegawai_id')
-                ->leftjoin('marhalah', 'marhalah.id', '=', 'pegawai.marhalah_id')
-                ->leftjoin('golongan', 'golongan.id', '=', 'pegawai.golongan_id')
+                ->leftJoin('unit', 'unit.id', '=', 'pegawai.unit_id')
+                ->leftJoin('status_pegawai', 'status_pegawai.id', '=', 'pegawai.status_pegawai_id')
+                ->leftJoin('marhalah', 'marhalah.id', '=', 'pegawai.marhalah_id')
+                ->leftJoin('golongan', 'golongan.id', '=', 'pegawai.golongan_id')
                 ->where('pegawai.id', '=', $request->id)
                 ->first();
 
@@ -196,17 +198,51 @@ class PegawaiController extends Controller
                 ], 404);
             }
 
+            $rekapBulanan = RekapPegawai::select(
+                'rekap_pegawai.gaji',
+                'rekap_pegawai.raport_profesi',
+                'rekap_pegawai.kedisiplinan',
+                'rekap_pegawai.ketuntasan_kerja',
+                'rekap_pegawai.skill_manajerial',
+                'rekap_pegawai.skill_leadership',
+                'rekap_pegawai.prestasi',
+                'rekap_pegawai.catatan_negatif'
+            )
+                ->join('periode_rekap', 'periode_rekap.id', '=', 'rekap_pegawai.periode_rekap_id')
+                ->where('rekap_pegawai.pegawai_id', '=', $request->id)
+                ->where('periode_rekap.jenis', '=', 'Bulanan')
+                ->orderBy('rekap_pegawai.created_at', 'desc')
+                ->first();
+
+            $rekapTahunan = RekapPegawai::select('rekap_pegawai.amanah')
+                ->select(
+                    'amanah',
+                    'periode_rekap.nama as periode',
+                    'unit.nama as unit'
+                )
+                ->leftjoin('periode_rekap', 'periode_rekap.id', '=', 'rekap_pegawai.periode_rekap_id')
+                ->leftjoin('unit', 'unit.id', '=', 'rekap_pegawai.unit_id')
+                ->where('rekap_pegawai.pegawai_id', '=', $request->id)
+                ->where('periode_rekap.jenis', '=', 'Tahunan')
+                ->orderBy('rekap_pegawai.created_at', 'asc')
+                ->get();
+
+
             return Response::json([
-                'data' => $pegawai
+                'data' => [
+                    'pegawai' => $pegawai,
+                    'rekapBulanan' => $rekapBulanan,
+                    'rekapTahunan' => $rekapTahunan,
+                ]
             ]);
+
         } catch (QueryException $exception) {
             return Response::json([
                 'message' => 'Server gagal memproses permintaan'
             ], 500);
         }
-
-
     }
+
 
     /**
      * Show the form for editing the specified resource.
