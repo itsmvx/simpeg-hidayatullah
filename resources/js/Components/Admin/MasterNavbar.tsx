@@ -10,7 +10,8 @@ import {
     Navbar,
     Typography
 } from "@material-tailwind/react";
-import { X, Menu as MenuIcon, Home, ChevronDown, LogOut, LogIn } from "lucide-react";
+import { X, Menu as MenuIcon, Home, ChevronDown, CircleUserRound, LogOut, LogIn } from "lucide-react";
+import { MasterNavbarLists } from "@/Fragments/MasterNavbarLists";
 import { Link, router } from "@inertiajs/react";
 import { HarunaPP, PPHLogo } from "@/Lib/StaticImages";
 import axios, { AxiosError } from "axios";
@@ -18,9 +19,8 @@ import { notifyToast } from "@/Lib/Utils";
 import { useTheme } from "@/Hooks/useTheme";
 import { AdminLoadingOverlay } from "@/Components/Admin/AdminLoadingOverlay";
 import { PageProps } from "@/types";
-import { AdminNavbarLists } from "@/Fragments/AdminNavbarLists";
 
-export const AdminNavbar = ({ auth }: PageProps) => {
+export const MasterNavbar = ({ auth }: PageProps) => {
     const { theme } = useTheme();
     const [ openNavbar, setOpenNavbar ] = useState(false);
     const [ onFetchLogout, setFetchLogout ] = useState(false);
@@ -29,13 +29,13 @@ export const AdminNavbar = ({ auth }: PageProps) => {
         setFetchLogout(true);
         axios.post(route('auth.logout'))
             .then(() => {
-                router.visit('/');
+                router.visit('/', { replace: true });
             })
             .catch((err: unknown) => {
                 const errMsg = err instanceof AxiosError
                     ? err.response?.data.message
                     : 'Error tidak diketahui terjadi!';
-                notifyToast('error', errMsg);
+                notifyToast('error', errMsg, theme as 'light' | 'dark');
                 setFetchLogout(false);
             });
     };
@@ -52,27 +52,25 @@ export const AdminNavbar = ({ auth }: PageProps) => {
         <>
             <Navbar className="mx-auto w-full px-4 py-2 sticky top-0 z-50">
                 <div className="flex items-center justify-between text-blue-gray-900">
-                    <div className="w-56">
-                        <Breadcrumbs className="bg-transparent p-0 transition-all mt-1 capitalize">
-                            <IconButton variant="text" disabled={route().current() === 'admin.dashboard'} onClick={() => router.visit(route('admin.dashboard'))}>
-                                <Home width={18} />
-                            </IconButton>
-                            {pathNames.map((path, index) => {
-                                const currentPath = `/${pathNames.slice(0, index + 1).join('/')}`;
-                                if (index !== 0) {
-                                    return (
-                                        <Link as="button" key={currentPath} href={currentPath} disabled={currentPath === window.location.pathname}>
-                                            {path.charAt(0).toUpperCase() + path.slice(1)}
-                                        </Link>
-                                    );
-                                }
-                            })}
-                        </Breadcrumbs>
-                    </div>
+                    <Breadcrumbs className="bg-transparent p-0 transition-all mt-1 capitalize">
+                        <IconButton variant="text" disabled={route().current() === 'master.dashboard'} onClick={() => router.visit(route('master.dashboard'))}>
+                            <Home width={18} />
+                        </IconButton>
+                        {pathNames.map((path, index) => {
+                            const currentPath = `/${pathNames.slice(0, index + 1).join('/')}`;
+                            if (index !== 0) {
+                                return (
+                                    <Link as="button" key={currentPath} href={currentPath} disabled={currentPath === window.location.pathname}>
+                                        {path.charAt(0).toUpperCase() + path.slice(1)}
+                                    </Link>
+                                );
+                            }
+                        })}
+                    </Breadcrumbs>
                     <div className="hidden lg:block">
-                        <AdminNavbarLists />
+                        <MasterNavbarLists />
                     </div>
-                    <div className="hidden gap-2 lg:flex w-56">
+                    <div className="hidden gap-2 lg:flex">
                         {
                             auth?.user
                                 ? (
@@ -82,12 +80,14 @@ export const AdminNavbar = ({ auth }: PageProps) => {
                                                 variant="text"
                                                 color="blue-gray"
                                                 ripple={false}
-                                                className="group flex flex-row items-center justify-between min-w-40"
+                                                className="group flex flex-row items-center justify-between"
                                             >
-                                                <Typography variant="h6" className="capitalize truncate">
+                                                <Typography variant="h6" className="capitalize">
                                                     { auth?.user ? auth.user.nama : 'User' }
                                                 </Typography>
                                                 <div className="flex items-center">
+
+
                                                     <ChevronDown width={18} className="group-aria-expanded:rotate-0 rotate-180 transition-rotate duration-150" />
                                                 </div>
                                             </Button>
@@ -135,7 +135,7 @@ export const AdminNavbar = ({ auth }: PageProps) => {
                     </IconButton>
                 </div>
                 <Collapse open={openNavbar}>
-                    <AdminNavbarLists />
+                    <MasterNavbarLists />
                     <div className="flex w-full flex-nowrap items-center justify-end gap-2 lg:hidden">
                         <Menu>
                             <MenuHandler>

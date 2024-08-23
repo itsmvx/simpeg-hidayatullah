@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
+use Inertia\Inertia;
 
 class AuthController extends Controller
 {
@@ -19,6 +20,53 @@ class AuthController extends Controller
     public function __invoke(Request $request)
     {
         //
+    }
+
+    public function loginPage(Request $request)
+    {
+        return Inertia::render('LoginPage');
+    }
+    public function authAdmin(Request $request)
+    {
+        $validation = Validator::make($request->only(['username', 'password']), [
+            'username' => 'required|string',
+            'password' => 'required|string'
+        ], [
+            'username.required' => 'Username tidak boleh kosong',
+            'password.required' => 'Password tidak boleh kosong',
+            'username.string' => 'Format username tidak valid',
+            'password.string' => 'Format password tidak valid'
+        ]);
+
+        if ($validation->fails()) {
+            return Response::json([
+                'message' => $validation->errors()->first()
+            ], 422);
+        }
+
+        if (Auth::guard('admin')->attempt($request->only('username', 'password'))) {
+            $admin = Auth::guard('admin')->user();
+
+            $unit = $admin->unit;
+
+            return Response::json([
+                'message' => 'Login berhasil',
+                'data' => [
+                    'id' => $admin->id,
+                    'nama' => $admin->nama,
+                    'username' => $admin->username,
+                    'unit' => $unit ? [
+                        'id' => $unit->id,
+                        'nama' => $unit->nama,
+                    ] : null,
+                    'role' => 'admin'
+                ]
+            ]);
+        } else {
+            return Response::json([
+                'message' => 'Username atau password salah'
+            ], 401);
+        }
     }
 
     /**
@@ -66,48 +114,48 @@ class AuthController extends Controller
     /**
      * @throws ValidationException
      */
-    public function authAdminUnit(Request $request): JsonResponse
-    {
-        $validation = Validator::make($request->only('username', 'password', 'unit'), [
-            'username' => 'required',
-            'password' => 'required',
-            'unit' => 'required|exists:unit,id',
-        ], [
-            'username.required' => 'Username tidak boleh kosong',
-            'password.required' => 'Password tidak boleh kosong',
-            'unit.required' => 'Unit tidak boleh kosong',
-            'unit.exists' => 'Unit tidak ditemukan',
-        ]);
-        if ($validation->fails()) {
-            return Response::json([
-                'message' => $validation->errors()->first(),
-            ], 401);
-        }
-
-        $validatedData = $validation->validated();
-
-        $adminUser = Admin::where('username', $validatedData['username'])
-            ->whereNotNull('unit_id')
-            ->with('unit')
-            ->first();
-        if ($adminUser && Hash::check($validatedData['password'], $adminUser->password)) {
-            Auth::guard('admin')->login($adminUser);
-            $request->session()->regenerate();
-            $request->session()->regenerateToken();
-            return Response::json([
-                'message' => 'Autentikasi berhasil!',
-                'user' => [
-                    'id' => $adminUser->id,
-                    'nama' => $adminUser->nama,
-                    'username' => $adminUser->username,
-                    'role' => $adminUser->unit->nama,
-                ]
-            ]);
-        }
-        return Response::json([
-            'message' => 'Username atau Password salah!',
-        ], 401);
-    }
+//    public function authAdminUnit(Request $request): JsonResponse
+//    {
+//        $validation = Validator::make($request->only('username', 'password', 'unit'), [
+//            'username' => 'required',
+//            'password' => 'required',
+//            'unit' => 'required|exists:unit,id',
+//        ], [
+//            'username.required' => 'Username tidak boleh kosong',
+//            'password.required' => 'Password tidak boleh kosong',
+//            'unit.required' => 'Unit tidak boleh kosong',
+//            'unit.exists' => 'Unit tidak ditemukan',
+//        ]);
+//        if ($validation->fails()) {
+//            return Response::json([
+//                'message' => $validation->errors()->first(),
+//            ], 401);
+//        }
+//
+//        $validatedData = $validation->validated();
+//
+//        $adminUser = Admin::where('username', $validatedData['username'])
+//            ->whereNotNull('unit_id')
+//            ->with('unit')
+//            ->first();
+//        if ($adminUser && Hash::check($validatedData['password'], $adminUser->password)) {
+//            Auth::guard('admin')->login($adminUser);
+//            $request->session()->regenerate();
+//            $request->session()->regenerateToken();
+//            return Response::json([
+//                'message' => 'Autentikasi berhasil!',
+//                'user' => [
+//                    'id' => $adminUser->id,
+//                    'nama' => $adminUser->nama,
+//                    'username' => $adminUser->username,
+//                    'role' => $adminUser->unit->nama,
+//                ]
+//            ]);
+//        }
+//        return Response::json([
+//            'message' => 'Username atau Password salah!',
+//        ], 401);
+//    }
 
     public function authPegawai(Request $request): JsonResponse
     {

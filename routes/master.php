@@ -1,10 +1,6 @@
 <?php
 
-use App\Http\Controllers\AdminUnit\PegawaiController;
-use App\Http\Controllers\AdminUnit\RekapPegawaiController;
-use App\Http\Controllers\AdminUnit\UnitController;
 use App\Http\Controllers\Pages\AdminMasterPagesController;
-use App\Http\Controllers\StatusPegawaiController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('master')->name('master.')->middleware('admin.master')->group(function () {

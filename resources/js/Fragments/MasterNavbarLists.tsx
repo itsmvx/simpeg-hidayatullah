@@ -1,9 +1,12 @@
 import { Fragment, useState } from "react";
 import {
-    CalendarDays,
-    ChevronDown,
-    Newspaper,
+    Award,
+    Building2, CalendarDays,
+    ChevronDown, CircleUserRound,
+    Dock,
+    Newspaper, ShieldCheck,
     UserRound,
+    UsersRound
 } from "lucide-react";
 import {
     Collapse,
@@ -13,32 +16,69 @@ import {
     MenuList,
     Typography,
     List,
-    ListItem
+    ListItem,
 } from "@material-tailwind/react";
 import { Link, router } from "@inertiajs/react";
 
-export const AdminNavbarLists = () => {
-    const navListMenuItems = [
-        {
-            title: "Pegawai",
-            description: "mengatur  data Pegawai di Unit",
-            icon: <UserRound />,
-            link: route('admin.pegawai.index')
-        },
-        {
-            title: "Rekap kepegawaian",
-            description: "Membuat laporan Rekap Pegawai di Unit",
-            icon: <Newspaper />,
-            link: route('admin.rekap-pegawai.index')
-        },
-        {
-            title: "Periode Rekap",
-            description: "mengatur Periode rekap pegawai",
-            icon: <CalendarDays />,
-            link: route('master.periode-rekap.index')
-        }
-    ];
+const navListMenuItems = [
+    {
+        title: "Unit",
+        description: "mengatur unit dalam sistem",
+        icon: <Building2 />,
+        link: route('master.unit.index')
+    },
+    {
+        title: "Golongan",
+        description: "mengatur golongan pegawai dalam sistem",
+        icon: <UsersRound />,
+        link: route('master.golongan.index')
+    },
+    {
+        title: "Marhalah",
+        description: "mengatur daftar marhalah dalam sistem",
+        icon: <Award />,
+        link: route('master.marhalah.index')
+    },
+    {
+        title: "Admin",
+        description: "mengatur Admin dalam sistem",
+        icon: <CircleUserRound />,
+        link: route('master.admin.index')
+    },
+    {
+        title: "Pegawai",
+        description: "mengatur akun dan data kepegawaian",
+        icon: <UserRound />,
+        link: route('master.pegawai.index')
+    },
+    {
+        title: "Status Pegawai",
+        description: "mengatur data Status kepegawaian",
+        icon: <ShieldCheck />,
+        link: route('master.status-pegawai.index')
+    },
 
+    {
+        title: "Rekap kepegawaian",
+        description: "mengatur dan menerima rekap pegawaian",
+        icon: <Newspaper />,
+        link: route('master.rekap-pegawai.index')
+    },
+    {
+        title: "Periode Rekap",
+        description: "mengatur Periode rekap pegawai",
+        icon: <CalendarDays />,
+        link: route('master.periode-rekap.index')
+    },
+    {
+        title: "Inventaris",
+        description: "mengatur data daftar inventaris yang dimiliki",
+        icon: <Dock />,
+        link: route('master.inventaris.index')
+    }
+];
+
+export const MasterNavbarLists = () => {
     const [ isMenuOpen, setIsMenuOpen ] = useState(false);
     const [ isMobileMenuOpen, setIsMobileMenuOpen ] = useState(false);
 
@@ -63,13 +103,13 @@ export const AdminNavbarLists = () => {
     return (
         <List className="mt-4 mb-6 p-0 lg:mt-0 lg:mb-0 lg:flex-row lg:p-1">
             <Typography as="div" variant="small" color="blue-gray" className="font-medium">
-                <ListItem data-disabled={route().current() === 'admin.dashboard'} className="flex items-center gap-2 py-2 pr-4 data-[disabled=true]:cursor-auto" onClick={() => router.visit(route('admin.dashboard'))} disabled={route().current() === 'admin.dashboard'}>
+                <ListItem data-disabled={route().current() === 'master.dashboard'} className="flex items-center gap-2 py-2 pr-4 data-[disabled=true]:cursor-auto" onClick={() => router.visit(route('master.dashboard'))} disabled={route().current() === 'master.dashboard'}>
                     Home
                 </ListItem>
             </Typography>
 
             <Fragment>
-                <Menu open={ isMenuOpen } handler={ setIsMenuOpen } offset={ { mainAxis: 20 } } placement="bottom" allowHover={ true }>
+                <Menu open={ isMenuOpen } handler={ setIsMenuOpen } offset={ { mainAxis: 20, } } placement="bottom" allowHover={ true }>
                     <MenuHandler>
                         <Typography as="div" variant="small" className="font-medium">
                             <ListItem
