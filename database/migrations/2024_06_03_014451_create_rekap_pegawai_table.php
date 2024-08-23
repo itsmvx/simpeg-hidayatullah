@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::create('rekap_pegawai', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('pegawai_id')->constrained('pegawai');
-            $table->foreignUuid('unit_id')->constrained('unit');
-            $table->foreignUuid('golongan_id')->constrained('golongan');
-            $table->foreignUuid('status_pegawai_id')->constrained('status_pegawai');
-            $table->foreignUuid('marhalah_id')->constrained('marhalah');
-            $table->foreignUuid('periode_rekap_id')->constrained('periode_rekap');
+            $table->foreignUuid('pegawai_id')->constrained('pegawai')->cascadeOnDelete();
+            $table->foreignUuid('unit_id')->nullable()->constrained('unit')->onDelete('set null');
+            $table->foreignUuid('golongan_id')->nullable()->constrained('golongan')->onDelete('set null');
+            $table->foreignUuid('status_pegawai_id')->nullable()->constrained('status_pegawai')->onDelete('set null');
+            $table->foreignUuid('marhalah_id')->nullable()->constrained('marhalah')->onDelete('set null');
+            $table->foreignUuid('periode_rekap_id')->constrained('periode_rekap')->cascadeOnDelete();
             $table->string('amanah');
             $table->string('organisasi')->nullable();
             $table->integer('gaji');

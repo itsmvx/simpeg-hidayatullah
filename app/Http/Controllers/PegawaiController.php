@@ -173,6 +173,7 @@ class PegawaiController extends Controller
                 'pegawai.nip',
                 'pegawai.nama',
                 'pegawai.foto',
+                'pegawai.jenis_kelamin as jenisKelamin',
                 'pegawai.tanggal_masuk as tanggalMasuk',
                 'pegawai.tempat_lahir as tempatLahir',
                 'pegawai.tanggal_lahir as tanggalLahir',
@@ -337,6 +338,14 @@ class PegawaiController extends Controller
 
             $tanggal_lahir = date('Y-m-d', strtotime($request->tanggal_lahir));
             $tanggal_masuk = date('Y-m-d', strtotime($request->tanggal_masuk));
+
+            if (
+                $pegawai->golongan_id !== $request->golongan_id ||
+                $pegawai->status_pegawai_id !== $request->status_pegawai_id ||
+                $pegawai->marhalah_id !== $request->marhalah_id
+            ) {
+                $pegawai->tanggal_promosi = now('Asia/Jakarta');
+            }
 
             $pegawai->update([
                 'username' => $request->nip,

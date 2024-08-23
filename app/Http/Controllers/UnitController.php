@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class UnitController extends Controller
 {
@@ -114,18 +115,42 @@ class UnitController extends Controller
 
     /**
      * Update the specified resource in storage.
+     * @throws ValidationException
      */
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
-        $validatedData = $request->validate([
-            'nama' => 'required|string|max:255',
+        $validation = Validator::make($request->only(['id', 'nama', 'keterangan']), [
+            'id' => 'required',
+            'nama' => 'required|string',
             'keterangan' => 'nullable|string',
+        ], [
+            'id.required' => 'Id Unit tidak boleh kosong!',
+            'nama.required' => 'Nama Unit tidak boleh kosong!',
+            'nama.string' => 'Format Nama Unit tidak valid!',
+            'keterangan.string' => 'Format Keterangan Unit tidak valid!',
         ]);
-
-        $unit = Unit::findOrFail($id);
-        $unit->update($validatedData);
-
-        return redirect()->route('master.unit.index')->with('success', 'Unit berhasil diperbarui.');
+        if ($validation->fails()) {
+            return Response::json([
+                'message' => $validation->errors()->first(),
+            ], 400);
+        }
+        $validated = $validation->validated();
+        try {
+            $unit = Unit::find($validated['id']);
+            if (!$unit) {
+                return Response::json([
+                    'message' => 'Unit tidak ditemukan!'
+                ], 404);
+            }
+            $unit->update($validated);
+            return Response::json([
+                'message' => 'Unit berhasil diperbarui!',
+            ]);
+        } catch (QueryException $exception) {
+            return Response::json([
+                'message' => 'Server gagal memproses permintaan',
+            ], 500);
+        }
     }
 
     /**
@@ -133,21 +158,17 @@ class UnitController extends Controller
      */
     public function destroy(Request $request)
     {
-        $validation = Validator::make($request->only(['id', 'admins']), [
-            'id' => 'required|string|exists:unit,id',
-            'admins' => 'nullable|array',
-            'admins.*' => 'string|exists:admin,id',
+        $validation = Validator::make($request->only(['id']), [
+            'id' => 'required|exists:unit,id',
         ], [
             'id.required' => 'Input Unit tidak boleh kosong!',
             'id.exists' => 'Unit tidak ditemukan!',
-            'admins.array' => 'Input Admin tidak Valid!',
-            'admins.*.exists' => 'Salah satu ID Admin tidak ditemukan!',
         ]);
 
         if ($validation->fails()) {
             return Response::json([
                 'message' => $validation->errors()->first(),
-            ], 400);
+            ], 422);
         }
 
         $validated = $validation->validated();
@@ -155,20 +176,13 @@ class UnitController extends Controller
         DB::beginTransaction();
 
         try {
-            $adminIds = $validated['admins'];
-            $unitId = $validated['id'];
-
-            $unit = Unit::find($unitId);
+            $unit = Unit::find($validated['id']);
 
             if (!$unit) {
                 DB::rollBack();
                 return Response::json([
                     'message' => 'Unit tidak ditemukan!'
-                ], 400);
-            }
-
-            if (!empty($adminIds)) {
-                Admin::whereIn('id', $adminIds)->delete();
+                ], 404);
             }
 
             $unit->delete();
@@ -176,7 +190,7 @@ class UnitController extends Controller
             DB::commit();
 
             return Response::json([
-                'message' => 'Unit dan Admin berhasil dihapus!'
+                'message' => 'Unit dan Admin terkait berhasil dihapus!'
             ]);
         } catch (QueryException $exception) {
             DB::rollBack();
