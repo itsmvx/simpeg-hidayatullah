@@ -20,10 +20,6 @@ use Inertia\Inertia;
 
 class AdminMasterPagesController extends Controller
 {
-    public function loginPage()
-    {
-        return Inertia::render('Master/MASTER_LoginPage');
-    }
     public function dashboardPage()
     {
         return Inertia::render('Master/MASTER_DashboardPage', [
@@ -296,9 +292,7 @@ class AdminMasterPagesController extends Controller
                 });
             }
             if (!empty($filters['jenisKelamin'])) {
-                $query->whereHas('pegawai', function ($q) use ($filters) {
-                    $q->whereIn('jenis_kelamin', $filters['jenisKelamin']);
-                });
+                $query->whereIn('jenis_kelamin', $filters['jenisKelamin']);
             }
             if (!empty($filters['unit'])) {
                 $query->whereHas('unit', function ($q) use ($filters) {
@@ -388,6 +382,7 @@ class AdminMasterPagesController extends Controller
         $query = RekapPegawai::select([
             'id',
             'amanah',
+            'terverifikasi',
             'unit_id',
             'pegawai_id',
             'status_pegawai_id',

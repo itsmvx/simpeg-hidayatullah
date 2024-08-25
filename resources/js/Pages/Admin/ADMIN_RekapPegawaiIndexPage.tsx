@@ -15,9 +15,8 @@ import {
     Tooltip,
     Typography
 } from "@material-tailwind/react";
-import { Building2, Check, ChevronDown, FileSearch, Pencil, Plus, Search, Trash2, User2, X } from "lucide-react";
-import { JenisKelamin, MTColor, PageProps } from "@/types";
-import { MasterLayout } from "@/Layouts/MasterLayout";
+import { ChevronDown, CircleCheck, CircleX, FileSearch, Pencil, Plus, Search, Trash2, X } from "lucide-react";
+import { IDNamaColumn, PageProps, PaginationData } from "@/types";
 import { Head, Link, router } from "@inertiajs/react";
 import { Input } from "@/Components/Input";
 import { format } from "date-fns";
@@ -26,48 +25,14 @@ import { Checkbox } from "@/Components/Checkbox";
 import { useTheme } from "@/Hooks/useTheme";
 import { ChangeEvent, useState } from "react";
 import { Bounce, toast } from "react-toastify";
-import axios, { AxiosError, AxiosProgressEvent } from "axios";
+import axios, { AxiosError } from "axios";
 import Pagination from "@/Components/Pagination";
+import { AdminLayout } from "@/Layouts/AdminLayout";
+import { jenisKelamin } from "@/Lib/StaticData";
 import { notifyToast } from "@/Lib/Utils";
 
-type PaginationLink = {
-    url: string | null;
-    label: string;
-    active: boolean;
-};
 
-type Unit = {
-    id: string;
-    nama: string;
-};
-
-type Pegawai = {
-    id: string;
-    nama: string;
-    jenis_kelamin: string;
-};
-
-type StatusPegawai = {
-    id: string;
-    nama: string;
-};
-
-type Marhalah = {
-    id: string;
-    nama: string;
-};
-
-type Golongan = {
-    id: string;
-    nama: string;
-};
-
-type PeriodeRekap = {
-    id: string;
-    nama: string;
-};
-
-type Rekap = {
+type Rekaps = {
     id: string;
     amanah: string;
     terverifikasi: 0 | 1;
@@ -78,55 +43,22 @@ type Rekap = {
     golongan_id: string;
     periode_rekap_id: string;
     created_at: string;
-    unit: Unit;
-    pegawai: Pegawai;
-    status_pegawai: StatusPegawai;
-    marhalah: Marhalah;
-    golongan: Golongan;
-    periode_rekap: PeriodeRekap;
-};
+    pegawai: IDNamaColumn;
+    status_pegawai: IDNamaColumn;
+    marhalah: IDNamaColumn;
+    golongan: IDNamaColumn;
+    periode_rekap: IDNamaColumn;
+}[];
 
-type PaginationData = {
-    current_page: number;
-    data: Rekap[];
-    first_page_url: string;
-    from: number;
-    last_page: number;
-    last_page_url: string;
-    links: PaginationLink[];
-    next_page_url: string | null;
-    path: string;
-    per_page: number;
-    prev_page_url: string | null;
-    to: number;
-    total: number;
-};
-
-export default function MASTER_RekapPegawaiIndexPage({ auth, unverifiedCount, marhalahs, golongans, statusPegawais, units, pagination, }: PageProps<{
+export default function MASTER_RekapPegawaiIndexPage({ auth, unverifiedCount, marhalahs, golongans, statusPegawais, pagination }: PageProps<{
     unverifiedCount: number;
-    marhalahs: { id: string; nama: string }[];
-    golongans: { id: string; nama: string }[];
-    statusPegawais: { id: string; nama: string }[];
-    units: { id: string; nama: string }[];
-    pagination: PaginationData;
+    marhalahs: IDNamaColumn[];
+    golongans: IDNamaColumn[];
+    statusPegawais: IDNamaColumn[];
+    pagination: PaginationData<Rekaps>;
 }>) {
 
-    const TABLE_HEAD = ['No', 'Unit', 'Pegawai', 'Periode', 'Amanah', 'Status Pegawai', 'Golongan dan Marhalah', 'Status Verifikasi', 'Tanggal pelaporan', 'Aksi'];
-    const cardData = [
-        {
-            color: "gray",
-            icon: <Building2 />,
-            title: "Total Jumlah Laporan Rekap",
-            value: pagination.data.length,
-        },
-        {
-            color: "gray",
-            icon: <User2 />,
-            title: "Jumlah Rekap belum diverifikasi",
-            value: unverifiedCount,
-        }
-    ];
-    const jenisKelamin: JenisKelamin[] = ['Laki-Laki', 'Perempuan'];
+    const TABLE_HEAD = ['No', 'Pegawai', 'Periode', 'Amanah', 'Status Pegawai', 'Golongan dan Marhalah','Status Verifikasi', 'Tanggal pelaporan', 'Aksi'];
 
     const deleteDialogInit = {
         open: false,
@@ -138,51 +70,6 @@ export default function MASTER_RekapPegawaiIndexPage({ auth, unverifiedCount, ma
         rekapId: string;
     }>(deleteDialogInit);
     const [ onSubmitDelete, setOnSubmitDelete ] = useState(false);
-
-    const switchStatusInit = {
-        onSubmit: false,
-        rekapId: '',
-    };
-    const [ switchStatus, setSwitchStatus ] = useState<{
-        onSubmit: boolean;
-        rekapId: string;
-    }>(switchStatusInit);
-
-    const handleSwitchStatus = (id: string) => {
-        setSwitchStatus((prevState) => ({
-            ...prevState,
-            onSubmit: true,
-            rekapId: id
-        }));
-        let progress: number = 0;
-        const toastId = toast.loading("Mengirim permintaan ke server..");
-        axios.post(route('rekap-pegawai.update-status'), {
-            id: id
-        }, {
-            onUploadProgress: (p: AxiosProgressEvent) => {
-                progress = p.loaded / (p.total ?? 100);
-                toast.update(toastId, { type: "info", isLoading: true, progress: progress - 0.01 });
-            }
-        })
-            .then(() => {
-                router.reload({
-                    only: ['pagination'],
-                    onStart: () => {
-                        toast.update(toastId, { type: "info", isLoading: true, progress: progress - 0.01, render: 'Memperbarui data dari Server..' });
-                    },
-                    onFinish: () => {
-                        toast.update(toastId, { type: "success", isLoading: false, progress: 1 });
-                        notifyToast('success', 'Berhasil memperbarui status Rekap Pegawai');
-                        setSwitchStatus(switchStatusInit);
-                    }
-                });
-            })
-            .catch(() => {
-                notifyToast('error', 'Server gagal memproses permintaan');
-                setSwitchStatus(switchStatusInit);
-            });
-    };
-
     const [ sortBy, setSortBy ] = useState('');
     type FilterBy = {
         marhalah: string[];
@@ -283,32 +170,8 @@ export default function MASTER_RekapPegawaiIndexPage({ auth, unverifiedCount, ma
 
     return (
         <>
-            <Head title="Master - Rekap" />
-            <MasterLayout auth={auth}>
-                <section className="mb-1 grid gap-y-10 gap-x-6 md:grid-cols-2 xl:grid-cols-4">
-                    { cardData.map(({ icon, title, color, value }) => (
-                        <Card key={title} className="border border-blue-gray-100 shadow-sm">
-                            <CardHeader
-                                variant="gradient"
-                                color={ color as MTColor }
-                                floated={ false }
-                                shadow={ false }
-                                className="absolute grid h-12 w-12 place-items-center"
-                            >
-                                { icon }
-                            </CardHeader>
-                            <CardBody className="p-4 text-left ml-20">
-                                <Typography variant="small" className="font-normal text-blue-gray-600">
-                                    { title }
-                                </Typography>
-                                <Typography variant="h4" color="blue-gray">
-                                    { value }
-                                </Typography>
-                            </CardBody>
-                        </Card>
-                    )) }
-                </section>
-
+            <Head title="Admin - Rekap Pegawai" />
+            <AdminLayout auth={auth}>
                 <Card className="h-full w-full" shadow={false}>
                     <CardHeader floated={false} shadow={false} className="rounded-none">
                         <div className="mb-8 flex items-center justify-between gap-x-3">
@@ -323,7 +186,7 @@ export default function MASTER_RekapPegawaiIndexPage({ auth, unverifiedCount, ma
                             <div className="flex flex-col shrink-0 gap-2 lg:flex-row">
                                 <Button
                                     onClick={() => {
-                                        router.visit(route('master.rekap-pegawai.create'));
+                                        router.visit(route('admin.rekap-pegawai.create'));
                                     }}
                                     className="flex items-center gap-1.5 capitalize font-medium text-base" size="sm"
                                 >
@@ -347,19 +210,6 @@ export default function MASTER_RekapPegawaiIndexPage({ auth, unverifiedCount, ma
                                     >
                                         <Pencil width={20} />
                                     </Button>
-                                </div>
-                                <div className="flex flex-row gap-1.5 text-sm">
-                                    <p className="min-w-28">
-                                        Unit
-                                    </p>
-                                    <p>:&nbsp;
-                                        { filterBy.unit.length < 1
-                                            ? 'Semua'
-                                            : filterBy.unit.length === units.length
-                                                ? 'Semua'
-                                                : filterBy.unit.flat().join(', ')
-                                        }
-                                    </p>
                                 </div>
                                 <div className="flex flex-row gap-1.5 text-sm">
                                     <p className="min-w-28">
@@ -561,7 +411,6 @@ export default function MASTER_RekapPegawaiIndexPage({ auth, unverifiedCount, ma
                                          id,
                                          amanah,
                                          terverifikasi,
-                                         unit,
                                          pegawai,
                                          status_pegawai,
                                          golongan,
@@ -584,19 +433,6 @@ export default function MASTER_RekapPegawaiIndexPage({ auth, unverifiedCount, ma
                                                     >
                                                         { index + 1 }
                                                     </Typography>
-                                                </td>
-                                                <td className={ `${ classes } min-w-52` }>
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="flex flex-col">
-                                                            <Typography
-                                                                variant="small"
-                                                                color="blue-gray"
-                                                                className="font-normal"
-                                                            >
-                                                                { unit.nama }
-                                                            </Typography>
-                                                        </div>
-                                                    </div>
                                                 </td>
                                                 <td className={ `${ classes } min-w-56` }>
                                                     <div className="flex items-center gap-3">
@@ -668,26 +504,22 @@ export default function MASTER_RekapPegawaiIndexPage({ auth, unverifiedCount, ma
                                                         </Typography>
                                                     </div>
                                                 </td>
-                                                <td className={ `${ classes } min-w-36` }>
-                                                    <div className="flex items-center justify-center">
-                                                        <button
-                                                            onClick={() => handleSwitchStatus(id)}
-                                                            className="group w-14 h-4 rounded-full bg-gray-100 flex items-center transition duration-300 focus:outline-none shadow"
-                                                            disabled={switchStatus.onSubmit}
-                                                            data-verified={Boolean(terverifikasi)}
-                                                        >
-                                                            <div className={ `w-8 h-8 relative rounded-full transition duration-150 text-white transform translate-x-0 group-data-[verified=true]:translate-x-full p-1 ${Boolean(terverifikasi) ? 'bg-green-400' : 'bg-red-500'} border border-gray-200 flex items-center justify-center` }>
-                                                                {
-                                                                    switchStatus.onSubmit && switchStatus.rekapId === id
-                                                                        ? (
-                                                                            <div className="w-3.5 h-3.5 rounded-full border-2 border-white animate-spin border-r-transparent" />
-                                                                        )
-                                                                        : Boolean(terverifikasi)
-                                                                            ? <Check />
-                                                                            : <X />
-                                                                }
-                                                            </div>
-                                                        </button>
+                                                <td className={ `${ classes } min-w-52` }>
+                                                    <div className="flex items-center justify-start text-sm">
+                                                        { Boolean(terverifikasi)
+                                                            ? (
+                                                                <p className="flex gap-1 font-medium text-gray-600/90 italic">
+                                                                    Sudah Terverifikasi
+                                                                    <CircleCheck className="text-green-500" />
+                                                                </p>
+                                                            )
+                                                            : (
+                                                                <p className="flex gap-1 font-medium text-gray-600/90 italic">
+                                                                    Belum Terverifikasi
+                                                                    <CircleX className="text-red-600" />
+                                                                </p>
+                                                            )
+                                                        }
                                                     </div>
                                                 </td>
                                                 <td className={ `${ classes } min-w-40` }>
@@ -705,7 +537,7 @@ export default function MASTER_RekapPegawaiIndexPage({ auth, unverifiedCount, ma
                                                     <div className="w-32 flex gap-2.5 items-center justify-start">
                                                         <Tooltip content="Detail">
                                                             <Link
-                                                                href={ route('master.rekap-pegawai.details', { q: pagination.data[index].id }) }>
+                                                                href={ route('admin.rekap-pegawai.details', { q: pagination.data[index].id }) }>
                                                                 <IconButton variant="text">
                                                                     <FileSearch className="h-5 w-5 text-blue-800"/>
                                                                 </IconButton>
@@ -768,38 +600,6 @@ export default function MASTER_RekapPegawaiIndexPage({ auth, unverifiedCount, ma
                     <DialogBody className="h-80 overflow-auto">
                         <div className="flex flex-col md:flex-row flex-wrap gap-2 justify-around">
                             <div>
-                                <Typography variant="h6">
-                                    Unit
-                                </Typography>
-                                <List>
-                                    {
-                                        units.sort((a, b) => a.nama.localeCompare(b.nama)).map((unit, index) => ((
-                                            <ListItem className="p-0" key={unit.id}>
-                                                <label
-                                                    htmlFor={ unit.id }
-                                                    className="flex w-full cursor-pointer items-center px-3 py-2"
-                                                >
-                                                    <ListItemPrefix className="mr-3">
-                                                        <Checkbox
-                                                            id={ unit.id }
-                                                            ripple={ false }
-                                                            className="hover:before:opacity-0"
-                                                            containerProps={ {
-                                                                className: "p-0",
-                                                            } }
-                                                            value={ unit.nama }
-                                                            checked={ filterBy.unit.includes(unit.nama) }
-                                                            onChange={ (event) => handleChangeFilterBy('unit', event) }
-                                                        />
-                                                    </ListItemPrefix>
-                                                    <Typography color="blue-gray" className="text-sm font-medium">
-                                                        { unit.nama }
-                                                    </Typography>
-                                                </label>
-                                            </ListItem>
-                                        )))
-                                    }
-                                </List>
                                 <Typography variant="h6">
                                     Status Pegawai
                                 </Typography>
@@ -974,7 +774,7 @@ export default function MASTER_RekapPegawaiIndexPage({ auth, unverifiedCount, ma
                         </Button>
                     </DialogFooter>
                 </Dialog>
-            </MasterLayout>
+            </AdminLayout>
         </>
     );
 }

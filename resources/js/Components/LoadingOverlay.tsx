@@ -1,6 +1,6 @@
 import { PPHLogo } from "@/Lib/StaticImages";
 
-export const AdminLoadingOverlay = ({ className }: { className?: string }) => {
+export const LoadingOverlay = ({ className }: { className?: string }) => {
     return (
         <>
             <div className="fixed inset-0 h-screen flex items-center justify-center bg-gray-200/70 z-[9999]">

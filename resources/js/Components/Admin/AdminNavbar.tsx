@@ -10,18 +10,15 @@ import {
     Navbar,
     Typography
 } from "@material-tailwind/react";
-import { X, Menu as MenuIcon, Home, ChevronDown, LogOut, LogIn } from "lucide-react";
+import { X, Menu as MenuIcon, Home, ChevronDown, LogOut, LogIn, UserRoundCog } from "lucide-react";
 import { Link, router } from "@inertiajs/react";
-import { HarunaPP, PPHLogo } from "@/Lib/StaticImages";
 import axios, { AxiosError } from "axios";
 import { notifyToast } from "@/Lib/Utils";
-import { useTheme } from "@/Hooks/useTheme";
-import { AdminLoadingOverlay } from "@/Components/Admin/AdminLoadingOverlay";
+import { LoadingOverlay } from "@/Components/LoadingOverlay";
 import { PageProps } from "@/types";
 import { AdminNavbarLists } from "@/Fragments/AdminNavbarLists";
 
 export const AdminNavbar = ({ auth }: PageProps) => {
-    const { theme } = useTheme();
     const [ openNavbar, setOpenNavbar ] = useState(false);
     const [ onFetchLogout, setFetchLogout ] = useState(false);
     const pathNames = window.location.pathname.split("/").filter((path) => Boolean(path));
@@ -94,7 +91,9 @@ export const AdminNavbar = ({ auth }: PageProps) => {
                                         </MenuHandler>
                                         <MenuList className="w-max border-0">
                                             <MenuItem className="flex items-center gap-3 w-60">
-                                                <Avatar src={PPHLogo} size="sm" />
+                                                <div className="w-8 aspect-square flex justify-items-center">
+                                                    <UserRoundCog width={35} className="mx-auto mt-0.5" />
+                                                </div>
                                                 <Typography
                                                     variant="small"
                                                     color="blue-gray"
@@ -104,13 +103,15 @@ export const AdminNavbar = ({ auth }: PageProps) => {
                                                 </Typography>
                                             </MenuItem>
                                             <MenuItem
-                                                className="hover:!bg-red-50/80 hover:!text-red-600 group w-full h-full flex items-center gap-1 p-3"
-                                                onClick={handleLogout}
+                                                className="hover:!bg-red-50/80 hover:!text-red-600 group w-full flex items-center gap-3"
+                                                onClick={ handleLogout }
                                             >
-                                                <LogOut />
+                                                <div className="w-8 aspect-square flex justify-items-center">
+                                                    <LogOut width={ 35 } className="mx-auto mt-0.5"/>
+                                                </div>
                                                 <Typography
                                                     variant="small"
-                                                    className="w-full font-normal"
+                                                    className="w-full font-normal -mt-1"
                                                 >
                                                     Keluar
                                                 </Typography>
@@ -137,51 +138,71 @@ export const AdminNavbar = ({ auth }: PageProps) => {
                 <Collapse open={openNavbar}>
                     <AdminNavbarLists />
                     <div className="flex w-full flex-nowrap items-center justify-end gap-2 lg:hidden">
-                        <Menu>
-                            <MenuHandler>
-                                <Button
-                                    variant="text"
-                                    color="blue-gray"
-                                    ripple={false}
-                                    className="group flex flex-row items-center justify-end w-40 gap-2"
-                                >
-                                    <span>
-                                        ORANG
-                                    </span>
-                                    <div className="flex">
-                                        <Avatar src={HarunaPP} size="sm" />
-                                        <ChevronDown width={18} className="group-aria-expanded:rotate-180 rotate-0 transition-rotate duration-150" />
-                                    </div>
-                                </Button>
-                            </MenuHandler>
-                            <MenuList className="w-max border-0">
-                                <MenuItem className="flex items-center gap-3">
-                                    <Avatar src={HarunaPP} size="sm" />
-                                    <Typography
-                                        variant="small"
-                                        color="blue-gray"
-                                        className="mb-1 font-normal"
+                        {
+                            auth?.user
+                                ? (
+                                    <Menu placement="bottom-start" offset={{ crossAxis: 18, mainAxis: 10 }}>
+                                        <MenuHandler>
+                                            <Button
+                                                variant="text"
+                                                color="blue-gray"
+                                                ripple={false}
+                                                className="group flex flex-row items-center justify-between min-w-40"
+                                            >
+                                                <Typography variant="h6" className="capitalize truncate">
+                                                    { auth?.user ? auth.user.nama : 'User' }
+                                                </Typography>
+                                                <div className="flex items-center">
+                                                    <ChevronDown width={18} className="group-aria-expanded:rotate-0 rotate-180 transition-rotate duration-150" />
+                                                </div>
+                                            </Button>
+                                        </MenuHandler>
+                                        <MenuList className="w-max border-0">
+                                            <MenuItem className="flex items-center gap-3 w-60">
+                                                <div className="w-8 aspect-square flex justify-items-center">
+                                                    <UserRoundCog width={35} className="mx-auto mt-0.5" />
+                                                </div>
+                                                <Typography
+                                                    variant="small"
+                                                    color="blue-gray"
+                                                    className="mb-1 font-normal"
+                                                >
+                                                    Akun
+                                                </Typography>
+                                            </MenuItem>
+                                            <MenuItem
+                                                className="hover:!bg-red-50/80 hover:!text-red-600 group w-full flex items-center gap-3"
+                                                onClick={ handleLogout }
+                                            >
+                                                <div className="w-8 aspect-square flex justify-items-center">
+                                                    <LogOut width={ 35 } className="mx-auto mt-0.5"/>
+                                                </div>
+                                                <Typography
+                                                    variant="small"
+                                                    className="w-full font-normal -mt-1"
+                                                >
+                                                    Keluar
+                                                </Typography>
+                                            </MenuItem>
+                                        </MenuList>
+                                    </Menu>
+                                ) : (
+                                    <Button
+                                        variant="filled"
+                                        color="gray"
+                                        onClick={() => router.visit(route('auth.login'))}
+                                        className="!shadow-none flex items-center justify-center gap-1 min-h-3.5"
                                     >
-                                        Akun
-                                    </Typography>
-                                </MenuItem>
-                                <MenuItem className="flex items-center gap-3 group hover:!bg-red-50/80" onClick={handleLogout}>
-                                    <LogOut className="group-hover:text-red-600" />
-                                    <Typography
-                                        variant="small"
-                                        color="blue-gray"
-                                        className="mb-1 font-normal group-hover:text-red-600"
-                                    >
-                                        Keluar
-                                    </Typography>
-                                </MenuItem>
-                            </MenuList>
-                        </Menu>
+                                        Masuk
+                                        <LogIn />
+                                    </Button>
+                                )
+                        }
                     </div>
                 </Collapse>
             </Navbar>
             {
-                onFetchLogout && (<AdminLoadingOverlay />)
+                onFetchLogout && (<LoadingOverlay />)
             }
         </>
     );
