@@ -1,48 +1,19 @@
 import { Typography } from "@material-tailwind/react";
 import { Heart } from "lucide-react";
+import { Link } from "@inertiajs/react";
 
-export const Footer = ({ brandName, brandLink }: {
-    brandName: string;
-    brandLink: string;
-}) => {
-    const year = new Date().getFullYear();
-    const routes = [
-            { key: "Creative Tim", path: "https://www.creative-tim.com" },
-            { key: "About Us", path: "https://www.creative-tim.com/presentation" },
-            { key: "Blog", path: "https://www.creative-tim.com/blog" },
-            { key: "License", path: "https://www.creative-tim.com/license" },
-    ];
+export const Footer = () => {
 
     return (
         <footer className="py-2">
             <div className="flex w-full flex-wrap items-center justify-center gap-6 px-2 md:justify-between">
-                <Typography variant="small" className="font-normal text-inherit">
-                    &copy; {year}, made with{" "}
-                    <Heart className="-mt-0.5 inline-block h-3.5 w-3.5 text-red-600" /> by{" "}
-                    <a
-                        href={brandLink}
-                        target="_blank"
-                        className="transition-colors hover:text-blue-500 font-bold"
-                    >
-                        {brandName}
-                    </a>{" "}
-                    for a better web.
+                <Typography as="div" variant="small" className="font-normal text-inherit ">
+                    &copy; 2024, made with{" "}
+                    <a href={route('hall-of-fames')} target="_blank" className="mx-0.5">
+                        <Heart className="-mt-0.5 inline-block h-3.5 w-3.5 text-red-600" />
+                    </a>
+                    by KKN ITATS Kelompok 2
                 </Typography>
-                <ul className="flex items-center gap-4">
-                    {routes.map(({ path }) => (
-                        <li key={path}>
-                            <Typography
-                                as="a"
-                                href={path}
-                                target="_blank"
-                                variant="small"
-                                className="py-0.5 px-1 font-normal text-inherit transition-colors hover:text-blue-500"
-                            >
-                                {path}
-                            </Typography>
-                        </li>
-                    ))}
-                </ul>
             </div>
         </footer>
     );
