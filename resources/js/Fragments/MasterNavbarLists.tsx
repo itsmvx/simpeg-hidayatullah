@@ -103,7 +103,7 @@ export const MasterNavbarLists = () => {
     return (
         <List className="mt-4 mb-6 p-0 lg:mt-0 lg:mb-0 lg:flex-row lg:p-1">
             <Typography as="div" variant="small" color="blue-gray" className="font-medium">
-                <ListItem data-disabled={route().current() === 'master.dashboard'} className="flex items-center gap-2 py-2 pr-4 data-[disabled=true]:cursor-auto" onClick={() => router.visit(route('master.dashboard'))} disabled={route().current() === 'master.dashboard'}>
+                <ListItem data-disabled={window.location.pathname === '/'} className="flex items-center gap-2 py-2 pr-4 data-[disabled=true]:cursor-auto" onClick={() => router.visit('/')} disabled={window.location.pathname === '/'}>
                     Home
                 </ListItem>
             </Typography>

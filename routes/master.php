@@ -3,8 +3,7 @@
 use App\Http\Controllers\Pages\AdminMasterPagesController;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('master')->name('master.')->middleware('admin.master')->group(function () {
-    Route::get('/login', [AdminMasterPagesController::class, 'loginPage'])->name('login');
+Route::prefix('master')->name('master.')->middleware('admin')->group(function () {
     Route::get('/dashboard', [AdminMasterPagesController::class, 'dashboardPage'])->name('dashboard');
     Route::prefix('/unit')->name('unit.')->group(function () {
         Route::get('/', [AdminMasterPagesController::class, 'unitIndexPage'])->name('index');

@@ -11,14 +11,14 @@ use App\Http\Controllers\StatusPegawaiController;
 use App\Http\Controllers\UnitController;
 use App\Models\Pegawai;
 use App\Models\Unit;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::prefix('auth')->name('auth.')->group(function () {
-    Route::get('/login', [AuthController::class, 'loginPage'])->name('login');
-    Route::post('/admin', [AuthController::class, 'authAdmin'])->name('admin');
-    Route::post('/pegawai', [AuthController::class, 'authPegawai'])->name('pegawai');
-
+    Route::get('/login', [AuthController::class, 'loginPage'])->name('login')->middleware('noauth');
+    Route::post('/admin', [AuthController::class, 'authAdmin'])->name('admin')->middleware('noauth');
+    Route::post('/pegawai', [AuthController::class, 'authPegawai'])->name('pegawai')->middleware('noauth');
     Route::get('/user', [AuthController::class, 'getUser'])->name('user');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
@@ -27,8 +27,8 @@ Route::prefix('auth')->name('auth.')->group(function () {
 Route::get('/', function () {
     return Inertia::render('Welcome', [
         'data' => fn() => [
-            'pegawai' => Pegawai::count(),
-            'unit' => Unit::count()
+            'pegawai' => fn() => Pegawai::count(),
+            'unit' => fn() => Unit::count(),
         ]
     ]);
 });
@@ -64,8 +64,10 @@ Route::prefix('pegawai')->name('pegawai.')->group(function () {
     Route::post('/create', [PegawaiController::class, 'create'])->name('create');
     Route::post('/data', [PegawaiController::class, 'show'])->name('data');
     Route::post('/update', [PegawaiController::class, 'update'])->name('update');
+    Route::post('/update-by-admin', [PegawaiController::class, 'updateByAdmin'])->name('update-by-admin');
     Route::post('/delete', [PegawaiController::class, 'destroy'])->name('delete');
     Route::post('/data-to-rekap', [PegawaiController::class, 'dataToRekap'])->name('data-to-rekap');
+    Route::post('/data-to-rekap-by-admin', [PegawaiController::class, 'dataToRekapByAdmin'])->name('data-to-rekap-by-admin');
     Route::post('/upload-foto', [PegawaiController::class, 'uploadFoto'])->name('upload-foto');
 });
 Route::prefix('periode-rekap')->name('periode-rekap.')->group(function () {
@@ -77,6 +79,9 @@ Route::prefix('periode-rekap')->name('periode-rekap.')->group(function () {
 });
 Route::prefix('rekap-pegawai')->name('rekap-pegawai.')->group(function () {
     Route::post('/create', [RekapPegawaiController::class, 'create'])->name('create');
+    Route::post('/update', [RekapPegawaiController::class, 'update'])->name('update');
+    Route::post('/update-by-admin', [RekapPegawaiController::class, 'updateByAdmin'])->name('update-by-admin');
+    Route::post('/update-status', [RekapPegawaiController::class, 'updateStatus'])->name('update-status');
     Route::post('/delete', [RekapPegawaiController::class, 'destroy'])->name('delete');
 });
 

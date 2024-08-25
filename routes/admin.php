@@ -3,7 +3,7 @@
 use App\Http\Controllers\Pages\AdminUnitPagesController;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('admin')->name('admin.')->group(function () {
+Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
     Route::get('/dashboard', [AdminUnitPagesController::class, 'dashboardPage'])->name('dashboard');
 
     Route::prefix('/unit')->name('unit.')->group(function () {

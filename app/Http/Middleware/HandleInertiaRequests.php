@@ -49,7 +49,8 @@ class HandleInertiaRequests extends Middleware
                         'id' => $authUser->id,
                         'username' => $authUser->username,
                         'nama' => $authUser->nama,
-                        'unit_id' => $authUser->unit_id
+                        'unit_id' => $authUser->unit_id,
+                        'foto' => $authUser->foto ?? null
                     ] : null,
                 'role' => $role
             ],

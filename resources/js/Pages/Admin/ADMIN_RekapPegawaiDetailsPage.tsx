@@ -1,10 +1,9 @@
 import { Head, router } from "@inertiajs/react";
 import { Card, Typography, Button, Tooltip, IconButton } from "@material-tailwind/react";
 import { CircleAlert, MoveLeft, Save } from "lucide-react";
-import { ChangeEvent, FormEvent, useEffect, useState } from "react";
+import { ChangeEvent, FormEvent, useState } from "react";
 import "react-day-picker/dist/style.css";
-import { useTheme } from "@/Hooks/useTheme";
-import { MasterLayout } from "@/Layouts/MasterLayout";
+import { AdminLayout } from "@/Layouts/AdminLayout";
 import { PageProps } from "@/types";
 import { notifyToast } from "@/Lib/Utils";
 import axios, { AxiosError } from "axios";
@@ -56,7 +55,7 @@ type RekapPegawai = {
     };
 };
 
-export default function MASTER_RekapPegawaiDetailsPage({ auth, rekap }: PageProps<{
+export default function ADMIN_RekapPegawaiDetailsPage({ auth, rekap }: PageProps<{
     rekap: RekapPegawai
 }>) {
 
@@ -86,7 +85,7 @@ export default function MASTER_RekapPegawaiDetailsPage({ auth, rekap }: PageProp
         event.preventDefault();
         setOnSubmit(true);
 
-        axios.post(route('rekap-pegawai.update'), { ...rekapPegawaiState })
+        axios.post(route('rekap-pegawai.update-by-admin'), { ...rekapPegawaiState })
             .then(() => {
                 notifyToast('success', 'Rekap Pegawai berhasil diperbarui!');
                 setOnChangeRekapPegawai(false);
@@ -106,7 +105,7 @@ export default function MASTER_RekapPegawaiDetailsPage({ auth, rekap }: PageProp
     return (
         <>
             <Head title="Details Rekap Pegawai"/>
-            <MasterLayout auth={auth}>
+            <AdminLayout auth={auth}>
                 <main className="w-full min-h-screen bg-gray-50 space-y-4">
                     <header className="px-6 py-2 bg-white rounded-md rounded-b-none border ">
                         <Typography className="flex justify-items-center gap-1.5 font-semibold text-lg">
@@ -116,16 +115,14 @@ export default function MASTER_RekapPegawaiDetailsPage({ auth, rekap }: PageProp
                             Informasi
                         </Typography>
                         <ul className="list-disc list-inside px-2 font-medium text-sm">
-                            <li>Opsi Pegawai disediakan berdasarkan unit yang dipilih</li>
-                            <li>Opsi Marhalah, Golongan, Status Pegawai dan Periode terpilih tidak dapat diubah</li>
-                            <li>Untuk mengubah informasi Marhalah, Golongan, atau Status Pegawai dapat diubah di
-                                manajemen Pegawai
-                            </li>
+                            <li>Unit, Pegawai, dan Periode Rekap terpilih tidak dapat lagi diubah</li>
+                            <li>Informasi Golongan, Marhalah dan Status Pegawai dapat diperbarui oleh admin Personalia</li>
+                            <li>Untuk mengubah opsi diatas, silahkan hubungi admin Personalia</li>
                         </ul>
                     </header>
                     <Card className="w-full px-6">
                         <Tooltip content="Kembali">
-                            <IconButton variant="text" onClick={() => router.visit(route('master.rekap-pegawai.index'))}>
+                            <IconButton variant="text" onClick={() => router.visit(route('admin.rekap-pegawai.index'))} className="mt-2 mb-4">
                                 <MoveLeft />
                             </IconButton>
                         </Tooltip>
@@ -385,8 +382,7 @@ export default function MASTER_RekapPegawaiDetailsPage({ auth, rekap }: PageProp
                         </form>
                     </Card>
                 </main>
-
-            </MasterLayout>
+            </AdminLayout>
         </>
     );
 }

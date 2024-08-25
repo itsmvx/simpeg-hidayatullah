@@ -252,7 +252,6 @@ export default function ADMIN_PegawaiDetailsPage({ auth, pegawai }: PageProps<{
             id: z.string({ message: "Format Pegawai tidak valid!" }),
             nip: z.string({ message: "NIP tidak boleh kosong" }),
             nik: z.string({ message: "NIK tidak boleh kosong" }),
-            foto: z.string().url({ message: "Foto harus berupa URL yang valid" }).nullable(),
             nama: z.string({ message: "Nama tidak boleh kosong" }),
             jenis_kelamin: z.enum(['Laki-Laki', 'Perempuan'], { message: "Jenis kelamin harus Laki-Laki atau 'Perempuan" }),
             tempat_lahir: z.string({ message: "Tempat lahir tidak boleh kosong" }),
@@ -279,7 +278,6 @@ export default function ADMIN_PegawaiDetailsPage({ auth, pegawai }: PageProps<{
             id: pegawai.id,
             nip: formDataDiri.nip,
             nik: formDataDiri.nik,
-            foto: null,
             nama: formDataDiri.namaLengkap,
             jenis_kelamin: formDataDiri.jenisKelamin,
             tempat_lahir: formDataDiri.tempatLahir,
@@ -310,7 +308,7 @@ export default function ADMIN_PegawaiDetailsPage({ auth, pegawai }: PageProps<{
             return;
         }
 
-        axios.post(route('pegawai.update'), {
+        axios.post(route('pegawai.update-by-admin'), {
             ...pegawaiParse.data
         })
             .then(() => {
@@ -468,12 +466,12 @@ export default function ADMIN_PegawaiDetailsPage({ auth, pegawai }: PageProps<{
                             </div>
                         </div>
                         <Typography className="mt-5 text-sm text-center font-medium">
-                            Promosi terakhir : { format(pegawai.tanggal_promosi, 'PPPp', {
+                            Promosi terakhir : { format(pegawai.tanggal_promosi, 'PPP', {
                             locale: id
                         }) }
                             <span className="italic">
-                                    ({ pegawai.lama_promosi } hari lalu)
-                                </span>
+                                &nbsp;({ pegawai.lama_promosi } hari lalu)
+                            </span>
                         </Typography>
                         <form onSubmit={ handleFormSubmit } className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-4 p-5 dark:bg-gray-900">
                             <div ref={ formDataDiriRef } className="col-span-1 lg:col-span-2">

@@ -31,12 +31,12 @@ export const AdminNavbarLists = () => {
             icon: <Newspaper />,
             link: route('admin.rekap-pegawai.index')
         },
-        {
-            title: "Periode Rekap",
-            description: "mengatur Periode rekap pegawai",
-            icon: <CalendarDays />,
-            link: route('master.periode-rekap.index')
-        }
+        // {
+        //     title: "Periode Rekap",
+        //     description: "mengatur Periode rekap pegawai",
+        //     icon: <CalendarDays />,
+        //     link: route('master.periode-rekap.index')
+        // }
     ];
 
     const [ isMenuOpen, setIsMenuOpen ] = useState(false);
@@ -63,7 +63,7 @@ export const AdminNavbarLists = () => {
     return (
         <List className="mt-4 mb-6 p-0 lg:mt-0 lg:mb-0 lg:flex-row lg:p-1">
             <Typography as="div" variant="small" color="blue-gray" className="font-medium">
-                <ListItem data-disabled={route().current() === 'admin.dashboard'} className="flex items-center gap-2 py-2 pr-4 data-[disabled=true]:cursor-auto" onClick={() => router.visit(route('admin.dashboard'))} disabled={route().current() === 'admin.dashboard'}>
+                <ListItem data-disabled={window.location.pathname === '/'} className="flex items-center gap-2 py-2 pr-4 data-[disabled=true]:cursor-auto" onClick={() => router.visit('/')} disabled={window.location.pathname === '/'}>
                     Home
                 </ListItem>
             </Typography>

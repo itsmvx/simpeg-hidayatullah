@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class PegawaiController extends Controller
 {
@@ -264,7 +265,6 @@ class PegawaiController extends Controller
                 'id' => 'required|uuid|exists:pegawai,id',
                 'nip' => "required|string|unique:pegawai,nip,{$id},id",
                 'nik' => "required|string|unique:pegawai,nik,{$id},id",
-                'foto' => 'nullable|url',
                 'nama' => 'required|string',
                 'jenis_kelamin' => 'required|in:Laki-Laki,Perempuan',
                 'tempat_lahir' => 'required|string',
@@ -296,7 +296,6 @@ class PegawaiController extends Controller
                 'nip.unique' => 'NIP Pegawai sudah terdaftar',
                 'nik.required' => 'NIK tidak boleh kosong',
                 'nik.unique' => 'NIK Pegawai sudah terdaftar',
-                'foto.url' => 'Foto harus berupa URL yang valid',
                 'nama.required' => 'Nama tidak boleh kosong',
                 'jenis_kelamin.required' => 'Jenis kelamin harus Laki-Laki atau Perempuan',
                 'tempat_lahir.required' => 'Tempat lahir tidak boleh kosong',
@@ -347,37 +346,103 @@ class PegawaiController extends Controller
                 $pegawai->tanggal_promosi = now('Asia/Jakarta');
             }
 
-            $pegawai->update([
-                'username' => $request->nip,
-                'nip' => $request->nip,
-                'nik' => $request->nik,
-                'foto' => $request->foto,
-                'nama' => $request->nama,
-                'jenis_kelamin' => $request->jenis_kelamin,
-                'tempat_lahir' => $request->tempat_lahir,
+            $validatedData = $validation->validated();
+            $pegawai->update(array_merge($validatedData, [
                 'tanggal_lahir' => $tanggal_lahir,
-                'no_hp' => $request->no_hp,
-                'alamat' => $request->alamat,
-                'suku' => $request->suku,
-                'agama' => $request->agama,
-                'status_pernikahan' => $request->status_pernikahan,
-                'amanah' => $request->amanah,
-                'amanah_atasan' => $request->amanah_atasan,
                 'tanggal_masuk' => $tanggal_masuk,
-                'bpjs_kesehatan' => $request->bpjs_kesehatan,
-                'bpjs_ketenagakerjaan' => $request->bpjs_ketenagakerjaan,
-                'data_keluarga' => $request->data_keluarga,
-                'pendidikan_formal' => $request->pendidikan_formal,
-                'pendidikan_non_formal' => $request->pendidikan_non_formal,
-                'pengalaman_organisasi' => $request->pengalaman_organisasi,
-                'pengalaman_kerja_pph' => $request->pengalaman_kerja_pph,
-                'pengalaman_kerja_non_pph' => $request->pengalaman_kerja_non_pph,
-                'keahlian' => $request->keahlian,
-                'golongan_id' => $request->golongan_id,
-                'marhalah_id' => $request->marhalah_id,
-                'status_pegawai_id' => $request->status_pegawai_id,
-                'unit_id' => $request->unit_id,
+            ]));
+
+            return Response::json([
+                'message' => 'Pegawai telah diperbarui!'
             ]);
+        } catch (QueryException $e) {
+            return Response::json([
+                'message' => 'Server gagal memproses permintaan!'
+            ], 500);
+        }
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function updateByAdmin(Request $request)
+    {
+        try {
+            $id = $request->input('id');
+            $validation = Validator::make($request->all(), [
+                'id' => 'required|uuid|exists:pegawai,id',
+                'nip' => "required|string|unique:pegawai,nip,{$id},id",
+                'nik' => "required|string|unique:pegawai,nik,{$id},id",
+                'nama' => 'required|string',
+                'jenis_kelamin' => 'required|in:Laki-Laki,Perempuan',
+                'tempat_lahir' => 'required|string',
+                'tanggal_lahir' => 'required|date',
+                'no_hp' => 'required|string',
+                'suku' => 'required|string',
+                'alamat' => 'required|string',
+                'status_pernikahan' => 'required|string',
+                'amanah' => 'required|string',
+                'tanggal_masuk' => 'required|date',
+                'bpjs_kesehatan' => 'nullable|string',
+                'bpjs_ketenagakerjaan' => 'nullable|string',
+                'data_keluarga' => 'required|string',
+                'pendidikan_formal' => 'required|string',
+                'pendidikan_non_formal' => 'required|string',
+                'pengalaman_organisasi' => 'required|string',
+                'pengalaman_kerja_pph' => 'required|string',
+                'pengalaman_kerja_non_pph' => 'required|string',
+                'keahlian' => 'nullable|string',
+            ], [
+                'id.required' => 'Input Pegawai tidak boleh kosong!',
+                'id.uuid' => 'Input Pegawai tidak valid!',
+                'id.exists' => 'Pegawai tidak ditemukan!',
+                'nip.required' => 'NIP tidak boleh kosong',
+                'nip.unique' => 'NIP Pegawai sudah terdaftar',
+                'nik.required' => 'NIK tidak boleh kosong',
+                'nik.unique' => 'NIK Pegawai sudah terdaftar',
+                'nama.required' => 'Nama tidak boleh kosong',
+                'jenis_kelamin.required' => 'Jenis kelamin harus Laki-Laki atau Perempuan',
+                'tempat_lahir.required' => 'Tempat lahir tidak boleh kosong',
+                'tanggal_lahir.required' => 'Tanggal lahir tidak valid',
+                'no_hp.required' => 'Nomor HP tidak boleh kosong',
+                'suku.required' => 'Suku bangsa tidak boleh kosong',
+                'suku.string' => 'Format input Suku bangsa tidak valid',
+                'alamat.required' => 'Alamat tidak boleh kosong',
+                'alamat.string' => 'Format input Alamat tidak valid',
+                'agama.required' => 'Input Agama tidak boleh kosong',
+                'agama.string' => 'Format input Agama tidak valid',
+                'status_pernikahan.required' => 'Status pernikahan tidak boleh kosong',
+                'amanah.required' => 'Amanah tidak boleh kosong',
+                'tanggal_masuk.required' => 'Tanggal masuk harus berupa tanggal yang valid',
+                'pendidikan_formal.required' => 'Data Pendidikan formal tidak valid',
+                'pendidikan_non_formal.required' => 'Data Pendidikan non formal tidak valid',
+                'pengalaman_organisasi.required' => 'Data Pengalaman Organisasi tidak valid',
+                'pengalaman_kerja_pph.required' => 'Data Pengalaman Kerja di PPH tidak valid',
+                'pengalaman_kerja_non_pph.required' => 'Data Pengalaman kerja non PPH tidak valid',
+                'keahlian.string' => 'Format data keahlian tidak valid',
+            ]);
+
+            if ($validation->fails()) {
+                return Response::json([
+                    'message' => $validation->errors()->first()
+                ], 422);
+            }
+
+            $pegawai = Pegawai::find($request->id);
+            if (!$pegawai) {
+                return Response::json([
+                    'message' => 'Pegawai tidak ditemukan!'
+                ], 404);
+            }
+
+            $tanggal_lahir = date('Y-m-d', strtotime($request->tanggal_lahir));
+            $tanggal_masuk = date('Y-m-d', strtotime($request->tanggal_masuk));
+
+            $validatedData = $validation->validated();
+            $pegawai->update(array_merge($validatedData, [
+                'tanggal_lahir' => $tanggal_lahir,
+                'tanggal_masuk' => $tanggal_masuk,
+            ]));
             return Response::json([
                 'message' => 'Pegawai telah diperbarui!'
             ]);
@@ -482,6 +547,51 @@ class PegawaiController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * @throws ValidationException
+     */
+
+    public function dataToRekapByAdmin(Request $request)
+    {
+        $validation = Validator::make($request->only(['unit_id', 'periode_id']), [
+            'unit_id' => 'required|uuid|exists:unit,id',
+            'periode_id' => 'required|uuid|exists:periode_rekap,id',
+        ], [
+            'unit_id.required' => 'Unit tidak boleh kosong',
+            'unit_id.uuid' => 'Format Unit tidak valid',
+            'periode_id.required' => 'Periode tidak boleh kosong',
+            'periode_id.uuid' => 'Format Periode tidak valid',
+        ]);
+
+        if ($validation->fails()) {
+            return response()->json([
+                'message' => $validation->errors()->first()
+            ], 400);
+        }
+
+        $validated = $validation->validated();
+
+        try {
+            $pegawais = Pegawai::where('unit_id', $validated['unit_id'])
+                ->whereDoesntHave('rekap_pegawai', function ($query) use ($validated) {
+                    $query->where('periode_rekap_id', $validated['periode_id']);
+                })
+                ->with(['unit:id,nama', 'golongan:id,nama', 'status_pegawai:id,nama', 'marhalah:id,nama'])
+                ->select('id', 'nama', 'unit_id', 'golongan_id', 'status_pegawai_id', 'marhalah_id')
+                ->get()
+                ->makeHidden(['golongan_id', 'status_pegawai_id', 'marhalah_id', 'unit_id']);
+
+            return Response::json([
+                'data' => $pegawais
+            ]);
+        } catch (QueryException $exception) {
+            return Response::json([
+                'message' => 'Server gagal memproses permintaan'
+            ], 500);
+        }
+    }
+
 
     public function uploadFoto(Request $request)
     {
