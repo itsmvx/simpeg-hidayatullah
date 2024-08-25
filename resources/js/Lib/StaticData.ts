@@ -1,7 +1,7 @@
 import {
     FormDataKeluarga, FormDataOrganisasi,
     FormDataPendidikanFormal,
-    FormDataPendidikanNonFormal, FormDataPengalamanNonPPH, FormDataPengalamanPPH
+    FormDataPendidikanNonFormal, FormDataPengalamanNonPPH, FormDataPengalamanPPH, JenisKelamin
 } from "@/types";
 
 export const formDataKeluargaDefault: FormDataKeluarga =  {
@@ -43,3 +43,6 @@ export const formDataPengalamanNonPPHDefault: FormDataPengalamanNonPPH = {
     tahun: '',
     keterangan: ''
 };
+
+export const jenisKelamin: JenisKelamin[] = ['Laki-Laki', 'Perempuan'];
+

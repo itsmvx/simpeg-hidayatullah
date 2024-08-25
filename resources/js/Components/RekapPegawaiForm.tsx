@@ -2,7 +2,7 @@ import { ChangeEvent, Dispatch, FormEvent, memo, SetStateAction, useEffect, useR
 import { Option, Select, Typography } from "@material-tailwind/react";
 import { Input } from "@/Components/Input";
 import { CircleCheck, TriangleAlert } from "lucide-react";
-import { FormRekapPegawai, PegawaisToRekap } from "@/Pages/Admin/MASTER_RekapPegawaiCreatePage";
+import { FormRekapPegawai, PegawaisToRekap } from "@/Pages/Master/MASTER_RekapPegawaiCreatePage";
 import { TextArea } from "@/Components/TextArea";
 import ReactSelect from 'react-select';
 import { format } from "date-fns";

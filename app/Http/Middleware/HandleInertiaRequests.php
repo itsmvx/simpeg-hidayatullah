@@ -30,25 +30,29 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $authUser = match (true) {
+            Auth::guard('admin')->check() => Auth::guard('admin')->user(),
+            Auth::guard('pegawai')->check() => Auth::guard('pegawai')->user(),
+            default => null,
+        };
+        $role = match (true) {
+            Auth::guard('admin')->check() => 'admin',
+            Auth::guard('pegawai')->check() => 'pegawai',
+            default => null,
+        };
+
         return [
             ...parent::share($request),
             'auth' => [
-                'admin' => Auth::guard('admin')->check() ? [
-                    'id' => Auth::guard('admin')->user()->id,
-                    'nama' => Auth::guard('admin')->user()->nama,
-                    'username' => Auth::guard('admin')->user()->username,
-                    'unit_id' => Auth::guard('admin')->user()->unit_id,
-                ] : null,
-                'pegawai' => Auth::guard('pegawai')->check() ? [
-                    'id' => Auth::guard('pegawai')->id,
-                    'nama' => Auth::guard('pegawai')->user()->nama,
-                    'username' => Auth::guard('pegawai')->user()->username,
-                    'unit_id' => Auth::guard('pegawai')->user()->unit_id,
-                ] : null
-            ],
-            'flash' => [
-                'success' => fn () => $request->session()->get('success'),
-                'error' => fn () => $request->session()->get('error'),
+                'user' => $authUser
+                    ? [
+                        'id' => $authUser->id,
+                        'username' => $authUser->username,
+                        'nama' => $authUser->nama,
+                        'unit_id' => $authUser->unit_id,
+                        'foto' => $authUser->foto ?? null
+                    ] : null,
+                'role' => $role
             ],
         ];
     }

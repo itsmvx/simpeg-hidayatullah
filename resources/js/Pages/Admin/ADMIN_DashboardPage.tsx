@@ -1,93 +1,98 @@
-import { Card, CardBody, CardHeader, Typography } from "@material-tailwind/react";
-import { BarChartBig } from "lucide-react";
-import { MTColor, PageProps } from "@/types";
+import { Head, Link, router } from "@inertiajs/react";
+import { MasterLayout } from "@/Layouts/MasterLayout";
+import { Card, CardHeader, CardBody, Typography, IconButton, CardFooter, Button } from "@material-tailwind/react";
+import { PageProps } from "@/types";
+import {
+    ExternalLink,
+    Newspaper,
+    UserRound,
+} from "lucide-react";
+import { format } from "date-fns";
+import { id } from "date-fns/locale";
 import { AdminLayout } from "@/Layouts/AdminLayout";
-import { ManagePegawaiTable } from "@/Pages/Admin/ManagePegawaiPage";
 
-export default function AdminDashboardPage({ auth, routes }: PageProps<{
-    routes: any;
-}>) {
+type CountAndLastUpdate = {
+    count: number;
+    lastUpdate: string | null;
+};
+type Props = {
+    pegawai: CountAndLastUpdate;
+    rekapPegawai: CountAndLastUpdate;
+}
+export default function ADMIN_DashboardPage({ auth, pegawai, rekapPegawai }: PageProps<Props>) {
+
     const cardData = [
         {
-            color: "gray",
-            icon: <BarChartBig />,
-            title: "Today's Money",
-            value: "$53k",
-            footer: {
-                color: "text-green-500",
-                value: "+55%",
-                label: "than last week",
-            },
+            title: "Pegawai",
+            description: "Pegawai terdaftar",
+            icon: <UserRound />,
+            link: route('admin.pegawai.index'),
+            count: pegawai.count,
+            lastUpdate: pegawai.lastUpdate
         },
         {
-            color: "gray",
-            icon: <BarChartBig />,
-            title: "Today's Users",
-            value: "2,300",
-            footer: {
-                color: "text-green-500",
-                value: "+3%",
-                label: "than last month",
-            },
-        },
-        {
-            color: "gray",
-            icon: <BarChartBig />,
-            title: "New Clients",
-            value: "3,462",
-            footer: {
-                color: "text-red-500",
-                value: "-2%",
-                label: "than yesterday",
-            },
-        },
-        {
-            color: "gray",
-            icon: <BarChartBig />,
-            title: "Sales",
-            value: "$103,430",
-            footer: {
-                color: "text-green-500",
-                value: "+5%",
-                label: "than yesterday",
-            },
+            title: "Rekap kepegawaian",
+            description: "Rekap Pegawai belum terverifikasi",
+            icon: <Newspaper />,
+            link: route('admin.rekap-pegawai.index'),
+            count: rekapPegawai.count,
+            lastUpdate: rekapPegawai.lastUpdate
         },
     ];
 
     return (
         <>
-            <AdminLayout>
+            <Head title="Admin - Dashboard" />
+            <AdminLayout auth={auth}>
                 <section className="mb-1 grid gap-y-10 gap-x-6 md:grid-cols-2 xl:grid-cols-4">
-                    { cardData.map(({ icon, title, footer, color, value }) => (
+                    { cardData.map(({ icon, title, description, count, lastUpdate, link }) => (
                         <Card key={title} className="border border-blue-gray-100 shadow-sm">
                             <CardHeader
                                 variant="gradient"
-                                color={ color as MTColor }
+                                color="gray"
                                 floated={ false }
                                 shadow={ false }
                                 className="absolute grid h-12 w-12 place-items-center"
                             >
                                 { icon }
                             </CardHeader>
-                            <CardBody className="p-4 text-right">
-                                <div className="w-10 h-10 bg-blue-300 dark:bg-red-900">
-
-                                </div>
-                                <Typography variant="small" className="font-normal text-blue-gray-600">
+                            <CardBody className="p-4 text-left ml-20">
+                                <Typography variant="small" className="font-normal text-blue-gray-900">
                                     { title }
                                 </Typography>
-                                <Typography variant="h4" color="blue-gray">
-                                    { value }
+                                <Typography variant="h4" color="blue-gray" className="flex items-center gap-1.5">
+                                    { count }
+                                    <span className="text-xs text-blue-gray-800 mt-1.5">
+                                        { description }
+                                    </span>
                                 </Typography>
+                                <p className="mt-2 flex flex-col text-xs text-blue-gray-900">
+                                    Terakhir diperbarui:
+                                    <span>
+                                        {
+                                            lastUpdate
+                                                ? format(new Date(lastUpdate), 'PPPp', { locale: id })
+                                                : '-'
+                                        }
+                                    </span>
+                                </p>
                             </CardBody>
+                            <CardFooter className="-mt-3">
+                                <Button
+                                    fullWidth
+                                    variant="outlined"
+                                    size="sm"
+                                    className="!py-1.5 !px-3 flex flex-row gap-2.5 items-center justify-center !rounded-xl !shadow-none !text-xs font-semibold font-sans !border-gray-400/90"
+                                    onClick={() => router.visit(link)}
+                                >
+                                    Kelola
+                                    <ExternalLink  width={18} />
+                                </Button>
+                            </CardFooter>
                         </Card>
                     )) }
                 </section>
-
-                <section>
-                    <ManagePegawaiTable />
-                </section>
             </AdminLayout>
         </>
-    );
+    )
 }

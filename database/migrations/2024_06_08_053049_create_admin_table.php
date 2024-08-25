@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('nama');
             $table->string('username');
             $table->string('password');
-            $table->foreignUuid('unit_id')->nullable()->constrained('unit');
+            $table->foreignUuid('unit_id')->nullable()->constrained('unit')->cascadeOnDelete();
             $table->timestamps();
         });
     }

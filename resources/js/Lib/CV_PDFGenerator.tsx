@@ -4,12 +4,14 @@ import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import { calculateAge } from "@/Lib/Utils";
 import TimesNewRoman from "@/Assets/Fonts/TimesNewRoman.ttf";
-import Meong from "@/Assets/Images/meong.jpg";
+import { JenisKelamin } from "@/types";
+import { MenAvatar, WomenAvatar } from "@/Lib/StaticImages";
 
 export type PegawaiExportCV = {
     pegawai: {
         nip: string;
         nama: string;
+        jenisKelamin: JenisKelamin;
         foto: string | null;
         tanggalMasuk: string;
         tempatLahir: string;
@@ -32,7 +34,7 @@ export type PegawaiExportCV = {
         skill_leadership: string | null,
         prestasi: string | null,
         catatan_negatif: string | null
-    };
+    } | null;
     rekapTahunan: {
         amanah: string;
         periode: string;
@@ -82,7 +84,6 @@ const styles = StyleSheet.create({
 const CV_PDFGenerator = ({ data }: {
     data: PegawaiExportCV
 }) => {
-    console.log(data);
     const tahunMasuk = new Date(data.pegawai.tanggalMasuk).getFullYear();
     const lamaKerja = new Date().getFullYear() - tahunMasuk;
 
@@ -94,7 +95,7 @@ const CV_PDFGenerator = ({ data }: {
                     <View style={styles.imageContainer}>
                         <Image
                             style={styles.image}
-                            src={data.pegawai.foto ? `/storage/${data.pegawai.foto}` : Meong}
+                            src={data.pegawai.foto ? `/storage/${data.pegawai.foto}` : data.pegawai.jenisKelamin === 'Laki-Laki' ? MenAvatar : WomenAvatar}
                         />
                         <Text style={{ marginTop: 10 }}>{data.pegawai.nama}</Text>
                     </View>
@@ -105,20 +106,20 @@ const CV_PDFGenerator = ({ data }: {
                         {renderRow('Lama Kerja', `${String(lamaKerja)} Tahun`)}
                         {renderRow('Status Pegawai', data.pegawai.statusPegawai ?? '-')}
                         {renderRow('Status Marhalah', data.pegawai.marhalah ?? '-')}
-                        {renderRow('Gaji', String(data.rekapBulanan.gaji ?? '0'))}
+                        {renderRow('Gaji', String(data.rekapBulanan?.gaji ?? '0'))}
                         {renderRow('Tempat, Tanggal Lahir', `${data.pegawai.tempatLahir}, ${format(new Date(data.pegawai.tanggalLahir), 'PPP', { locale: id })}`)}
                         {renderRow('Usia', years.toString())}
                         {renderRow('No HP', data.pegawai.noHp)}
                         {renderRow('Alamat', data.pegawai.alamat)}
                         {renderRow('Pendidikan Terakhir', '')}
                         {renderRow('Keahlian', data.pegawai.keahlian)}
-                        {renderRow('Rapor Profesi', data.rekapBulanan.raport_profesi)}
-                        {renderRow('Kedisiplinan', data.rekapBulanan.kedisiplinan)}
-                        {renderRow('Ketuntasan Kerja', data.rekapBulanan.ketuntasan_kerja)}
-                        {renderRow('Skill Manajerial', data.rekapBulanan.skill_manajerial)}
-                        {renderRow('Skill Leadership', data.rekapBulanan.skill_leadership)}
-                        {renderRow('Prestasi Terbaru', data.rekapBulanan.prestasi)}
-                        {renderRow('Catatan Negatif', data.rekapBulanan.catatan_negatif)}
+                        {renderRow('Rapor Profesi', data.rekapBulanan?.raport_profesi ?? null)}
+                        {renderRow('Kedisiplinan', data.rekapBulanan?.kedisiplinan ?? null)}
+                        {renderRow('Ketuntasan Kerja', data.rekapBulanan?.ketuntasan_kerja ?? null)}
+                        {renderRow('Skill Manajerial', data.rekapBulanan?.skill_manajerial ?? null)}
+                        {renderRow('Skill Leadership', data.rekapBulanan?.skill_leadership ?? null)}
+                        {renderRow('Prestasi Terbaru', data.rekapBulanan?.prestasi ?? null)}
+                        {renderRow('Catatan Negatif', data.rekapBulanan?.catatan_negatif ?? null)}
                         {renderRow('Keaktifan Pembinaan', '-')}
                         {data.rekapTahunan.map((rekap) => renderRow(`Amanah ${rekap.periode}`, `${rekap.unit}, ${rekap.amanah}`))}
                         <View style={{

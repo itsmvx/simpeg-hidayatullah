@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class MarhalahController extends Controller
 {
@@ -21,6 +22,7 @@ class MarhalahController extends Controller
 
     /**
      * Show the form for creating a new resource.
+     * @throws ValidationException
      */
     public function create(Request $request)
     {
@@ -84,19 +86,44 @@ class MarhalahController extends Controller
 
     /**
      * Update the specified resource in storage.
+     * @throws ValidationException
      */
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
-        $validatedData = $request->validate([
-            'nama' => 'required|string|max:255',
+        $validation = Validator::make($request->only(['id', 'nama', 'keterangan']), [
+            'id' => 'required',
+            'nama' => 'required|string',
             'keterangan' => 'nullable|string',
+        ], [
+            'id.required' => 'Id Marhalah tidak boleh kosong!',
+            'nama.required' => 'Nama Marhalah tidak boleh kosong!',
+            'nama.string' => 'Format Nama Marhalah tidak valid!',
+            'keterangan.string' => 'Format Keterangan Marhalah tidak valid!',
         ]);
-
-        $marhalah = Marhalah::findOrFail($id);
-        $marhalah->update($validatedData);
-
-        return redirect()->route('master.marhalah.index')->with('success', 'Marhalah berhasil diperbarui.');
+        if ($validation->fails()) {
+            return Response::json([
+                'message' => $validation->errors()->first(),
+            ], 400);
+        }
+        $validated = $validation->validated();
+        try {
+            $unit = Marhalah::find($validated['id']);
+            if (!$unit) {
+                return Response::json([
+                    'message' => 'Marhalah tidak ditemukan!'
+                ], 404);
+            }
+            $unit->update($validated);
+            return Response::json([
+                'message' => 'Marhalah berhasil diperbarui!',
+            ]);
+        } catch (QueryException $exception) {
+            return Response::json([
+                'message' => 'Server gagal memproses permintaan',
+            ], 500);
+        }
     }
+
 
     /**
      * Remove the specified resource from storage.

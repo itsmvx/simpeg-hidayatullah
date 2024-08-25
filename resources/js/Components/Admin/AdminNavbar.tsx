@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
     Avatar,
     Breadcrumbs,
@@ -10,31 +10,29 @@ import {
     Navbar,
     Typography
 } from "@material-tailwind/react";
-import { X, Menu as MenuIcon, Home, ChevronDown, CircleUserRound, LogOut } from "lucide-react";
-import { AdminNavbarLists } from "@/Fragments/AdminNavbarLists";
+import { X, Menu as MenuIcon, Home, ChevronDown, LogOut, LogIn, UserRoundCog } from "lucide-react";
 import { Link, router } from "@inertiajs/react";
-import { HarunaPP, PPHLogo } from "@/Lib/StaticImages";
 import axios, { AxiosError } from "axios";
 import { notifyToast } from "@/Lib/Utils";
-import { useTheme } from "@/Hooks/useTheme";
-import { AdminLoadingOverlay } from "@/Components/Admin/AdminLoadingOverlay";
+import { LoadingOverlay } from "@/Components/LoadingOverlay";
+import { PageProps } from "@/types";
+import { AdminNavbarLists } from "@/Fragments/AdminNavbarLists";
 
-export const AdminNavbar = () => {
-    const { theme } = useTheme();
-    const [openNavbar, setOpenNavbar] = useState(false);
-    const [onFetchLogout, setFetchLogout] = useState(false);
+export const AdminNavbar = ({ auth }: PageProps) => {
+    const [ openNavbar, setOpenNavbar ] = useState(false);
+    const [ onFetchLogout, setFetchLogout ] = useState(false);
     const pathNames = window.location.pathname.split("/").filter((path) => Boolean(path));
     const handleLogout = () => {
         setFetchLogout(true);
         axios.post(route('auth.logout'))
             .then(() => {
-                router.visit(route('master.login'));
+                router.visit('/');
             })
             .catch((err: unknown) => {
                 const errMsg = err instanceof AxiosError
                     ? err.response?.data.message
                     : 'Error tidak diketahui terjadi!';
-                notifyToast('error', errMsg, theme as 'light' | 'dark');
+                notifyToast('error', errMsg);
                 setFetchLogout(false);
             });
     };
@@ -49,64 +47,89 @@ export const AdminNavbar = () => {
 
     return (
         <>
-            <Navbar className="mx-auto w-full px-4 py-2 sticky top-0 z-20">
+            <Navbar className="mx-auto w-full px-4 py-2 sticky top-0 z-50">
                 <div className="flex items-center justify-between text-blue-gray-900">
-                    <Breadcrumbs className="bg-transparent p-0 transition-all mt-1 capitalize">
-                        <Home width={18} />
-                        {
-                            pathNames.map((path) => ((
-                                <Link key={path} href={path}>
-                                    {path}
-                                </Link>
-                            )))
-                        }
-                    </Breadcrumbs>
+                    <div className="w-56">
+                        <Breadcrumbs className="bg-transparent p-0 transition-all mt-1 capitalize">
+                            <IconButton variant="text" disabled={route().current() === 'admin.dashboard'} onClick={() => router.visit(route('admin.dashboard'))}>
+                                <Home width={18} />
+                            </IconButton>
+                            {pathNames.map((path, index) => {
+                                const currentPath = `/${pathNames.slice(0, index + 1).join('/')}`;
+                                if (index !== 0) {
+                                    return (
+                                        <Link as="button" key={currentPath} href={currentPath} disabled={currentPath === window.location.pathname}>
+                                            {path.charAt(0).toUpperCase() + path.slice(1)}
+                                        </Link>
+                                    );
+                                }
+                            })}
+                        </Breadcrumbs>
+                    </div>
                     <div className="hidden lg:block">
                         <AdminNavbarLists />
                     </div>
-                    <div className="hidden gap-2 lg:flex">
-                        <Menu>
-                            <MenuHandler>
-                                <Button
-                                    variant="text"
-                                    color="blue-gray"
-                                    ripple={false}
-                                    className="group flex flex-row items-center justify-between min-w-40"
-                                >
-                                    <Typography variant="h6" className="capitalize">
-                                        Orang
-                                    </Typography>
-                                    <div className="flex items-center">
-                                        <CircleUserRound className="h-5 w-5 text-blue-gray-500" />
-                                        <ChevronDown width={18} className="group-aria-expanded:rotate-0 rotate-180 transition-rotate duration-150" />
-                                    </div>
-                                </Button>
-                            </MenuHandler>
-                            <MenuList className="w-max border-0">
-                                <MenuItem className="flex items-center gap-3 w-60">
-                                    <Avatar src={PPHLogo} size="sm" />
-                                    <Typography
-                                        variant="small"
-                                        color="blue-gray"
-                                        className="mb-1 font-normal"
+                    <div className="hidden gap-2 lg:flex w-56">
+                        {
+                            auth?.user
+                                ? (
+                                    <Menu placement="bottom-start" offset={{ crossAxis: 18, mainAxis: 10 }}>
+                                        <MenuHandler>
+                                            <Button
+                                                variant="text"
+                                                color="blue-gray"
+                                                ripple={false}
+                                                className="group flex flex-row items-center justify-between min-w-40"
+                                            >
+                                                <Typography variant="h6" className="capitalize truncate">
+                                                    { auth?.user ? auth.user.nama : 'User' }
+                                                </Typography>
+                                                <div className="flex items-center">
+                                                    <ChevronDown width={18} className="group-aria-expanded:rotate-0 rotate-180 transition-rotate duration-150" />
+                                                </div>
+                                            </Button>
+                                        </MenuHandler>
+                                        <MenuList className="w-max border-0">
+                                            <MenuItem className="flex items-center gap-3 w-60">
+                                                <div className="w-8 aspect-square flex justify-items-center">
+                                                    <UserRoundCog width={35} className="mx-auto mt-0.5" />
+                                                </div>
+                                                <Typography
+                                                    variant="small"
+                                                    color="blue-gray"
+                                                    className="mb-1 font-normal"
+                                                >
+                                                    Akun
+                                                </Typography>
+                                            </MenuItem>
+                                            <MenuItem
+                                                className="hover:!bg-red-50/80 hover:!text-red-600 group w-full flex items-center gap-3"
+                                                onClick={ handleLogout }
+                                            >
+                                                <div className="w-8 aspect-square flex justify-items-center">
+                                                    <LogOut width={ 35 } className="mx-auto mt-0.5"/>
+                                                </div>
+                                                <Typography
+                                                    variant="small"
+                                                    className="w-full font-normal -mt-1"
+                                                >
+                                                    Keluar
+                                                </Typography>
+                                            </MenuItem>
+                                        </MenuList>
+                                    </Menu>
+                                ) : (
+                                    <Button
+                                        variant="filled"
+                                        color="gray"
+                                        onClick={() => router.visit(route('auth.login'))}
+                                        className="!shadow-none flex items-center justify-center gap-1 min-h-3.5"
                                     >
-                                        Akun
-                                    </Typography>
-                                </MenuItem>
-                                <MenuItem
-                                    className="hover:!bg-red-50/80 hover:!text-red-600 group w-full h-full flex items-center gap-1 p-3"
-                                    onClick={handleLogout}
-                                >
-                                    <LogOut />
-                                    <Typography
-                                        variant="small"
-                                        className="w-full font-normal"
-                                    >
-                                        Keluar
-                                    </Typography>
-                                </MenuItem>
-                            </MenuList>
-                        </Menu>
+                                        Masuk
+                                        <LogIn />
+                                    </Button>
+                                )
+                        }
                     </div>
                     <IconButton variant="text" color="blue-gray" className="lg:hidden" onClick={() => setOpenNavbar(!openNavbar)}>
                         {openNavbar ? <X className="h-6 w-6" strokeWidth={2} /> : <MenuIcon className="h-6 w-6" strokeWidth={2} />}
@@ -115,51 +138,71 @@ export const AdminNavbar = () => {
                 <Collapse open={openNavbar}>
                     <AdminNavbarLists />
                     <div className="flex w-full flex-nowrap items-center justify-end gap-2 lg:hidden">
-                        <Menu>
-                            <MenuHandler>
-                                <Button
-                                    variant="text"
-                                    color="blue-gray"
-                                    ripple={false}
-                                    className="group flex flex-row items-center justify-end w-40 gap-2"
-                                >
-                                    <span>
-                                        ORANG
-                                    </span>
-                                    <div className="flex">
-                                        <Avatar src={HarunaPP} size="sm" />
-                                        <ChevronDown width={18} className="group-aria-expanded:rotate-180 rotate-0 transition-rotate duration-150" />
-                                    </div>
-                                </Button>
-                            </MenuHandler>
-                            <MenuList className="w-max border-0">
-                                <MenuItem className="flex items-center gap-3">
-                                    <Avatar src={HarunaPP} size="sm" />
-                                    <Typography
-                                        variant="small"
-                                        color="blue-gray"
-                                        className="mb-1 font-normal"
+                        {
+                            auth?.user
+                                ? (
+                                    <Menu placement="bottom-start" offset={{ crossAxis: 18, mainAxis: 10 }}>
+                                        <MenuHandler>
+                                            <Button
+                                                variant="text"
+                                                color="blue-gray"
+                                                ripple={false}
+                                                className="group flex flex-row items-center justify-between min-w-40"
+                                            >
+                                                <Typography variant="h6" className="capitalize truncate">
+                                                    { auth?.user ? auth.user.nama : 'User' }
+                                                </Typography>
+                                                <div className="flex items-center">
+                                                    <ChevronDown width={18} className="group-aria-expanded:rotate-0 rotate-180 transition-rotate duration-150" />
+                                                </div>
+                                            </Button>
+                                        </MenuHandler>
+                                        <MenuList className="w-max border-0">
+                                            <MenuItem className="flex items-center gap-3 w-60">
+                                                <div className="w-8 aspect-square flex justify-items-center">
+                                                    <UserRoundCog width={35} className="mx-auto mt-0.5" />
+                                                </div>
+                                                <Typography
+                                                    variant="small"
+                                                    color="blue-gray"
+                                                    className="mb-1 font-normal"
+                                                >
+                                                    Akun
+                                                </Typography>
+                                            </MenuItem>
+                                            <MenuItem
+                                                className="hover:!bg-red-50/80 hover:!text-red-600 group w-full flex items-center gap-3"
+                                                onClick={ handleLogout }
+                                            >
+                                                <div className="w-8 aspect-square flex justify-items-center">
+                                                    <LogOut width={ 35 } className="mx-auto mt-0.5"/>
+                                                </div>
+                                                <Typography
+                                                    variant="small"
+                                                    className="w-full font-normal -mt-1"
+                                                >
+                                                    Keluar
+                                                </Typography>
+                                            </MenuItem>
+                                        </MenuList>
+                                    </Menu>
+                                ) : (
+                                    <Button
+                                        variant="filled"
+                                        color="gray"
+                                        onClick={() => router.visit(route('auth.login'))}
+                                        className="!shadow-none flex items-center justify-center gap-1 min-h-3.5"
                                     >
-                                        Akun
-                                    </Typography>
-                                </MenuItem>
-                                <MenuItem className="flex items-center gap-3 group hover:!bg-red-50/80" onClick={handleLogout}>
-                                    <LogOut className="group-hover:text-red-600" />
-                                    <Typography
-                                        variant="small"
-                                        color="blue-gray"
-                                        className="mb-1 font-normal group-hover:text-red-600"
-                                    >
-                                        Keluar
-                                    </Typography>
-                                </MenuItem>
-                            </MenuList>
-                        </Menu>
+                                        Masuk
+                                        <LogIn />
+                                    </Button>
+                                )
+                        }
                     </div>
                 </Collapse>
             </Navbar>
             {
-                onFetchLogout && (<AdminLoadingOverlay />)
+                onFetchLogout && (<LoadingOverlay />)
             }
         </>
     );

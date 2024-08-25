@@ -1,8 +1,8 @@
-export interface User {
-    id: number;
-    name: string;
-    email: string;
-    email_verified_at: string;
+interface AuthUser {
+    id: string;
+    nama: string;
+    username: string;
+    unit_id: string | null;
 }
 
 export interface Unit  {
@@ -148,12 +148,41 @@ export type ModelWithColumns<T, U> = T & U;
 
 
 export type PageProps<T extends Record<string, unknown> = Record<string, unknown>> = T & {
-    flash: { success?: string; error?: string };
     auth: {
-        admin: Admin;
-        user: User;
-        role: 'master' | 'unit';
+        user: AuthUser | null;
+        role: 'admin' | 'pegawai' | null
     };
+};
+export type PaginationLink = {
+    url: string | null;
+    label: string;
+    active: boolean;
+};
+export type PaginationData<T> = {
+    current_page: number;
+    data: T;
+    first_page_url: string;
+    from: number;
+    last_page: number;
+    last_page_url: string;
+    links: PaginationLink[];
+    next_page_url: string | null;
+    path: string;
+    per_page: number;
+    prev_page_url: string | null;
+    to: number;
+    total: number;
+};
+export type IDNamaColumn = {
+    id: string;
+    nama: string;
+};
+export type FilterBy<T extends Record<string, unknown> = Record<string, unknown>> = T & {
+    marhalah: string[];
+    golongan: string[];
+    statusPegawai: string[];
+    jenisKelamin: string[];
+    unit: string[];
 };
 
 export type MTColor =
