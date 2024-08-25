@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { AdminFooter } from "@/Components/Admin/AdminFooter";
+import { Footer } from "@/Components/Footer";
 import { Card } from "@material-tailwind/react";
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
@@ -17,7 +17,7 @@ export const AdminLayout = ({ auth, children }: PageProps<{
                 <Card className="mt-1 flex-1 p-5">
                     { children }
                 </Card>
-                <AdminFooter brandName="Simpeg" brandLink={import.meta.env.VITE_APP_URL as string}/>
+                <Footer brandName="Simpeg" brandLink={import.meta.env.VITE_APP_URL as string}/>
             </div>
             <ToastContainer />
         </>

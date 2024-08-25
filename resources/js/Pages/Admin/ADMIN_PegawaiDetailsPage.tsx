@@ -432,7 +432,7 @@ export default function ADMIN_PegawaiDetailsPage({ auth, pegawai }: PageProps<{
                     </header>
                     <Card className="w-full px-6 pt-5">
                         <Tooltip content="Kembali">
-                            <IconButton variant="text" onClick={() => router.visit(route('master.pegawai.index'))}>
+                            <IconButton variant="text" onClick={() => router.visit(route('admin.pegawai.index'))}>
                                 <MoveLeft />
                             </IconButton>
                         </Tooltip>
