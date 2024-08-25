@@ -32,6 +32,9 @@ Route::get('/', function () {
         ]
     ]);
 });
+Route::get('/hall-of-fames', function () {
+    return Inertia::render('HallOfFames');
+})->name('hall-of-fames');
 
 Route::prefix('unit')->name('unit.')->group(function () {
     Route::post('/exists-check', [UnitController::class, 'isExists'])->name('exists');
