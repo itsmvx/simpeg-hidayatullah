@@ -4,7 +4,7 @@ import {
 } from "@material-tailwind/react";
 import { Input } from "@/Components/Input";
 import { PPHLogoText } from "@/Lib/StaticImages";
-import { CircleUserRound, UserRound } from "lucide-react";
+import { CircleUserRound, MoveLeft, UserRound } from "lucide-react";
 import { ChangeEvent, FormEvent, ReactElement, useState } from "react";
 import Cookies from "js-cookie";
 import axios, { AxiosError } from "axios";
@@ -171,6 +171,14 @@ export default function LoginPage() {
 
                         >
                             Masuk
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="text"
+                            className="mt-5 flex items-center justify-center gap-1.5 h-9"
+                            fullWidth
+                        >
+                            <MoveLeft width={15} /> Kembali ke Home
                         </Button>
                     </form>
                 </div>
