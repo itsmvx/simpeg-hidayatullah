@@ -13,6 +13,7 @@ import { Head, router } from "@inertiajs/react";
 import { ReactElement } from "react";
 import { MasterNavbar } from "@/Components/Admin/MasterNavbar";
 import { AdminNavbar } from "@/Components/Admin/AdminNavbar";
+import { Footer } from "@/Components/Footer";
 const Home = ({ auth, data }: PageProps<{
     data: {
         unit: number;
@@ -171,6 +172,7 @@ const Home = ({ auth, data }: PageProps<{
                     </div>
                 </div>
             </section>
+            <Footer brandName="Simpeg" brandLink={import.meta.env.VITE_APP_URL as string} />
         </>
     );
 }

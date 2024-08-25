@@ -113,7 +113,7 @@ const ADMIN_RekapPegawaiForm = ({ formState, setFormState, periodes, pegawais }:
                 label="Unit"
                 name="unit"
                 value={ pegawais?.selected?.unit.nama ?? '' }
-                disabled={ !pegawais?.selected?.unit.nama ?? true }
+                disabled={ Boolean(!pegawais?.selected?.unit.nama) }
                 readOnly
             />
             <Input
@@ -122,7 +122,7 @@ const ADMIN_RekapPegawaiForm = ({ formState, setFormState, periodes, pegawais }:
                 label="Golongan"
                 name="golongan"
                 value={ pegawais?.selected?.golongan.nama ?? '' }
-                disabled={ !pegawais?.selected?.golongan.nama ?? true }
+                disabled={ Boolean(!pegawais?.selected?.golongan.nama) }
                 readOnly
             />
             <Input
@@ -131,7 +131,7 @@ const ADMIN_RekapPegawaiForm = ({ formState, setFormState, periodes, pegawais }:
                 label="Marhalah"
                 name="marhalah"
                 value={ pegawais?.selected?.marhalah.nama ?? '' }
-                disabled={ !pegawais?.selected?.marhalah.nama ?? true }
+                disabled={ Boolean(!pegawais?.selected?.marhalah.nama) }
                 readOnly
             />
             <Input
@@ -140,7 +140,7 @@ const ADMIN_RekapPegawaiForm = ({ formState, setFormState, periodes, pegawais }:
                 label="Status Pegawai"
                 name="status_pegawai"
                 value={ pegawais?.selected?.status_pegawai.nama ?? '' }
-                disabled={ !pegawais?.selected?.status_pegawai.nama ?? true }
+                disabled={ Boolean(!pegawais?.selected?.status_pegawai.nama) }
                 readOnly
             />
             <Input
