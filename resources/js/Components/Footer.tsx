@@ -1,7 +1,7 @@
 import { Typography } from "@material-tailwind/react";
 import { Heart } from "lucide-react";
 
-export const AdminFooter = ({ brandName, brandLink }: {
+export const Footer = ({ brandName, brandLink }: {
     brandName: string;
     brandLink: string;
 }) => {

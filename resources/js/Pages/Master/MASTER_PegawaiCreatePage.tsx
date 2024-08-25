@@ -388,7 +388,7 @@ export default function MASTER_PegawaiCreatePage({ auth, golongans, marhalahs, s
                             </header>
                             <Card className="w-full px-6">
                                 <form onSubmit={ handleFormSubmit }
-                                      className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-4 p-5 dark:bg-gray-900">
+                                      className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-4 p-5">
                                     <div ref={ formDataDiriRef } className="col-span-1 lg:col-span-2">
                                         <Typography variant="h4" className="flex items-center gap-2">
                                             <CircleUser/>

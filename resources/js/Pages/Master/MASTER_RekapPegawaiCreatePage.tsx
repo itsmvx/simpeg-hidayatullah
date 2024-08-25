@@ -294,7 +294,7 @@ export default function MASTER_RekapPegawaiCreatePage({ auth, units, marhalahs, 
                         </ul>
                     </header>
                     <Card className="w-full px-6">
-                    <form onSubmit={ handleFormSubmit } className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-4 p-5 dark:bg-gray-900">
+                    <form onSubmit={ handleFormSubmit } className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-4 p-5">
                             <RekapPegawaiForm
                                 formState={ formInput }
                                 setFormState={setFormInput}

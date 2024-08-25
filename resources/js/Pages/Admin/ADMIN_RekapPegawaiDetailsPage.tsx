@@ -126,7 +126,7 @@ export default function ADMIN_RekapPegawaiDetailsPage({ auth, rekap }: PageProps
                                 <MoveLeft />
                             </IconButton>
                         </Tooltip>
-                        <form onSubmit={ handleFormSubmit } className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-4 p-5 dark:bg-gray-900">
+                        <form onSubmit={ handleFormSubmit } className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-4 p-5">
                             <div className="-mt-2">
                                 <Typography
                                     variant="small"
