@@ -22,9 +22,7 @@ import { Input } from "@/Components/Input";
 import { format } from "date-fns";
 import { id as localeID } from "date-fns/locale/id";
 import { Checkbox } from "@/Components/Checkbox";
-import { useTheme } from "@/Hooks/useTheme";
 import { ChangeEvent, useState } from "react";
-import { Bounce, toast } from "react-toastify";
 import axios, { AxiosError } from "axios";
 import Pagination from "@/Components/Pagination";
 import { AdminLayout } from "@/Layouts/AdminLayout";
@@ -64,7 +62,6 @@ export default function MASTER_RekapPegawaiIndexPage({ auth, unverifiedCount, ma
         open: false,
         rekapId: '',
     };
-    const { theme } = useTheme();
     const [ deleteDialog, setDeleteDialog ] = useState<{
         open: boolean;
         rekapId: string;
@@ -174,7 +171,7 @@ export default function MASTER_RekapPegawaiIndexPage({ auth, unverifiedCount, ma
             <AdminLayout auth={auth}>
                 <Card className="h-full w-full" shadow={false}>
                     <CardHeader floated={false} shadow={false} className="rounded-none">
-                        <div className="mb-8 flex items-center justify-between gap-x-3">
+                        <div className="mb-8 flex flex-col lg:flex-row items-start justify-between gap-3">
                             <div>
                                 <Typography variant="h5" color="blue-gray">
                                     Daftar Rekap

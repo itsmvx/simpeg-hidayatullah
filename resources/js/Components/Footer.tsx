@@ -1,6 +1,5 @@
 import { Typography } from "@material-tailwind/react";
 import { Heart } from "lucide-react";
-import { Link } from "@inertiajs/react";
 
 export const Footer = () => {
 

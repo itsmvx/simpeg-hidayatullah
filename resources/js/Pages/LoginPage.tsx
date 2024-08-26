@@ -18,6 +18,8 @@ type FormState = {
     username: string;
     password: string;
     onSubmit: boolean;
+    onError: boolean;
+    errMsg: string;
 };
 
 export default function LoginPage() {
@@ -49,10 +51,12 @@ export default function LoginPage() {
         return 'pegawai';
     });
 
-    const formStateInit = {
+    const formStateInit: FormState = {
         username: '',
         password: '',
-        onSubmit: false
+        onSubmit: false,
+        onError: false,
+        errMsg: ''
     };
     const [ formState, setFormState ] = useState<FormState>(formStateInit);
 
@@ -62,11 +66,16 @@ export default function LoginPage() {
     };
     const handleFormChange = (event: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = event.target;
-        setFormState({ ...formState, [name]: value });
+        setFormState((prevState) => ({
+            ...formState,
+            [name]: value,
+            onError: value ? false : prevState.onError,
+            errMsg: value ? '' : prevState.errMsg
+        }));
     };
     const handleFormSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        setFormState((prevState) => ({ ...prevState, onSubmit: true }));
+        setFormState((prevState) => ({ ...prevState, onSubmit: true, onError: false, errMsg: '' }));
         const { username, password } = formState;
 
         axios.post<{
@@ -107,11 +116,13 @@ export default function LoginPage() {
                         : 'Server gagal memproses permintaan'
                     : 'Error tidak diketahui terjadi!';
 
-                notifyToast('error', errMsg);
-                setFormState((prevState) => ({ ...prevState, onSubmit: false }));
-            })
-
-    }
+                setFormState((prevState) => ({
+                    ...prevState, onSubmit: false,
+                    onError: true,
+                    errMsg: errMsg
+                }));
+            });
+    };
 
     return (
         <>
@@ -143,6 +154,9 @@ export default function LoginPage() {
                         <Typography variant="paragraph" color="blue-gray" className="text-xs font-medium">
                             Anda akan masuk sebagai <span className="capitalize">{ loginAs }</span>
                         </Typography>
+                        <Typography color="red" className="text-xs font-medium -mt-3 h-5">
+                            { formState.errMsg }
+                        </Typography>
                     </div>
                     <form className="mx-auto w-64 lg:w-80 flex flex-col gap-4" onSubmit={ handleFormSubmit }>
                         <Input
@@ -151,6 +165,7 @@ export default function LoginPage() {
                             size="md"
                             name="username"
                             placeholder="username"
+                            error={ formState.onError }
                             value={ formState.username }
                             onChange={ handleFormChange }
                             required
@@ -160,15 +175,17 @@ export default function LoginPage() {
                             label="Password"
                             name="password"
                             placeholder="*****"
+                            error={ formState.onError }
                             value={ formState.password }
                             onChange={ handleFormChange }
                             required
                         />
                         <Button
                             type="submit"
+                            disabled={ formState.onSubmit || formState.onError }
+                            loading={ formState.onSubmit }
                             className="lg:mt-5 flex items-center justify-center"
                             fullWidth
-
                         >
                             Masuk
                         </Button>
@@ -177,6 +194,7 @@ export default function LoginPage() {
                             variant="text"
                             className="mt-5 flex items-center justify-center gap-1.5 h-9"
                             fullWidth
+                            onClick={() => router.visit('/')}
                         >
                             <MoveLeft width={15} /> Kembali ke Home
                         </Button>

@@ -10,7 +10,7 @@ import {
     Navbar,
     Typography
 } from "@material-tailwind/react";
-import { X, Menu as MenuIcon, Home, ChevronDown, LogOut, LogIn, UserRoundCog } from "lucide-react";
+import { X, Menu as MenuIcon, Home, ChevronDown, LogOut, LogIn, UserRoundCog, LayoutDashboard } from "lucide-react";
 import { Link, router } from "@inertiajs/react";
 import axios, { AxiosError } from "axios";
 import { notifyToast } from "@/Lib/Utils";
@@ -52,7 +52,7 @@ export const AdminNavbar = ({ auth }: PageProps) => {
                     <div className="w-56">
                         <Breadcrumbs className="bg-transparent p-0 transition-all mt-1 capitalize">
                             <IconButton variant="text" disabled={route().current() === 'admin.dashboard'} onClick={() => router.visit(route('admin.dashboard'))}>
-                                <Home width={18} />
+                                <LayoutDashboard width={18} />
                             </IconButton>
                             {pathNames.map((path, index) => {
                                 const currentPath = `/${pathNames.slice(0, index + 1).join('/')}`;

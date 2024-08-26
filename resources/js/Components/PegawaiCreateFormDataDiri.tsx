@@ -35,7 +35,7 @@ const PegawaiCreateFormDataDiri = ({ formState, changeInput, changeDate, changeS
             <Input
                 type="text"
                 color="teal"
-                label="Nomor Induk Kewarganegaraan ( NIK )"
+                label="NIK"
                 name="nik"
                 value={ formState.nik }
                 onChange={ changeInput }
@@ -44,7 +44,7 @@ const PegawaiCreateFormDataDiri = ({ formState, changeInput, changeDate, changeS
             <Input
                 type="text"
                 color="teal"
-                label="Nomor Induk Pegawai ( NIP )"
+                label="NIP"
                 name="nip"
                 value={ formState.nip }
                 onChange={ changeInput }
@@ -100,7 +100,7 @@ const PegawaiCreateFormDataDiri = ({ formState, changeInput, changeDate, changeS
                     />
                 </PopoverContent>
             </Popover>
-            <div className="flex flex-row gap-4">
+            <div className="flex flex-col lg:flex-row gap-4">
                 <Input
                     type="text"
                     color="teal"
