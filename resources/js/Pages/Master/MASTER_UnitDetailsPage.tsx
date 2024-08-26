@@ -72,12 +72,11 @@ export default function UnitDetailsPage({ auth, unit }: PageProps<{
                 </Tooltip>
 
                 <div className="space-y-3">
-                    <div className="flex flex-col items-center justify-center">
-                        <Typography variant="h2">
-                            { unit.nama }
-                        </Typography>
-                    </div>
-                    <form className="flex flex-col gap-4" onSubmit={handleFormSubmit}>
+                    <p className="text-3xl text-center text-blue-gray-700 font-semibold line-clamp-4 lg:line-clamp-2 md:px-14 lg:px-20">
+                        { unit.nama }
+                    </p>
+
+                    <form className="flex flex-col gap-4" onSubmit={ handleFormSubmit }>
                         <div>
                             <Typography
                                 variant="small"
@@ -102,34 +101,34 @@ export default function UnitDetailsPage({ auth, unit }: PageProps<{
                                 type="text"
                                 label="ID Unit"
                                 disabled
-                                value={unitState.id}
-                                onChange={handleUnitChange}
+                                value={ unitState.id }
+                                onChange={ handleUnitChange }
                             />
                         </div>
                         <Input
                             type="text"
-                            value={unitState.nama}
+                            value={ unitState.nama }
                             label="Nama Unit"
                             name="nama"
-                            onChange={handleUnitChange}
+                            onChange={ handleUnitChange }
                         />
                         <TextArea
-                            value={unitState.keterangan}
+                            value={ unitState.keterangan }
                             label="Keterangan"
                             name="keterangan"
-                            onChange={handleUnitChange}
+                            onChange={ handleUnitChange }
                         />
                         <Button
                             color="blue"
                             type="submit"
-                            loading={onSubmit}
+                            loading={ onSubmit }
                             className="group *:group-disabled:text-gray-50 flex items-center justify-center h-10 gap-1 text-base"
-                            disabled={!onChangeUnit}
+                            disabled={ !onChangeUnit }
                         >
                             <span className="normal-case">
                                 Simpan
                             </span>
-                            <Save />
+                            <Save/>
                         </Button>
                     </form>
                 </div>

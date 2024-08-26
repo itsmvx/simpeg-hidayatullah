@@ -172,7 +172,9 @@ const Home = ({ auth, data }: PageProps<{
                     </div>
                 </div>
             </section>
-            <Footer brandName="Simpeg" brandLink={import.meta.env.VITE_APP_URL as string} />
+            <div className="bg-blue-gray-50/50 min-h-10">
+                <Footer />
+            </div>
         </>
     );
 }

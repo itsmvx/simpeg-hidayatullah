@@ -241,7 +241,7 @@ export default function MASTER_PeriodeRekapIndexPage({ auth, pagination }: PageP
             <MasterLayout auth={auth}>
                 <Card className="h-full w-full" shadow={false}>
                     <CardHeader floated={false} shadow={false} className="rounded-none">
-                        <div className="mb-8 flex items-start justify-between gap-x-3">
+                        <div className="mb-8 flex flex-col lg:flex-row items-start justify-between gap-3">
                             <div>
                                 <Typography variant="h5" color="blue-gray">
                                     Daftar Periode Rekap

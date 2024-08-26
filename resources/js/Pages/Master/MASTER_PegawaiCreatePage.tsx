@@ -57,7 +57,6 @@ export default function MASTER_PegawaiCreatePage({ auth, golongans, marhalahs, s
     }[];
 }>) {
 
-    const { theme, setTheme } = useTheme();
     const formDataDiriRef = useRef<HTMLDivElement | null>(null);
     const formDataKeluargaRef = useRef<HTMLDivElement | null>(null);
     const formDataPendidikanRef = useRef<HTMLDivElement | null>(null);
@@ -136,7 +135,7 @@ export default function MASTER_PegawaiCreatePage({ auth, golongans, marhalahs, s
 
     const [ onSuccess, setOnSuccess ]  = useState<boolean>(false);
     const [ openNav, setOpenNav] = useState(false);
-    const [formDataDiri, setFormDataDiri] = useState<FormDataDiri>({
+    const [ formDataDiri, setFormDataDiri ] = useState<FormDataDiri>({
         nik: '',
         nip: '',
         namaLengkap: '',
@@ -368,25 +367,13 @@ export default function MASTER_PegawaiCreatePage({ auth, golongans, marhalahs, s
                                         <div className="mr-4 hidden lg:block">
                                             <NavLists/>
                                         </div>
-                                        <IconButton
-                                            variant="text"
-                                            size="sm"
-                                            onClick={ () => setTheme((prevState) => prevState === 'light' ? 'dark' : 'light') }
-                                            className="lg:justify-self-end"
-                                        >
-                                            {
-                                                theme === 'light'
-                                                    ? (<Sun/>)
-                                                    : (<Moon/>)
-                                            }
-                                        </IconButton>
                                     </div>
                                 </div>
                                 <Collapse open={ openNav }>
                                     <NavLists/>
                                 </Collapse>
                             </header>
-                            <Card className="w-full px-6">
+                            <Card className="w-full px-1.5 lg:px-6">
                                 <form onSubmit={ handleFormSubmit }
                                       className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-4 p-5">
                                     <div ref={ formDataDiriRef } className="col-span-1 lg:col-span-2">

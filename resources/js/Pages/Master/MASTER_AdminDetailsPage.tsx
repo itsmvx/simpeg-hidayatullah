@@ -80,11 +80,9 @@ export default function AdminDetailsPage({ auth, admin, units }: PageProps<{
                 </Tooltip>
 
                 <div className="space-y-3">
-                    <div className="flex flex-col items-center justify-center">
-                        <Typography variant="h2">
-                            { admin.nama }
-                        </Typography>
-                    </div>
+                    <p className="text-3xl text-center text-blue-gray-700 font-semibold line-clamp-4 lg:line-clamp-2 md:px-14 lg:px-20">
+                        { admin.nama }
+                    </p>
 
                     <form className="flex flex-col gap-4" onSubmit={ handleFormSubmit }>
                         <div>

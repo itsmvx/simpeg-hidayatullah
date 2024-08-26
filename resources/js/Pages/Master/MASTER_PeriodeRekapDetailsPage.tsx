@@ -86,12 +86,11 @@ export default function MASTER_PeriodeRekapDetailsPage({ auth, periode }: PagePr
                 </Tooltip>
 
                 <div className="space-y-3">
-                    <div className="flex flex-col items-center justify-center">
-                        <Typography variant="h2">
-                            { periode.nama }
-                        </Typography>
-                    </div>
-                    <form className="flex flex-col gap-4" onSubmit={handleFormSubmit}>
+                    <p className="text-3xl text-center text-blue-gray-700 font-semibold line-clamp-4 lg:line-clamp-2 md:px-14 lg:px-20">
+                        { periode.nama }
+                    </p>
+
+                    <form className="flex flex-col gap-4" onSubmit={ handleFormSubmit }>
                         <div>
                             <Typography
                                 variant="small"
@@ -116,33 +115,33 @@ export default function MASTER_PeriodeRekapDetailsPage({ auth, periode }: PagePr
                                 type="text"
                                 label="ID Periode"
                                 disabled
-                                value={periodeState.id}
-                                onChange={handlePeriodeChange}
+                                value={ periodeState.id }
+                                onChange={ handlePeriodeChange }
                             />
                         </div>
                         <Input
                             type="text"
-                            value={periodeState.nama}
+                            value={ periodeState.nama }
                             label="Nama Periode"
                             name="nama"
-                            onChange={handlePeriodeChange}
+                            onChange={ handlePeriodeChange }
                         />
                         <Select
                             label="Jenis Periode Rekap"
-                            value={periodeState.jenis}
-                            onChange={(val: string | undefined) => {
+                            value={ periodeState.jenis }
+                            onChange={ (val: string | undefined) => {
                                 if (jenisPeriodeRekap.includes(val as JenisPeriodeRekap)) {
                                     setPeriodeState((prevState) => ({
                                         ...prevState,
                                         jenis: val as JenisPeriodeRekap
                                     }));
                                 }
-                            }}
+                            } }
                             className="capitalize"
                         >
                             {
                                 jenisPeriodeRekap.map((jenis, index) => ((
-                                    <Option key={index} value={jenis} className="capitalize">
+                                    <Option key={ index } value={ jenis } className="capitalize">
                                         { jenis }
                                     </Option>
                                 )))
@@ -150,35 +149,35 @@ export default function MASTER_PeriodeRekapDetailsPage({ auth, periode }: PagePr
                         </Select>
                         <Input
                             type="date"
-                            value={periodeState.awal}
+                            value={ periodeState.awal }
                             label="Awal Periode Rekap"
                             name="awal"
-                            onChange={handlePeriodeChange}
+                            onChange={ handlePeriodeChange }
                         />
                         <Input
                             type="date"
-                            value={periodeState.akhir}
+                            value={ periodeState.akhir }
                             label="Akhir Periode Rekap"
                             name="akhir"
-                            onChange={handlePeriodeChange}
+                            onChange={ handlePeriodeChange }
                         />
                         <TextArea
-                            value={periodeState.keterangan}
+                            value={ periodeState.keterangan }
                             label="Keterangan"
                             name="keterangan"
-                            onChange={handlePeriodeChange}
+                            onChange={ handlePeriodeChange }
                         />
                         <Button
                             color="blue"
                             type="submit"
-                            loading={onSubmit}
+                            loading={ onSubmit }
                             className="group *:group-disabled:text-gray-50 flex items-center justify-center h-10 gap-1 text-base"
-                            disabled={!onChangePeriode}
+                            disabled={ !onChangePeriode }
                         >
                             <span className="normal-case">
                                 Simpan
                             </span>
-                            <Save />
+                            <Save/>
                         </Button>
                     </form>
                 </div>

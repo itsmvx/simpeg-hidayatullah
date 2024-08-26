@@ -15,8 +15,8 @@ import {
     Tooltip,
     Typography
 } from "@material-tailwind/react";
-import { Building2, ChevronDown, FileSearch, Pencil, Plus, Search, Trash2, User2, X } from "lucide-react";
-import { IDNamaColumn, JenisKelamin, MTColor, PageProps, PaginationData, PaginationLink } from "@/types";
+import { ChevronDown, FileSearch,Plus, Search, Trash2 } from "lucide-react";
+import { PageProps, PaginationData } from "@/types";
 import { MasterLayout } from "@/Layouts/MasterLayout";
 import { Head, Link, router } from "@inertiajs/react";
 import { Input } from "@/Components/Input";
@@ -24,8 +24,7 @@ import { format } from "date-fns";
 import { id as localeID } from "date-fns/locale/id";
 import { Checkbox } from "@/Components/Checkbox";
 import { useTheme } from "@/Hooks/useTheme";
-import { ChangeEvent, SyntheticEvent, useEffect, useState } from "react";
-import { Bounce, toast } from "react-toastify";
+import { SyntheticEvent, useEffect, useState } from "react";
 import axios, { AxiosError } from "axios";
 import Pagination from "@/Components/Pagination";
 import { notifyToast } from "@/Lib/Utils";
@@ -175,7 +174,7 @@ export default function MASTER_GolonganIndexPage({ auth, pagination }: PageProps
             <MasterLayout auth={auth}>
                 <Card className="h-full w-full" shadow={false}>
                     <CardHeader floated={false} shadow={false} className="rounded-none">
-                        <div className="mb-8 flex items-start justify-between gap-x-3">
+                        <div className="mb-8 flex flex-col lg:flex-row items-start justify-between gap-3">
                             <div>
                                 <Typography variant="h5" color="blue-gray">
                                     Daftar Golongan

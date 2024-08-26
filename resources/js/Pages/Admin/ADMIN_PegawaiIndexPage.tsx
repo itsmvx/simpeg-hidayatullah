@@ -15,14 +15,13 @@ import {
     Tooltip,
     Typography
 } from "@material-tailwind/react";
-import { ChevronDown, Download, FileSearch, Pencil, Plus, Search, Trash2, User2, X } from "lucide-react";
+import { ChevronDown, Download, FileSearch, Pencil, Search, X } from "lucide-react";
 import { IDNamaColumn, JenisKelamin,  PageProps, PaginationData } from "@/types";
 import { Head, Link, router } from "@inertiajs/react";
 import { Input } from "@/Components/Input";
 import { format } from "date-fns";
 import { id as localeID } from "date-fns/locale/id";
 import { Checkbox } from "@/Components/Checkbox";
-import { useTheme } from "@/Hooks/useTheme";
 import { ChangeEvent, useState } from "react";
 import { toast } from "react-toastify";
 import axios, { AxiosError, AxiosProgressEvent } from "axios";
@@ -60,11 +59,6 @@ export default function ADMIN_PegawaiIndexPage({ auth, marhalahs, golongans, sta
         open: false,
         pegawaiId: '',
     };
-    const { theme } = useTheme();
-    const [ deleteDialog, setDeleteDialog ] = useState<{
-        open: boolean;
-        pegawaiId: string;
-    }>(deleteDialogInit);
     const [ sortBy, setSortBy ] = useState('');
     type FilterBy = {
         marhalah: string[];
@@ -155,11 +149,6 @@ export default function ADMIN_PegawaiIndexPage({ auth, marhalahs, golongans, sta
     });
     const handleOpenDragAndDrop = () => setDragAndDrop((prevState) => ({ ...prevState, open: true }));
     const handleOpenUploadPreview = () => setUploadPreview((prevState) => ({ ...prevState }));
-
-    const handleOpenDelete = () => setDeleteDialog((prevState) => ({
-        ...prevState,
-        open: true
-    }));
 
     const downloadPDF = async (index: number) => {
         setOnDownloadPDF(true);

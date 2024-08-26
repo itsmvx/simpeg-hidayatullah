@@ -17,7 +17,7 @@ export const MasterLayout = ({ auth, children }: PageProps<{
                 <Card className="mt-1 flex-1 p-5">
                     { children }
                 </Card>
-                <Footer brandName="Simpeg" brandLink={import.meta.env.VITE_APP_URL as string}/>
+                <Footer />
             </div>
             <ToastContainer />
         </>

@@ -15,7 +15,7 @@ import {
     Tooltip,
     Typography
 } from "@material-tailwind/react";
-import { ChevronDown, Download, FileSearch, Pencil, Plus, Search, Trash2, User2, X } from "lucide-react";
+import { ChevronDown, Download, FileSearch, Pencil, Plus, Search, Trash2, X } from "lucide-react";
 import { IDNamaColumn, JenisKelamin,  PageProps, PaginationData } from "@/types";
 import { MasterLayout } from "@/Layouts/MasterLayout";
 import { Head, Link, router } from "@inertiajs/react";
@@ -238,7 +238,7 @@ export default function MASTER_PegawaiIndexPage({ auth, marhalahs, golongans, st
             <MasterLayout auth={auth}>
                 <Card className="h-full w-full" shadow={false}>
                     <CardHeader floated={false} shadow={false} className="rounded-none">
-                        <div className="mb-8 flex items-center justify-between gap-x-3">
+                        <div className="mb-8 flex flex-col lg:flex-row items-start justify-between gap-3">
                             <div>
                                 <Typography variant="h5" color="blue-gray">
                                     Daftar Pegawai
