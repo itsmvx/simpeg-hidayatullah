@@ -17,18 +17,33 @@ class UnitSeeder extends Seeder
         //
         Unit::create([
             'id' => Str::uuid(),
-            'nama' => 'SD Lukman Al Hakim',
-            'keterangan' => 'Unit SD Lukman Al Hakim',
+            'nama' => 'K. PPH',
+            'keterangan' => 'Unit K. PPH',
         ]);
         Unit::create([
             'id' => Str::uuid(),
-            'nama' => 'SMP Lukman Al Hakim',
-            'keterangan' => 'Unit SMP Lukman Al Hakim',
+            'nama' => 'Roumah Wakaf',
+            'keterangan' => 'Unit Roumah Wakaf',
         ]);
         Unit::create([
             'id' => Str::uuid(),
-            'nama' => 'SMA Lukman Al Hakim',
-            'keterangan' => 'Unit SMA Lukman Al Hakim',
+            'nama' => 'SD',
+            'keterangan' => 'Unit SD Luqman Al Hakim',
+        ]);
+        Unit::create([
+            'id' => Str::uuid(),
+            'nama' => 'SMP',
+            'keterangan' => 'Unit SMP Luqman Al Hakim',
+        ]);
+        Unit::create([
+            'id' => Str::uuid(),
+            'nama' => 'SMA',
+            'keterangan' => 'Unit SMA Luqman Al Hakim',
+        ]);
+        Unit::create([
+            'id' => Str::uuid(),
+            'nama' => 'STAIL',
+            'keterangan' => 'Unit STAI Luqman Al Hakim',
         ]);
     }
 }

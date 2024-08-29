@@ -5,7 +5,6 @@ import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import { DayPicker } from "react-day-picker";
 import type { FormDataDiri, IDNamaColumn } from "@/types";
-import { TriangleAlert } from "lucide-react";
 import { ADMIN_FormDataDiriPegawai } from "@/Pages/Admin/ADMIN_PegawaiDetailsPage";
 
 const ADMIN_PegawaiCreateFormDataDiri = ({ formState, changeInput, changeDate, changeSelect, pegawai }: {

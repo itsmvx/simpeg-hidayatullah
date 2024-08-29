@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Golongan;
 use App\Models\Marhalah;
 use App\Models\Pegawai;
+use App\Models\PengajuanPromosi;
 use App\Models\PeriodeRekap;
 use App\Models\RekapPegawai;
 use App\Models\StatusPegawai;
@@ -252,6 +253,73 @@ class AdminUnitPagesController extends Controller
             $rekapPegawai->makeHidden(['created_at', 'updated_at']);
             return Inertia::render('Admin/ADMIN_RekapPegawaiDetailsPage', [
                 'rekap' => $rekapPegawai
+            ]);
+        } catch (QueryException $exception) {
+            abort(500);
+        }
+    }
+    public function pengajuanPromosiIndexPage(Request $request)
+    {
+        $viewList = [10,25,50,100];
+        $viewPerPage = $request->query('view');
+
+        if (!is_numeric($viewPerPage) || intval($viewPerPage) <= 0 || !Arr::has($viewList, $viewPerPage)) {
+            $viewPerPage = 10;
+        } else {
+            $viewPerPage = intval($viewPerPage);
+        }
+
+        $query = PengajuanPromosi::select([
+            'id',
+            'nama',
+            'jenis',
+            'pegawai_id',
+            'unit_id',
+            'admin_id',
+            'admin_penyetuju_id',
+            'asal_type',
+            'asal_id',
+            'akhir_type',
+            'akhir_id',
+            'created_at',
+            'status_pengajuan'
+        ])->with([
+            'pegawai:id,nama',
+            'unit:id,nama',
+            'admin:id,nama',
+            'admin_penyetuju:id,nama',
+            'asal:id,nama',
+            'akhir:id,nama',
+        ])->where('unit_id', '=', $this->unitId);
+
+        $pengajuanPromosis = $query->paginate($viewPerPage)->withQueryString();
+
+        return Inertia::render('Admin/ADMIN_PengajuanPromosiIndexPage', [
+            'pagination' => fn() => $pengajuanPromosis,
+        ]);
+    }
+    public function pengajuanPromosiCreatePage()
+    {
+        $admin = Auth::guard('admin')->user();
+        if (!$admin) {
+            abort(403);
+        } else if (!$admin->unit_id) {
+            abort(403);
+        }
+        try {
+            return Inertia::render('Admin/ADMIN_PengajuanPromosiCreatePage', [
+                'admin' => [
+                    'id' => $admin->id,
+                    'unit_id' => $admin->unit_id
+                ],
+                'pegawais' => fn() => Pegawai::select('id', 'nama', 'golongan_id', 'marhalah_id', 'status_pegawai_id')
+                    ->with(['golongan:id,nama', 'marhalah:id,nama', 'status_pegawai:id,nama'])
+                    ->where('unit_id', '=', $this->unitId)
+                    ->get()
+                    ->makeHidden(['golongan_id', 'marhalah_id', 'status_pegawai_id']),
+                'golongans' => fn() => Golongan::select('id', 'nama')->get(),
+                'marhalahs' => fn() => Marhalah::select('id', 'nama')->get(),
+                'statusPegawais' => fn() => StatusPegawai::select('id', 'nama')->get(),
             ]);
         } catch (QueryException $exception) {
             abort(500);

@@ -22,4 +22,8 @@ class Unit extends Model
     {
         return $this->hasMany(Pegawai::class, 'unit_id', 'id');
     }
+    public function pengajuan_promosi()
+    {
+        return $this->hasMany(PengajuanPromosi::class, 'unit_id', 'id');
+    }
 }

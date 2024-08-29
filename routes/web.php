@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\PengajuanPromosiController;
 use App\Http\Controllers\RekapPegawaiController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\GolonganController;
@@ -86,6 +87,11 @@ Route::prefix('rekap-pegawai')->name('rekap-pegawai.')->group(function () {
     Route::post('/update-by-admin', [RekapPegawaiController::class, 'updateByAdmin'])->name('update-by-admin');
     Route::post('/update-status', [RekapPegawaiController::class, 'updateStatus'])->name('update-status');
     Route::post('/delete', [RekapPegawaiController::class, 'destroy'])->name('delete');
+});
+Route::prefix('pengajuan-promosi')->name('pengajuan-promosi.')->group(function () {
+    Route::post('/create', [PengajuanPromosiController::class, 'create'])->name('create');
+    Route::post('/update', [PengajuanPromosiController::class, 'update'])->name('update');
+    Route::post('/delete', [PengajuanPromosiController::class, 'destroy'])->name('delete');
 });
 
 require __DIR__ . '/admin.php';

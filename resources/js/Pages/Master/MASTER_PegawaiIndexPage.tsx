@@ -15,7 +15,7 @@ import {
     Tooltip,
     Typography
 } from "@material-tailwind/react";
-import { ChevronDown, Download, FileSearch, Pencil, Plus, Search, Trash2, X } from "lucide-react";
+import { ChevronDown, Download, FileSearch, FileUp, Pencil, Plus, Search, Trash2, X } from "lucide-react";
 import { IDNamaColumn, JenisKelamin,  PageProps, PaginationData } from "@/types";
 import { MasterLayout } from "@/Layouts/MasterLayout";
 import { Head, Link, router } from "@inertiajs/react";
@@ -64,7 +64,6 @@ export default function MASTER_PegawaiIndexPage({ auth, marhalahs, golongans, st
         open: false,
         pegawaiId: '',
     };
-    const { theme } = useTheme();
     const [ deleteDialog, setDeleteDialog ] = useState<{
         open: boolean;
         pegawaiId: string;
@@ -158,9 +157,6 @@ export default function MASTER_PegawaiIndexPage({ auth, marhalahs, golongans, st
         open: false,
         data: []
     });
-    const handleOpenDragAndDrop = () => setDragAndDrop((prevState) => ({ ...prevState, open: true }));
-    const handleOpenUploadPreview = () => setUploadPreview((prevState) => ({ ...prevState }));
-
     const handleOpenDelete = () => setDeleteDialog((prevState) => ({
         ...prevState,
         open: true
@@ -182,21 +178,21 @@ export default function MASTER_PegawaiIndexPage({ auth, marhalahs, golongans, st
         });
         if (!zodUnitResult.success) {
             const errorMessages = zodUnitResult.error.issues[0].message;
-            notifyToast('error', errorMessages, theme as 'light' | 'dark');
+            notifyToast('error', errorMessages);
         }
 
         axios.post(route('pegawai.delete'), {
             id: pegawaiId
         })
             .then(() => {
-                notifyToast('success', 'Pegawai berhasil dihapus!', theme as 'light' | 'dark');
+                notifyToast('success', 'Pegawai berhasil dihapus!');
                 router.reload({ only: ['pagination'] });
             })
             .catch((err: unknown) => {
                 const errMsg: string = err instanceof AxiosError
                     ? err.response?.data.message ?? 'Error tidak diketahui terjadi!'
                     : 'Error tidak diketahui terjadi!'
-                notifyToast('error', errMsg, theme as 'light' | 'dark');
+                notifyToast('error', errMsg);
             })
             .finally(() => {
                 setDeleteDialog((prevState) => ({ ...prevState, onSubmit: false, open: false }));
@@ -442,15 +438,26 @@ export default function MASTER_PegawaiIndexPage({ auth, marhalahs, golongans, st
                                     } }
                                     icon={ <Search className="h-5 w-5"/> }
                                 />
-                                <Button
-                                    onClick={() => {
-                                        router.visit(route('master.pegawai.create'));
-                                    }}
-                                    className="ml-auto min-w-64 w-min mt-4 flex items-center gap-1.5 capitalize font-medium text-base" size="sm"
-                                >
-                                    <Plus />
-                                    Tambahkan Pegawai baru
-                                </Button>
+                                <div>
+                                    <Button
+                                        onClick={() => {
+                                            router.visit(route('master.pegawai.create-upload'));
+                                        }}
+                                        className="ml-auto py-2.5 min-w-64 w-min mt-4 flex items-center gap-1.5 capitalize font-medium text-base" size="sm"
+                                    >
+                                        <FileUp />
+                                        Upload File Baru
+                                    </Button>
+                                    <Button
+                                        onClick={() => {
+                                            router.visit(route('master.pegawai.create'));
+                                        }}
+                                        className="ml-auto min-w-64 w-min mt-4 flex items-center gap-1.5 capitalize font-medium text-base" size="sm"
+                                    >
+                                        <Plus />
+                                        Tambahkan Pegawai baru
+                                    </Button>
+                                </div>
                             </div>
                         </div>
                     </CardHeader>

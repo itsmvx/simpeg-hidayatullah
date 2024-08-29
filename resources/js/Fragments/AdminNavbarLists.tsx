@@ -16,6 +16,7 @@ import {
     ListItem
 } from "@material-tailwind/react";
 import { Link, router } from "@inertiajs/react";
+import { WorkSpaceIcon } from "@/Lib/StaticIcons";
 
 export const AdminNavbarLists = () => {
     const navListMenuItems = [
@@ -31,12 +32,12 @@ export const AdminNavbarLists = () => {
             icon: <Newspaper />,
             link: route('admin.rekap-pegawai.index')
         },
-        // {
-        //     title: "Periode Rekap",
-        //     description: "mengatur Periode rekap pegawai",
-        //     icon: <CalendarDays />,
-        //     link: route('master.periode-rekap.index')
-        // }
+        {
+            title: "Pengajuan Promosi",
+            description: "Mengajukan Promosi Pegawai di Unit",
+            icon: <WorkSpaceIcon width={25} />,
+            link: route('admin.pengajuan-promosi.index')
+        }
     ];
 
     const [ isMenuOpen, setIsMenuOpen ] = useState(false);

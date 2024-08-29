@@ -1,14 +1,8 @@
-import { Dispatch, SetStateAction, useEffect } from "react";
 import { z } from "zod";
 import { notifyToast } from "@/Lib/Utils";
 
-type DragAndDropFile = {
-    open: boolean;
-    file: File | null;
-}
-export const DragNDropFile = ({ state, setState }: {
-    state: DragAndDropFile
-    setState: Dispatch<SetStateAction<DragAndDropFile>>;
+export const DragNDropFile = ({ setFile }: {
+    setFile: (file: File | null) => void;
 }) => {
     const ACCEPTED_IMAGE_TYPES = [
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
@@ -20,17 +14,10 @@ export const DragNDropFile = ({ state, setState }: {
                     .refine((file: File) => ACCEPTED_IMAGE_TYPES.includes(file?.type))
                     .parse(file);
             });
-            setState((prevState) => ({
-                ...prevState,
-                file: verifiedFiles[0]
-            }));
+            setFile(verifiedFiles[0]);
         } catch (error: any) {
             notifyToast('error', 'Hanya file xlsx');
         }
-        setState((prevState) => ({
-            ...prevState,
-            open: false
-        }));
     };
 
     return (

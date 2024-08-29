@@ -17,17 +17,22 @@ class StatusPegawaiSeeder extends Seeder
         //
         StatusPegawai::create([
             'id' => Str::uuid(),
-            'nama' => 'Pegawai Tetap',
+            'nama' => 'PT',
             'keterangan' => 'Status Pegawai Tetap'
         ]);
         StatusPegawai::create([
             'id' => Str::uuid(),
-            'nama' => 'Pegawai Kontrak',
+            'nama' => 'KONTRAK',
             'keterangan' => 'Status Pegawai Kontrak'
         ]);
         StatusPegawai::create([
             'id' => Str::uuid(),
-            'nama' => 'Pegawai Honorer',
+            'nama' => 'CAPEG',
+            'keterangan' => 'Status Pegawai Calon Pegawai'
+        ]);
+        StatusPegawai::create([
+            'id' => Str::uuid(),
+            'nama' => 'HONORER',
             'keterangan' => 'Status Pegawai Honorer'
         ]);
     }
