@@ -19,6 +19,7 @@ import {
     ListItem,
 } from "@material-tailwind/react";
 import { Link, router } from "@inertiajs/react";
+import { WorkSpaceIcon } from "@/Lib/StaticIcons";
 
 const navListMenuItems = [
     {
@@ -71,10 +72,10 @@ const navListMenuItems = [
         link: route('master.periode-rekap.index')
     },
     {
-        title: "Inventaris",
-        description: "mengatur data daftar inventaris yang dimiliki",
-        icon: <Dock />,
-        link: route('master.inventaris.index')
+        title: "Pengajuan Promosi",
+        description: "Manajemen Promosi Pegawai di Unit",
+        icon: <WorkSpaceIcon width={25} />,
+        link: route('master.pengajuan-promosi.index')
     }
 ];
 

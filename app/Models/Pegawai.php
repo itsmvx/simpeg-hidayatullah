@@ -36,4 +36,8 @@ class Pegawai extends Authenticatable
     {
         return $this->hasMany(RekapPegawai::class, 'pegawai_id', 'id');
     }
+    public function pengajuan_promosi()
+    {
+        return $this->hasMany(PengajuanPromosi::class, 'pegawai_id', 'id');
+    }
 }

@@ -141,6 +141,8 @@ export type FormDataPengalamanNonPPH = {
     keterangan: string;
 };
 export type JenisKelamin = 'Laki-Laki' | 'Perempuan';
+export type JenisPengajuanPromosi = 'golongan' | 'marhalah' | 'status_pegawai';
+export type StatusPengajuanPromosi = 'menunggu' | 'ditolak' | 'disetujui';
 
 export type ModelOnlyColumns<T, K extends keyof T> = Pick<T, K>;
 export type ModelWithoutColumns<T, K extends keyof T> = Omit<T, K>;

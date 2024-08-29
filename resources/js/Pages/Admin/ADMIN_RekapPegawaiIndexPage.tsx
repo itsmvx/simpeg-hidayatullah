@@ -48,7 +48,7 @@ type Rekaps = {
     periode_rekap: IDNamaColumn;
 }[];
 
-export default function MASTER_RekapPegawaiIndexPage({ auth, unverifiedCount, marhalahs, golongans, statusPegawais, pagination }: PageProps<{
+export default function ADMIN_RekapPegawaiIndexPage({ auth, unverifiedCount, marhalahs, golongans, statusPegawais, pagination }: PageProps<{
     unverifiedCount: number;
     marhalahs: IDNamaColumn[];
     golongans: IDNamaColumn[];
