@@ -22,13 +22,23 @@ class MarhalahSeeder extends Seeder
         ]);
         Marhalah::create([
             'id' => Str::uuid(),
-            'nama' => 'Non Ula',
-            'keterangan' => 'Marhalah Non Ula'
+            'nama' => 'TL Ula',
+            'keterangan' => 'Marhalah TL Ula'
         ]);
         Marhalah::create([
             'id' => Str::uuid(),
-            'nama' => 'Wasito',
-            'keterangan' => 'Marhalah Wasito'
+            'nama' => 'Wusto',
+            'keterangan' => 'Marhalah Wusto'
+        ]);
+        Marhalah::create([
+            'id' => Str::uuid(),
+            'nama' => 'TL BA',
+            'keterangan' => 'Marhalah TL BA'
+        ]);
+        Marhalah::create([
+            'id' => Str::uuid(),
+            'nama' => 'Belum BA',
+            'keterangan' => 'Marhalah Belum BA'
         ]);
     }
 }

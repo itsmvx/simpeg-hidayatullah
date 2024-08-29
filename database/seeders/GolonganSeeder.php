@@ -17,34 +17,63 @@ class GolonganSeeder extends Seeder
         //
         Golongan::create([
             'id' => Str::uuid(),
-            'nama' => 'Golongan II-A',
+            'nama' => 'IIA',
             'keterangan' => 'Golongan II-A',
         ]);
         Golongan::create([
             'id' => Str::uuid(),
-            'nama' => 'Golongan II-B',
+            'nama' => 'IIB',
             'keterangan' => 'Golongan II-B',
         ]);
         Golongan::create([
             'id' => Str::uuid(),
-            'nama' => 'Golongan II-C',
+            'nama' => 'IIC',
             'keterangan' => 'Golongan II-C',
         ]);
         Golongan::create([
             'id' => Str::uuid(),
-            'nama' => 'Golongan III-A',
+            'nama' => 'IID',
+            'keterangan' => 'Golongan II-D',
+        ]);
+        Golongan::create([
+            'id' => Str::uuid(),
+            'nama' => 'IIIA',
             'keterangan' => 'Golongan III-A',
         ]);
         Golongan::create([
             'id' => Str::uuid(),
-            'nama' => 'Golongan III-B',
+            'nama' => 'IIIB',
             'keterangan' => 'Golongan III-B',
         ]);
         Golongan::create([
             'id' => Str::uuid(),
-            'nama' => 'Golongan III-C',
+            'nama' => 'IIIC',
             'keterangan' => 'Golongan III-C',
         ]);
-
+        Golongan::create([
+            'id' => Str::uuid(),
+            'nama' => 'IIID',
+            'keterangan' => 'Golongan III-D',
+        ]);
+        Golongan::create([
+            'id' => Str::uuid(),
+            'nama' => 'IVA',
+            'keterangan' => 'Golongan IV-A',
+        ]);
+        Golongan::create([
+            'id' => Str::uuid(),
+            'nama' => 'IVB',
+            'keterangan' => 'Golongan IV-B',
+        ]);
+        Golongan::create([
+            'id' => Str::uuid(),
+            'nama' => 'IVC',
+            'keterangan' => 'Golongan IV-C',
+        ]);
+        Golongan::create([
+            'id' => Str::uuid(),
+            'nama' => 'IVD',
+            'keterangan' => 'Golongan IV-D',
+        ]);
     }
 }

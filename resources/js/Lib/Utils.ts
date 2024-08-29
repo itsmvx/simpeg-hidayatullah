@@ -31,10 +31,11 @@ export const notifyToast = (type: 'success' | 'error', message: string, theme: '
         transition: Bounce,
     });
 };
-export const calculateAge = (birthDate: Date): {
-    years: number;
-    months: number;
-} => {
+
+export const excelDateToJSDate = (excelDate: number): Date => {
+    return new Date((excelDate - 25569) * 86400 * 1000);
+};
+export const calculateAge = (birthDate: Date) => {
     const now = new Date();
     let years = now.getFullYear() - birthDate.getFullYear();
     let months = now.getMonth() - birthDate.getMonth();
