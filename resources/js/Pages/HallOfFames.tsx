@@ -21,6 +21,14 @@ export default function HallOfFamesPage() {
             github: 'https://github.com/itsmvx'
         },
         {
+            nama: `Achmad Putra Arifky`,
+            avatar: 'https://avatars.githubusercontent.com/u/93048257?v=4',
+            kontribusi: 'Quality Control Gen.2',
+            email: 'ahmad.arifki90@gmail.com',
+            linkedIn: 'https://www.linkedin.com/in/achmad-putra-arifky-15275724a/',
+            github: 'https://github.com/AchmadPutraA12'
+        },
+        {
             nama: `Indy Adira Khalfani`,
             avatar: 'https://avatars.githubusercontent.com/u/45002979?v=4',
             kontribusi: 'Quality Control Gen.1',
