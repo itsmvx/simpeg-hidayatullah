@@ -3,9 +3,14 @@
 namespace App\Http\Controllers\Pages;
 
 use App\Http\Controllers\Controller;
+use App\Models\Golongan;
+use App\Models\Marhalah;
 use App\Models\Pegawai;
+use App\Models\PeriodeRekap;
 use App\Models\RekapPegawai;
+use App\Models\StatusPegawai;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
