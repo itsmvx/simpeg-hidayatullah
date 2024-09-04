@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
+import { WorkSpaceIcon } from "@/Lib/StaticIcons";
 
 type CountAndLastUpdate = {
     count: number;
@@ -29,8 +30,9 @@ type Props = {
     statusPegawai: CountAndLastUpdate;
     rekapPegawai: CountAndLastUpdate;
     periodeRekap: CountAndLastUpdate;
+    pengajuanPromosi: CountAndLastUpdate;
 }
-export default function MASTER_DashboardPage({ auth, unit, golongan, marhalah, admin, pegawai, statusPegawai, rekapPegawai, periodeRekap }: PageProps<Props>) {
+export default function MASTER_DashboardPage({ auth, unit, golongan, marhalah, admin, pegawai, statusPegawai, rekapPegawai, periodeRekap, pengajuanPromosi }: PageProps<Props>) {
 
     const cardData = [
         {
@@ -97,6 +99,14 @@ export default function MASTER_DashboardPage({ auth, unit, golongan, marhalah, a
             link: route('master.periode-rekap.index'),
             count: periodeRekap.count,
             lastUpdate: periodeRekap.lastUpdate
+        },
+        {
+            title: "Pengajuan Promosi",
+            description: "Pengajuan Promosi masih menunggu",
+            icon: <WorkSpaceIcon width={25} />,
+            link: route('master.pengajuan-promosi.index'),
+            count: pengajuanPromosi.count,
+            lastUpdate: pengajuanPromosi.lastUpdate
         },
     ];
 

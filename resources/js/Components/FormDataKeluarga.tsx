@@ -2,12 +2,12 @@ import { ChangeEvent, Dispatch, memo, SetStateAction } from "react";
 import { Button, Card, Option, Select, ThemeProvider, Tooltip, Typography } from "@material-tailwind/react";
 import { Input } from "@/Components/Input";
 import { ListPlus, ListX } from "lucide-react";
-import type { FormDataKeluarga } from "@/types";
+import type { FormPegawaiDataKeluarga } from "@/types";
 
-const PegawaiCreateFormDataKeluarga = ({ formState, setFormState, formDefault }: {
-    formState: FormDataKeluarga[];
-    setFormState: Dispatch<SetStateAction<FormDataKeluarga[]>>;
-    formDefault: FormDataKeluarga;
+const FormDataKeluarga = ({ formState, setFormState, formDefault }: {
+    formState: FormPegawaiDataKeluarga[];
+    setFormState: Dispatch<SetStateAction<FormPegawaiDataKeluarga[]>>;
+    formDefault: FormPegawaiDataKeluarga;
 }) => {
 
     const TABLE_HEAD = [
@@ -35,7 +35,7 @@ const PegawaiCreateFormDataKeluarga = ({ formState, setFormState, formDefault }:
             )
         );
     };
-    const handleSelectChange = (index: number, key: keyof FormDataKeluarga, value: string) => {
+    const handleSelectChange = (index: number, key: keyof FormPegawaiDataKeluarga, value: string) => {
         setFormState((prevState) =>
             prevState.map((prev, idx) =>
                 idx === index ? { ...prev, [key]: value } : prev
@@ -166,4 +166,4 @@ const PegawaiCreateFormDataKeluarga = ({ formState, setFormState, formDefault }:
     )
 };
 
-export default memo(PegawaiCreateFormDataKeluarga);
+export default memo(FormDataKeluarga);

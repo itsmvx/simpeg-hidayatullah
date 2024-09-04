@@ -1,25 +1,17 @@
 import { MasterLayout } from "@/Layouts/MasterLayout";
 import { Head, router } from "@inertiajs/react";
 import { ChangeEvent, FormEvent, useState } from "react";
-import { Marhalah, PageProps } from "@/types";
+import { IDNamaColumn, ModelWithoutColumns, PageProps } from "@/types";
 import axios, { AxiosError } from "axios";
 import { notifyToast } from "@/Lib/Utils";
 import { Button, Chip, IconButton, Option, Select, Tooltip, Typography } from "@material-tailwind/react";
 import { Input } from "@/Components/Input";
 import { MoveLeft, Save } from "lucide-react";
+import { Admin } from "@/types/models";
 
 export default function AdminDetailsPage({ auth, admin, units }: PageProps<{
-    admin: {
-        id: string;
-        nama: string;
-        username: string;
-        unit_id: string | null;
-        created_at: string;
-    };
-    units: {
-        id: string;
-        nama: string;
-    }[];
+    admin: ModelWithoutColumns<Admin, 'password' | 'updated_at'>
+    units: IDNamaColumn[];
 }>) {
     const [ adminState, setAdminState] = useState(admin);
     const [ onChangeAdmin, setOnChangeAdmin] = useState(false);
@@ -27,7 +19,7 @@ export default function AdminDetailsPage({ auth, admin, units }: PageProps<{
 
     const handleAdminChange = (event: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>) => {
         const payload = {
-            [event.target.name as keyof Marhalah]: event.target.value,
+            [event.target.name as keyof Admin]: event.target.value,
         };
 
         setAdminState((prevState) => {
@@ -71,7 +63,7 @@ export default function AdminDetailsPage({ auth, admin, units }: PageProps<{
 
     return (
         <>
-            <Head title="Master - Admin Details" />
+            <Head title="Master - Detail Admin" />
             <MasterLayout auth={auth}>
                 <Tooltip content="Kembali">
                     <IconButton variant="text" onClick={() => router.visit(route('master.admin.index'))}>
@@ -204,5 +196,5 @@ export default function AdminDetailsPage({ auth, admin, units }: PageProps<{
                 </div>
             </MasterLayout>
         </>
-    )
-}
+    );
+};

@@ -5,13 +5,13 @@ import { ChangeEvent, FormEvent, useState } from "react";
 import { Button, IconButton, Tooltip, Typography } from "@material-tailwind/react";
 import { MoveLeft, Save } from "lucide-react";
 import { TextArea } from "@/Components/TextArea";
-import { PageProps, Unit } from "@/types";
+import { ModelWithoutColumns, PageProps } from "@/types";
 import axios, { AxiosError } from "axios";
 import { notifyToast } from "@/Lib/Utils";
-
+import { Unit } from "@/types/models";
 
 export default function UnitDetailsPage({ auth, unit }: PageProps<{
-    unit: Unit;
+    unit: ModelWithoutColumns<Unit, 'updated_at'>;
 }>) {
     const [ unitState, setUnitState ] = useState(unit);
     const [ onChangeUnit, setOnChangeUnit ] = useState(false);
@@ -63,7 +63,7 @@ export default function UnitDetailsPage({ auth, unit }: PageProps<{
 
     return (
         <>
-            <Head title="Master - Unit Details" />
+            <Head title="Master - Detail Unit" />
             <MasterLayout auth={auth}>
                 <Tooltip content="Kembali">
                     <IconButton variant="text" onClick={() => router.visit(route('master.unit.index'))}>

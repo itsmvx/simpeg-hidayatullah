@@ -26,13 +26,13 @@ class PegawaiController extends Controller
 
     /**
      * Show the form for creating a new resource.
+     * @throws ValidationException
      */
     public function create(Request $request)
     {
         $validation = Validator::make($request->all(), [
             'nip' => 'required|string|unique:pegawai,nip',
             'nik' => 'required|string|unique:pegawai,nik',
-            'foto' => 'nullable|url',
             'nama' => 'required|string',
             'jenis_kelamin' => 'required|in:Laki-Laki,Perempuan',
             'tempat_lahir' => 'required|string',
@@ -40,28 +40,30 @@ class PegawaiController extends Controller
             'no_hp' => 'required|string',
             'suku' => 'required|string',
             'alamat' => 'required|string',
-            'status_pernikahan' => 'required|string',
+            'agama' => 'required|string',
+            'status_pernikahan' => 'required|in:Belum Menikah,Menikah,Cerai Hidup,Cerai Mati',
             'amanah' => 'required|string',
+            'amanah_atasan' => 'required|string',
             'tanggal_masuk' => 'required|date',
-            'bpjs_kesehatan' => 'nullable|string',
-            'bpjs_ketenagakerjaan' => 'nullable|string',
+            'bpjs_kesehatan' => 'boolean',
+            'bpjs_ketenagakerjaan' => 'boolean',
+            'kompetensi_quran' => 'required|string',
             'data_keluarga' => 'required|string',
-            'pendidikan_formal' => 'required|string',
-            'pendidikan_non_formal' => 'required|string',
-            'pengalaman_organisasi' => 'required|string',
-            'pengalaman_kerja_pph' => 'required|string',
-            'pengalaman_kerja_non_pph' => 'required|string',
+            'data_pendidikan_formal' => 'required|string',
+            'data_pendidikan_non_formal' => 'required|string',
+            'data_pengalaman_organisasi' => 'required|string',
+            'data_pengalaman_kerja_pph' => 'required|string',
+            'data_pengalaman_kerja_non_pph' => 'required|string',
             'keahlian' => 'nullable|string',
-            'golongan_id' => 'required|uuid',
-            'marhalah_id' => 'required|uuid',
-            'status_pegawai_id' => 'required|uuid',
-            'unit_id' => 'required|uuid',
+            'golongan_id' => 'nullable|uuid',
+            'marhalah_id' => 'nullable|uuid',
+            'status_pegawai_id' => 'nullable|uuid',
+            'unit_id' => 'nullable|uuid',
         ], [
             'nip.required' => 'NIP tidak boleh kosong',
             'nip.unique' => 'NIP Pegawai sudah terdaftar',
             'nik.required' => 'NIK tidak boleh kosong',
             'nik.unique' => 'NIK Pegawai sudah terdaftar',
-            'foto.url' => 'Foto harus berupa URL yang valid',
             'nama.required' => 'Nama tidak boleh kosong',
             'jenis_kelamin.required' => 'Jenis kelamin harus Laki-Laki atau Perempuan',
             'tempat_lahir.required' => 'Tempat lahir tidak boleh kosong',
@@ -75,12 +77,14 @@ class PegawaiController extends Controller
             'agama.string' => 'Format input Agama tidak valid',
             'status_pernikahan.required' => 'Status pernikahan tidak boleh kosong',
             'amanah.required' => 'Amanah tidak boleh kosong',
+            'amanah_atasan.required' => 'Amanah atasan tidak boleh kosong',
             'tanggal_masuk.required' => 'Tanggal masuk harus berupa tanggal yang valid',
-            'pendidikan_formal.required' => 'Data Pendidikan formal tidak valid',
-            'pendidikan_non_formal.required' => 'Data Pendidikan non formal tidak valid',
-            'pengalaman_organisasi.required' => 'Data Pengalaman Organisasi tidak valid',
-            'pengalaman_kerja_pph.required' => 'Data Pengalaman Kerja di PPH tidak valid',
-            'pengalaman_kerja_non_pph.required' => 'Data Pengalaman kerja non PPH tidak valid',
+            'kompetensi_quran.required' => "Kompetensi Qur'an wajib diisi",
+            'data_pendidikan_formal.required' => 'Data Pendidikan formal tidak valid',
+            'data_pendidikan_non_formal.required' => 'Data Pendidikan non formal tidak valid',
+            'data_pengalaman_organisasi.required' => 'Data Pengalaman Organisasi tidak valid',
+            'data_pengalaman_kerja_pph.required' => 'Data Pengalaman Kerja di PPH tidak valid',
+            'data_pengalaman_kerja_non_pph.required' => 'Data Pengalaman kerja non PPH tidak valid',
             'keahlian.string' => 'Format data keahlian tidak valid',
             'golongan_id.uuid' => 'Format Data Golongan tidak valid',
             'marhalah_id.uuid' => 'Format Data Marhalah tidak valid',
@@ -99,51 +103,27 @@ class PegawaiController extends Controller
 
         $password = date('Ymd', strtotime($tanggal_lahir));
 
+        $validated = $validation->validated();
+
+
         try {
-            Pegawai::create([
+            Pegawai::create(array_merge($validated, [
                 'id' => Str::uuid(),
-                'username' => $request->nip,
-                'password' => Hash::make($password, [ 'rounds' => 12 ]),
-                'nip' => $request->nip,
-                'nik' => $request->nik,
-                'foto' => $request->foto,
-                'nama' => $request->nama,
-                'jenis_kelamin' => $request->jenis_kelamin,
-                'tempat_lahir' => $request->tempat_lahir,
+                'username' => $validated['nip'],
+                'password' => Hash::make($password, ['rounds' => 12]),
                 'tanggal_lahir' => $tanggal_lahir,
-                'no_hp' => $request->no_hp,
-                'alamat' => $request->alamat,
-                'suku' => $request->suku,
-                'agama' => $request->agama,
-                'status_pernikahan' => $request->status_pernikahan,
-                'amanah' => $request->amanah,
-                'amanah_atasan' => $request->amanah_atasan,
-                'tanggal_masuk' => $tanggal_masuk,
-                'bpjs_kesehatan' => $request->bpjs_kesehatan,
-                'bpjs_ketenagakerjaan' => $request->bpjs_ketenagakerjaan,
-                'data_keluarga' => $request->data_keluarga,
-                'pendidikan_formal' => $request->pendidikan_formal,
-                'pendidikan_non_formal' => $request->pendidikan_non_formal,
-                'pengalaman_organisasi' => $request->pengalaman_organisasi,
-                'pengalaman_kerja_pph' => $request->pengalaman_kerja_pph,
-                'pengalaman_kerja_non_pph' => $request->pengalaman_kerja_non_pph,
-                'keahlian' => $request->keahlian,
-                'golongan_id' => $request->golongan_id,
-                'marhalah_id' => $request->marhalah_id,
-                'status_pegawai_id' => $request->status_pegawai_id,
-                'unit_id' => $request->unit_id,
-            ]);
+                'tanggal_masuk' => $tanggal_masuk
+            ]));
         } catch (QueryException $exception) {
             return Response::json([
-                'message' => $exception->getMessage()
-//                'message' => 'Pegawai gagal ditambahkan!'
+                'message' => 'Server gagal memproses permintaan'
             ], 500);
         }
+
         return Response::json([
             'message' => 'Pegawai berhasil ditambahkan!',
         ]);
     }
-
     /**
      * Store a newly created resource in storage.
      */
@@ -174,16 +154,16 @@ class PegawaiController extends Controller
                 'pegawai.nip',
                 'pegawai.nama',
                 'pegawai.foto',
-                'pegawai.jenis_kelamin as jenisKelamin',
-                'pegawai.tanggal_masuk as tanggalMasuk',
-                'pegawai.tempat_lahir as tempatLahir',
-                'pegawai.tanggal_lahir as tanggalLahir',
-                'pegawai.no_hp as noHp',
+                'pegawai.jenis_kelamin',
+                'pegawai.tanggal_masuk',
+                'pegawai.tempat_lahir',
+                'pegawai.tanggal_lahir',
+                'pegawai.no_hp',
                 'pegawai.alamat',
-                'pegawai.pendidikan_formal',
+                'pegawai.data_pendidikan_formal',
                 'pegawai.keahlian',
                 'unit.nama as unit',
-                'status_pegawai.nama as statusPegawai',
+                'status_pegawai.nama as status_pegawai',
                 'marhalah.nama as marhalah',
                 'golongan.nama as golongan'
             )
@@ -208,12 +188,14 @@ class PegawaiController extends Controller
                 'rekap_pegawai.skill_manajerial',
                 'rekap_pegawai.skill_leadership',
                 'rekap_pegawai.prestasi',
-                'rekap_pegawai.catatan_negatif'
+                'rekap_pegawai.catatan_negatif',
+                'rekap_pegawai.pembinaan',
             )
                 ->join('periode_rekap', 'periode_rekap.id', '=', 'rekap_pegawai.periode_rekap_id')
                 ->where('rekap_pegawai.pegawai_id', '=', $request->id)
-                ->where('periode_rekap.jenis', '=', 'Bulanan')
-                ->orderBy('rekap_pegawai.created_at', 'desc')
+                ->where('periode_rekap.jenis', '=', 'bulanan')
+                ->where('terverifikasi', true)
+                ->orderBy('periode_rekap.awal', 'desc')
                 ->first();
 
             $rekapTahunan = RekapPegawai::select('rekap_pegawai.amanah')
@@ -225,8 +207,9 @@ class PegawaiController extends Controller
                 ->leftjoin('periode_rekap', 'periode_rekap.id', '=', 'rekap_pegawai.periode_rekap_id')
                 ->leftjoin('unit', 'unit.id', '=', 'rekap_pegawai.unit_id')
                 ->where('rekap_pegawai.pegawai_id', '=', $request->id)
-                ->where('periode_rekap.jenis', '=', 'Tahunan')
-                ->orderBy('rekap_pegawai.created_at', 'asc')
+                ->where('periode_rekap.jenis', '=', 'tahunan')
+                ->where('terverifikasi', true)
+                ->orderBy('periode_rekap.awal', 'asc')
                 ->get();
 
 
@@ -240,7 +223,8 @@ class PegawaiController extends Controller
 
         } catch (QueryException $exception) {
             return Response::json([
-                'message' => 'Server gagal memproses permintaan'
+                'message' => $exception->getMessage()
+//                'message' => 'Server gagal memproses permintaan'
             ], 500);
         }
     }
@@ -261,6 +245,7 @@ class PegawaiController extends Controller
     {
         try {
             $id = $request->input('id');
+
             $validation = Validator::make($request->all(), [
                 'id' => 'required|uuid|exists:pegawai,id',
                 'nip' => "required|string|unique:pegawai,nip,{$id},id",
@@ -272,22 +257,28 @@ class PegawaiController extends Controller
                 'no_hp' => 'required|string',
                 'suku' => 'required|string',
                 'alamat' => 'required|string',
-                'status_pernikahan' => 'required|string',
+                'agama' => 'required|string',
+                'status_pernikahan' => 'required|in:Belum Menikah,Menikah,Cerai Hidup,Cerai Mati',
                 'amanah' => 'required|string',
+                'amanah_atasan' => 'required|string',
                 'tanggal_masuk' => 'required|date',
-                'bpjs_kesehatan' => 'nullable|string',
-                'bpjs_ketenagakerjaan' => 'nullable|string',
+                'tanggal_marhalah' => 'nullable|date',
+                'tanggal_promosi' => 'nullable|date',
+                'bpjs_kesehatan' => 'boolean',
+                'bpjs_ketenagakerjaan' => 'boolean',
+                'kompetensi_quran' => 'required|string',
+                'sertifikasi' => 'nullable|string',
                 'data_keluarga' => 'required|string',
-                'pendidikan_formal' => 'required|string',
-                'pendidikan_non_formal' => 'required|string',
-                'pengalaman_organisasi' => 'required|string',
-                'pengalaman_kerja_pph' => 'required|string',
-                'pengalaman_kerja_non_pph' => 'required|string',
+                'data_pendidikan_formal' => 'required|string',
+                'data_pendidikan_non_formal' => 'required|string',
+                'data_pengalaman_organisasi' => 'required|string',
+                'data_pengalaman_kerja_pph' => 'required|string',
+                'data_pengalaman_kerja_non_pph' => 'required|string',
                 'keahlian' => 'nullable|string',
-                'golongan_id' => 'required|uuid',
-                'marhalah_id' => 'required|uuid',
-                'status_pegawai_id' => 'required|uuid',
-                'unit_id' => 'required|uuid',
+                'golongan_id' => 'nullable|uuid',
+                'marhalah_id' => 'nullable|uuid',
+                'status_pegawai_id' => 'nullable|uuid',
+                'unit_id' => 'nullable|uuid',
             ], [
                 'id.required' => 'Input Pegawai tidak boleh kosong!',
                 'id.uuid' => 'Input Pegawai tidak valid!',
@@ -309,12 +300,16 @@ class PegawaiController extends Controller
                 'agama.string' => 'Format input Agama tidak valid',
                 'status_pernikahan.required' => 'Status pernikahan tidak boleh kosong',
                 'amanah.required' => 'Amanah tidak boleh kosong',
+                'amanah_atasan.required' => 'Amanah atasan tidak boleh kosong',
                 'tanggal_masuk.required' => 'Tanggal masuk harus berupa tanggal yang valid',
-                'pendidikan_formal.required' => 'Data Pendidikan formal tidak valid',
-                'pendidikan_non_formal.required' => 'Data Pendidikan non formal tidak valid',
-                'pengalaman_organisasi.required' => 'Data Pengalaman Organisasi tidak valid',
-                'pengalaman_kerja_pph.required' => 'Data Pengalaman Kerja di PPH tidak valid',
-                'pengalaman_kerja_non_pph.required' => 'Data Pengalaman kerja non PPH tidak valid',
+                'tanggal_marhalah.date' => 'Tanggal marhalah harus berupa tanggal yang valid',
+                'tanggal_promosi.date' => 'Tanggal promosi harus berupa tanggal yang valid',
+                'kompetensi_quran.required' => "Kompetensi Qur'an wajib diisi",
+                'data_pendidikan_formal.required' => 'Data Pendidikan formal tidak valid',
+                'data_pendidikan_non_formal.required' => 'Data Pendidikan non formal tidak valid',
+                'data_pengalaman_organisasi.required' => 'Data Pengalaman Organisasi tidak valid',
+                'data_pengalaman_kerja_pph.required' => 'Data Pengalaman Kerja di PPH tidak valid',
+                'data_pengalaman_kerja_non_pph.required' => 'Data Pengalaman kerja non PPH tidak valid',
                 'keahlian.string' => 'Format data keahlian tidak valid',
                 'golongan_id.uuid' => 'Format Data Golongan tidak valid',
                 'marhalah_id.uuid' => 'Format Data Marhalah tidak valid',
@@ -337,30 +332,42 @@ class PegawaiController extends Controller
 
             $tanggal_lahir = date('Y-m-d', strtotime($request->tanggal_lahir));
             $tanggal_masuk = date('Y-m-d', strtotime($request->tanggal_masuk));
-
-            if (
-                $pegawai->golongan_id !== $request->golongan_id ||
-                $pegawai->status_pegawai_id !== $request->status_pegawai_id ||
-                $pegawai->marhalah_id !== $request->marhalah_id
-            ) {
-                $pegawai->tanggal_promosi = now('Asia/Jakarta');
-            }
+            $tanggal_promosi = $request->get('tanggal_promosi') ? date('Y-m-d', strtotime($request->tanggal_promosi)) : null;
+            $tanggal_marhalah = $request->get('tanggal_marhalah') ? date('Y-m-d', strtotime($request->tanggal_marhalah)) : null;
 
             $validatedData = $validation->validated();
+
             $pegawai->update(array_merge($validatedData, [
                 'tanggal_lahir' => $tanggal_lahir,
                 'tanggal_masuk' => $tanggal_masuk,
+                'tanggal_promosi' => $tanggal_promosi,
+                'tanggal_marhalah' => $tanggal_marhalah
             ]));
 
+            if (
+                $pegawai->golongan_id !== $request->golongan_id ||
+                $pegawai->status_pegawai_id !== $request->status_pegawai_id
+            ) {
+                $pegawai->update([
+                    'tanggal_promosi' => now('Asia/Jakarta'),
+                ]);
+            }
+
             return Response::json([
-                'message' => 'Pegawai telah diperbarui!'
+                'message' => 'Pegawai telah diperbarui!',
+                'data' => [
+                    'marhalah' => $tanggal_marhalah,
+                    'promosi' => $tanggal_promosi
+                ]
             ]);
         } catch (QueryException $e) {
             return Response::json([
-                'message' => 'Server gagal memproses permintaan!'
+                'message' => $e->getMessage(),
+//                'message' => 'Server gagal memproses permintaan!'
             ], 500);
         }
     }
+
 
     /**
      * @throws ValidationException
@@ -383,14 +390,14 @@ class PegawaiController extends Controller
                 'status_pernikahan' => 'required|string',
                 'amanah' => 'required|string',
                 'tanggal_masuk' => 'required|date',
-                'bpjs_kesehatan' => 'nullable|string',
-                'bpjs_ketenagakerjaan' => 'nullable|string',
+                'bpjs_kesehatan' => 'boolean',
+                'bpjs_ketenagakerjaan' => 'boolean',
                 'data_keluarga' => 'required|string',
-                'pendidikan_formal' => 'required|string',
-                'pendidikan_non_formal' => 'required|string',
-                'pengalaman_organisasi' => 'required|string',
-                'pengalaman_kerja_pph' => 'required|string',
-                'pengalaman_kerja_non_pph' => 'required|string',
+                'data_pendidikan_formal' => 'required|string',
+                'data_pendidikan_non_formal' => 'required|string',
+                'data_pengalaman_organisasi' => 'required|string',
+                'data_pengalaman_kerja_pph' => 'required|string',
+                'data_pengalaman_kerja_non_pph' => 'required|string',
                 'keahlian' => 'nullable|string',
             ], [
                 'id.required' => 'Input Pegawai tidak boleh kosong!',
@@ -414,11 +421,11 @@ class PegawaiController extends Controller
                 'status_pernikahan.required' => 'Status pernikahan tidak boleh kosong',
                 'amanah.required' => 'Amanah tidak boleh kosong',
                 'tanggal_masuk.required' => 'Tanggal masuk harus berupa tanggal yang valid',
-                'pendidikan_formal.required' => 'Data Pendidikan formal tidak valid',
-                'pendidikan_non_formal.required' => 'Data Pendidikan non formal tidak valid',
-                'pengalaman_organisasi.required' => 'Data Pengalaman Organisasi tidak valid',
-                'pengalaman_kerja_pph.required' => 'Data Pengalaman Kerja di PPH tidak valid',
-                'pengalaman_kerja_non_pph.required' => 'Data Pengalaman kerja non PPH tidak valid',
+                'data_pendidikan_formal.required' => 'Data Pendidikan formal tidak valid',
+                'data_pendidikan_non_formal.required' => 'Data Pendidikan non formal tidak valid',
+                'data_pengalaman_organisasi.required' => 'Data Pengalaman Organisasi tidak valid',
+                'data_pengalaman_kerja_pph.required' => 'Data Pengalaman Kerja di PPH tidak valid',
+                'data_pengalaman_kerja_non_pph.required' => 'Data Pengalaman kerja non PPH tidak valid',
                 'keahlian.string' => 'Format data keahlian tidak valid',
             ]);
 
@@ -444,7 +451,7 @@ class PegawaiController extends Controller
                 'tanggal_masuk' => $tanggal_masuk,
             ]));
             return Response::json([
-                'message' => 'Pegawai telah diperbarui!'
+                'message' => 'Data Pegawai telah diperbarui!'
             ]);
         } catch (QueryException $e) {
             return Response::json([
@@ -501,49 +508,42 @@ class PegawaiController extends Controller
             ], 500);
         }
     }
-    public function dataToRekap(Request $request)
+    public function pegawaiToRekap(Request $request)
     {
-        try {
-            $validation = Validator::make($request->only(['unit_id']), [
-                'unit_id' => 'required|uuid|exists:unit,id',
-            ], [
-                'unit_id.required' => 'Unit tidak boleh kosong',
-                'unit_id.uuid' => 'Format Unit tidak valid',
-                'unit_id.exists' => 'Unit tidak ditemukan',
-            ]);
-            if ($validation->fails()) {
-                return Response::json([
-                    'message' => $validation->errors()->first()
-                ], 422);
-            }
+        $validation = Validator::make($request->only(['unit_id', 'periode_id']), [
+            'unit_id' => 'required|uuid|exists:unit,id',
+            'periode_id' => 'required|uuid|exists:periode_rekap,id',
+        ], [
+            'unit_id.required' => 'Unit tidak boleh kosong',
+            'unit_id.uuid' => 'Format Unit tidak valid',
+            'periode_id.required' => 'Periode tidak boleh kosong',
+            'periode_id.uuid' => 'Format Periode tidak valid',
+        ]);
 
-            $pegawais = Pegawai::where('unit_id', '=', $request->get('unit_id'))
-                ->select([
-                    'id',
-                    'nama',
-                    'jenis_kelamin',
-                    'unit_id',
-                    'status_pegawai_id',
-                    'marhalah_id',
-                    'golongan_id'
-                ])
-                ->with([
-                    'unit:id,nama',
-                    'status_pegawai:id,nama',
-                    'marhalah:id,nama',
-                    'golongan:id,nama'
-                ])
-                ->get();
-            $pegawais->makeHidden(['unit_id', 'status_pegawai_id', 'marhalah_id', 'golongan_id']);
+        if ($validation->fails()) {
+            return response()->json([
+                'message' => $validation->errors()->first()
+            ], 400);
+        }
+
+        $validated = $validation->validated();
+
+        try {
+            $pegawais = Pegawai::where('unit_id', $validated['unit_id'])
+                ->whereDoesntHave('rekap_pegawai', function ($query) use ($validated) {
+                    $query->where('periode_rekap_id', $validated['periode_id']);
+                })
+                ->with(['unit:id,nama', 'golongan:id,nama', 'status_pegawai:id,nama', 'marhalah:id,nama'])
+                ->select('id', 'nama', 'unit_id', 'golongan_id', 'status_pegawai_id', 'marhalah_id')
+                ->get()
+                ->makeHidden(['golongan_id', 'status_pegawai_id', 'marhalah_id', 'unit_id']);
 
             return Response::json([
-                'message' => 'Berhasil mengambil data',
                 'data' => $pegawais
             ]);
-
         } catch (QueryException $exception) {
             return Response::json([
-                'message' => 'Server gagal memproses permintaan',
+                'message' => 'Server gagal memproses permintaan'
             ], 500);
         }
     }

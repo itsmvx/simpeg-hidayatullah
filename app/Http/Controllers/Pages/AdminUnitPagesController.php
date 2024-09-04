@@ -48,6 +48,12 @@ class AdminUnitPagesController extends Controller
                     ->count(),
                 'lastUpdate' => RekapPegawai::where('unit_id', '=', $this->unitId)->latest('updated_at')->value('updated_at')
             ],
+            'pengajuanPromosi' => fn() => [
+                'count' => PengajuanPromosi::where('status_pengajuan', '=', 'menunggu')
+                    ->where('unit_id', '=', $this->unitId)
+                    ->count(),
+                'lastUpdate' => PengajuanPromosi::where('unit_id', '=', $this->unitId)->latest('updated_at')->value('updated_at')
+            ]
         ]);
     }
     public function pegawaiIndexPage(Request $request)
@@ -239,14 +245,14 @@ class AdminUnitPagesController extends Controller
         }
 
         try {
-            $rekapPegawai = RekapPegawai::find($idParam)->with([
+            $rekapPegawai = RekapPegawai::with([
                 'golongan:id,nama',
                 'unit:id,nama',
                 'periode_rekap:id,nama',
                 'status_pegawai:id,nama',
                 'marhalah:id,nama',
                 'pegawai:id,nama',
-            ])->first();
+            ])->find($idParam);
             if (!$rekapPegawai) {
                 abort(404);
             }
@@ -260,11 +266,11 @@ class AdminUnitPagesController extends Controller
     }
     public function pengajuanPromosiIndexPage(Request $request)
     {
-        $viewList = [10,25,50,100];
+        $viewList = ["25", "50", "100", "150"];
         $viewPerPage = $request->query('view');
 
-        if (!is_numeric($viewPerPage) || intval($viewPerPage) <= 0 || !Arr::has($viewList, $viewPerPage)) {
-            $viewPerPage = 10;
+        if (!Arr::has($viewList, $viewPerPage)) {
+            $viewPerPage = 25;
         } else {
             $viewPerPage = intval($viewPerPage);
         }
@@ -291,6 +297,13 @@ class AdminUnitPagesController extends Controller
             'asal:id,nama',
             'akhir:id,nama',
         ])->where('unit_id', '=', $this->unitId);
+
+        $search = $request->query('search');
+        if ($search) {
+            $query->whereHas('pegawai', function ($q) use ($search) {
+                $q->where('nama', 'like', '%' . $search . '%');
+            });
+        }
 
         $pengajuanPromosis = $query->paginate($viewPerPage)->withQueryString();
 
@@ -320,6 +333,46 @@ class AdminUnitPagesController extends Controller
                 'golongans' => fn() => Golongan::select('id', 'nama')->get(),
                 'marhalahs' => fn() => Marhalah::select('id', 'nama')->get(),
                 'statusPegawais' => fn() => StatusPegawai::select('id', 'nama')->get(),
+            ]);
+        } catch (QueryException $exception) {
+            abort(500);
+        }
+    }
+    public function pengajuanPromosiDetailsPage(Request $request)
+    {
+        $idParam = $request->query->get('q');
+        if (!$idParam) {
+            abort(404);
+        }
+
+        try {
+            $pengajuanPromosi = PengajuanPromosi::select([
+                'id',
+                'nama',
+                'jenis',
+                'pegawai_id',
+                'admin_id',
+                'admin_penyetuju_id',
+                'asal_type',
+                'asal_id',
+                'akhir_type',
+                'akhir_id',
+                'created_at',
+                'status_pengajuan'
+            ])->with([
+                'pegawai:id,nama',
+                'admin:id,nama',
+                'admin_penyetuju:id,nama',
+                'asal:id,nama',
+                'akhir:id,nama',
+            ])->find($idParam);
+
+            if (!$pengajuanPromosi) {
+                abort(404);
+            }
+
+            return Inertia::render('Admin/ADMIN_PengajuanPromosiDetailsPage', [
+                'pengajuanPromosi' => $pengajuanPromosi
             ]);
         } catch (QueryException $exception) {
             abort(500);

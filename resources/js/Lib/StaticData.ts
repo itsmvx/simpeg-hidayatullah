@@ -1,10 +1,16 @@
 import {
-    FormDataKeluarga, FormDataOrganisasi,
-    FormDataPendidikanFormal,
-    FormDataPendidikanNonFormal, FormDataPengalamanNonPPH, FormDataPengalamanPPH, JenisKelamin, JenisPengajuanPromosi
+    FormPegawaiDataKeluarga,
+    FormPegawaiDataOrganisasi,
+    FormPegawaiDataPendidikanFormal,
+    FormPegawaiDataPendidikanNonFormal,
+    FormPegawaiDataPengalamanNonPPH,
+    FormPegawaiDataPengalamanPPH,
+    JenisKelamin,
+    JenisPengajuanPromosi, JenisPeriodeRekap, StatusAktif,
+    StatusPernikahan
 } from "@/types";
 
-export const formDataKeluargaDefault: FormDataKeluarga =  {
+export const formDataKeluargaDefault: FormPegawaiDataKeluarga =  {
     status: '',
     nama: '',
     jenisKelamin: '',
@@ -13,31 +19,31 @@ export const formDataKeluargaDefault: FormDataKeluarga =  {
     pekerjaan: '',
     pendidikan: ''
 };
-export const formDataPendidikanFormalDefault: FormDataPendidikanFormal = {
+export const formDataPendidikanFormalDefault: FormPegawaiDataPendidikanFormal = {
     tingkat: '',
     sekolah: '',
     lulus: ''
 };
-export const formDataPendidikanNonFormalDefault: FormDataPendidikanNonFormal = {
+export const formDataPendidikanNonFormalDefault: FormPegawaiDataPendidikanNonFormal = {
     jenis: '',
     penyelenggara: '',
     tempat: '',
     tahun: ''
 };
-export const formDataOrganisasiDefault: FormDataOrganisasi = {
+export const formDataOrganisasiDefault: FormPegawaiDataOrganisasi = {
     nama: '',
     jabatan: '',
     masa: '',
     keterangan: ''
 };
-export const formDataPengalamanPPHDefault: FormDataPengalamanPPH = {
+export const formDataPengalamanPPHDefault: FormPegawaiDataPengalamanPPH = {
     unit: '',
     jabatan: '',
     amanah: '',
     mulai: '',
     akhir: ''
 };
-export const formDataPengalamanNonPPHDefault: FormDataPengalamanNonPPH = {
+export const formDataPengalamanNonPPHDefault: FormPegawaiDataPengalamanNonPPH = {
     instansi: '',
     jabatan: '',
     tahun: '',
@@ -45,6 +51,9 @@ export const formDataPengalamanNonPPHDefault: FormDataPengalamanNonPPH = {
 };
 
 export const jenisKelamin: JenisKelamin[] = ['Laki-Laki', 'Perempuan'];
+export const jenisPeriodeRekap: JenisPeriodeRekap[] = ['mingguan', 'bulanan', 'semesteran', 'tahunan'];
+export const statusAktif: StatusAktif[] = ['Aktif', 'Nonaktif', 'Cuti'];
+export const statusPernikahan: StatusPernikahan[] = ['Belum Menikah', 'Menikah', 'Cerai Hidup', 'Cerai Mati'];
 export const jenisPengajuanPromosi: {
     label: string;
     value: JenisPengajuanPromosi;
@@ -62,3 +71,4 @@ export const jenisPengajuanPromosi: {
         value: 'status_pegawai'
     }
 ];
+export const viewPerPage: number[] = [25, 50, 100, 150];

@@ -1,9 +1,8 @@
 import { Head, router } from "@inertiajs/react";
 import { Card, Typography, Button, Tooltip, IconButton } from "@material-tailwind/react";
 import { CircleAlert, MoveLeft, Save } from "lucide-react";
-import { ChangeEvent, FormEvent, useEffect, useState } from "react";
+import { ChangeEvent, FormEvent, useState } from "react";
 import "react-day-picker/dist/style.css";
-import { useTheme } from "@/Hooks/useTheme";
 import { MasterLayout } from "@/Layouts/MasterLayout";
 import { PageProps } from "@/types";
 import { notifyToast } from "@/Lib/Utils";
@@ -12,24 +11,23 @@ import { Input } from "@/Components/Input";
 import { TextArea } from "@/Components/TextArea";
 
 type RekapPegawai = {
-    id: string;
+    pegawai_id: string;
+    unit_id: string | null;
+    golongan_id: string | null;
+    status_pegawai_id: string | null;
+    marhalah_id: string | null;
+    periode_rekap_id: string;
     amanah: string;
-    organisasi: string;
+    organisasi: string | null;
     gaji: number;
-    skill_manajerial: string;
-    skill_leadership: string;
+    skill_manajerial: string | null;
+    skill_leadership: string | null;
     raport_profesi: string;
     kedisiplinan: string;
     ketuntasan_kerja: string;
-    catatan_negatif: string;
-    prestasi: string;
-    pegawai_id: string;
-    unit_id: string;
-    rekap_id: string;
-    golongan_id: string;
-    status_pegawai_id: string;
-    marhalah_id: string;
-    periode_rekap_id: string;
+    catatan_negatif: string | null;
+    prestasi: string | null;
+    pembinaan: string | null;
     pegawai: {
         id: string;
         nama: string;
@@ -59,7 +57,6 @@ type RekapPegawai = {
 export default function MASTER_RekapPegawaiDetailsPage({ auth, rekap }: PageProps<{
     rekap: RekapPegawai
 }>) {
-
     const [ rekapPegawaiState, setRekapPegawaiState ] = useState(rekap);
     const [ onChangeRekapPegawai, setOnChangeRekapPegawai ] = useState(false);
     const [ onSubmit, setOnSubmit ] = useState(false);
@@ -304,7 +301,7 @@ export default function MASTER_RekapPegawaiDetailsPage({ auth, rekap }: PageProp
                             <Input
                                 type="text"
                                 color="teal"
-                                label="Amanah Organisasi (tidak wajib diisi)"
+                                label="Amanah Organisasi (opsional)"
                                 name="organisasi"
                                 value={ rekapPegawaiState.organisasi ?? '' }
                                 onChange={ handleInputChange }
@@ -343,31 +340,38 @@ export default function MASTER_RekapPegawaiDetailsPage({ auth, rekap }: PageProp
                                 required
                             />
                             <TextArea
-                                label="Skill Manajerial (tidak wajib diisi)"
+                                label="Skill Manajerial (opsional)"
                                 color="teal"
                                 name="skill_manajerial"
                                 value={ rekapPegawaiState.skill_manajerial ?? '' }
                                 onChange={ handleInputChange }
                             />
                             <TextArea
-                                label="Skill Leadership (tidak wajib diisi)"
+                                label="Skill Leadership (opsional)"
                                 color="teal"
                                 name="skill_leadership"
                                 value={ rekapPegawaiState.skill_leadership ?? '' }
                                 onChange={ handleInputChange }
                             />
                             <TextArea
-                                label="Catatan Negatif (tidak wajib diisi)"
+                                label="Catatan Negatif (opsional)"
                                 color="teal"
                                 name="catatan_negatif"
                                 value={ rekapPegawaiState.catatan_negatif ?? '' }
                                 onChange={ handleInputChange }
                             />
                             <TextArea
-                                label="Prestasi (tidak wajib diisi)"
+                                label="Prestasi (opsional)"
                                 color="teal"
                                 name="prestasi"
                                 value={ rekapPegawaiState.prestasi ?? '' }
+                                onChange={ handleInputChange }
+                            />
+                            <TextArea
+                                label="Pembinaan (opsional)"
+                                color="teal"
+                                name="pembinaan"
+                                value={ rekapPegawaiState.pembinaan ?? '' }
                                 onChange={ handleInputChange }
                             />
                             <Button

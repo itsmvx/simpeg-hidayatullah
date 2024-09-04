@@ -5,15 +5,16 @@ import { ChangeEvent, FormEvent, useState } from "react";
 import { Button, IconButton, Tooltip, Typography } from "@material-tailwind/react";
 import { MoveLeft, Save } from "lucide-react";
 import { TextArea } from "@/Components/TextArea";
-import { Marhalah, PageProps } from "@/types";
+import { ModelWithoutColumns, PageProps } from "@/types";
 import axios, { AxiosError } from "axios";
 import { notifyToast } from "@/Lib/Utils";
+import { Marhalah } from "@/types/models";
 
 export default function MarhalahDetailsPage({ auth, marhalah }: PageProps<{
-    marhalah: Marhalah;
+    marhalah: ModelWithoutColumns<Marhalah, 'updated_at'>;
 }>) {
-    const [marhalahState, setMarhalahState] = useState(marhalah);
-    const [onChangeMarhalah, setOnChangeMarhalah] = useState(false);
+    const [ marhalahState, setMarhalahState ] = useState(marhalah);
+    const [ onChangeMarhalah, setOnChangeMarhalah ] = useState(false);
     const [ onSubmit, setOnSubmit ] = useState(false);
 
     const handleMarhalahChange = (event: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>) => {
@@ -62,7 +63,7 @@ export default function MarhalahDetailsPage({ auth, marhalah }: PageProps<{
 
     return (
         <>
-            <Head title="Master - Marhalah Details" />
+            <Head title="Master - Detail Marhalah" />
             <MasterLayout auth={auth}>
                 <Tooltip content="Kembali">
                     <IconButton variant="text" onClick={() => router.visit(route('master.marhalah.index'))}>
@@ -141,5 +142,5 @@ export default function MarhalahDetailsPage({ auth, marhalah }: PageProps<{
                 </div>
             </MasterLayout>
         </>
-    )
-}
+    );
+};
