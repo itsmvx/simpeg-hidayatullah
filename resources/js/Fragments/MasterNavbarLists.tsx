@@ -3,7 +3,7 @@ import {
     Award,
     Building2, CalendarDays,
     ChevronDown, CircleUserRound,
-    Dock,
+    Dock, FileDown,
     Newspaper, ShieldCheck,
     UserRound,
     UsersRound
@@ -30,15 +30,21 @@ const navListMenuItems = [
     },
     {
         title: "Golongan",
-        description: "mengatur golongan pegawai dalam sistem",
+        description: "mengatur golongan dalam sistem",
         icon: <UsersRound />,
         link: route('master.golongan.index')
     },
     {
         title: "Marhalah",
-        description: "mengatur daftar marhalah dalam sistem",
+        description: "mengatur marhalah dalam sistem",
         icon: <Award />,
         link: route('master.marhalah.index')
+    },
+    {
+        title: "Status Pegawai",
+        description: "mengatur Status kepegawaian dalam sistem",
+        icon: <ShieldCheck />,
+        link: route('master.status-pegawai.index')
     },
     {
         title: "Admin",
@@ -48,17 +54,10 @@ const navListMenuItems = [
     },
     {
         title: "Pegawai",
-        description: "mengatur akun dan data kepegawaian",
+        description: "mengatur data pegawai dalam sistem",
         icon: <UserRound />,
         link: route('master.pegawai.index')
     },
-    {
-        title: "Status Pegawai",
-        description: "mengatur data Status kepegawaian",
-        icon: <ShieldCheck />,
-        link: route('master.status-pegawai.index')
-    },
-
     {
         title: "Rekap kepegawaian",
         description: "mengatur dan menerima rekap pegawaian",
@@ -73,8 +72,14 @@ const navListMenuItems = [
     },
     {
         title: "Pengajuan Promosi",
-        description: "Manajemen Promosi Pegawai di Unit",
+        description: "Mengatur dan menerima Promosi Pegawai",
         icon: <WorkSpaceIcon width={25} />,
+        link: route('master.pengajuan-promosi.index')
+    },
+    {
+        title: "Sumber daya dokumen",
+        description: "Menu sumber daya dokumen",
+        icon: <FileDown width={25} />,
         link: route('master.pengajuan-promosi.index')
     }
 ];

@@ -26,7 +26,7 @@ import { ChangeEvent, useState } from "react";
 import { toast } from "react-toastify";
 import axios, { AxiosError, AxiosProgressEvent } from "axios";
 import Pagination from "@/Components/Pagination";
-import CV_PDFGenerator, { PegawaiExportCV } from "@/Lib/CV_PDFGenerator";
+import CV_PDFGenerator, { PegawaiExportCV } from "@/Lib/Dokumen_RekapPegawai";
 import { pdf } from "@react-pdf/renderer";
 import { saveAs } from "file-saver";
 import { jenisKelamin } from "@/Lib/StaticData";

@@ -29,6 +29,7 @@ return new class extends Migration
             $table->string('ketuntasan_kerja');
             $table->string('catatan_negatif')->nullable();
             $table->string('prestasi')->nullable();
+            $table->string('pembinaan')->nullable();
             $table->boolean('terverifikasi')->default(false);
             $table->timestamps();
 

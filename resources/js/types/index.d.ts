@@ -5,103 +5,53 @@ interface AuthUser {
     unit_id: string | null;
 }
 
-export interface Unit  {
+export type StatusPernikahan = 'Belum Menikah' | 'Menikah' | 'Cerai Hidup' | 'Cerai Mati';
+export type StatusAktif = 'Aktif' | 'Nonaktif' | 'Cuti';
+export type JenisKelamin = 'Laki-Laki' | 'Perempuan';
+export type JenisPengajuanPromosi = 'golongan' | 'marhalah' | 'status_pegawai';
+export type JenisPeriodeRekap = 'mingguan' | 'bulanan' | 'semesteran' | 'tahunan';
+export type StatusPengajuanPromosi = 'menunggu' | 'ditolak' | 'disetujui';
+export type IDNamaColumn = {
     id: string;
     nama: string;
-    keterangan: string;
-    created_at: string;
-}
+};
 
-export interface StatusPegawai {
-    id: string;
-    nama: string;
-    keterangan: string;
-    created_at: string;
-}
-export interface Admin {
-    id: string;
-    nama: string;
-    username: string;
-    password: string;
-    unit_id: Unit;
-    created_at?: string;
-    updated_at?: string;
-}
-
-export interface Marhalah {
-    id: string;
-    nama: string;
-    keterangan: string;
-    created_at: string;
-}
-
-export interface Golongan {
-    id: string;
-    nama: string;
-    keterangan: string;
-    created_at: string;
-}
-
-export type Pegawai = {
-    id: string;
-    username: string;
-    password: string;
-    nip: string;
+export type FormPegawai<T extends Record<string, unknown> = Record<string, unknown>> = T & {
     nik: string;
-    foto: string | null;
+    nip: string;
     nama: string;
-    jenis_kelamin: 'Laki-Laki' | 'Perempuan';
+    jenis_kelamin: JenisKelamin | '';
     tempat_lahir: string;
-    tanggal_lahir: string;
-    no_hp: string;
+    tanggal_lahir?: Date;
+    usia_tahun: number;
+    usia_bulan: number;
     suku: string;
     alamat: string;
     agama: string;
-    status_pernikahan: string;
-    amanah: string;
-    amanah_atasan: string;
-    tanggal_masuk: string;
-    bpjs_kesehatan: string | null;
-    bpjs_ketenagakerjaan: string | null;
-    data_keluarga: string;
-    pendidikan_formal: string;
-    pendidikan_non_formal: string;
-    pengalaman_organisasi: string;
-    pengalaman_kerja_pph: string;
-    pengalaman_kerja_non_pph: string;
-    keahlian: string | null;
+    status_pernikahan: StatusPernikahan | '';
     golongan_id: string | null;
     marhalah_id: string | null;
     status_pegawai_id: string | null;
     unit_id: string | null;
-    created_at?: string;
-    updated_at?: string;
-};
-export type FormDataDiri = {
-    nik: string;
-    nip: string;
-    namaLengkap: string;
-    sukuBangsa: string;
-    tempatLahir: string;
-    tanggalLahir?: Date;
-    usiaTahun: string;
-    usiaBulan: string;
-    jenisKelamin: string;
-    alamat: string;
-    agama: string;
-    statusPernikahan: string;
-    marhalahId: string | null;
-    golonganId: string | null;
-    statusPegawaiId: string | null;
-    unitId: string | null;
+    tanggal_masuk?: Date;
+    tanggal_promosi?: Date;
+    tanggal_marhalah?: Date;
+    status_aktif: StatusAktif;
     amanah: string;
-    amanahAtasanLangsung: string;
-    nomorHpWa: string;
-    tahunMasuk?: Date;
-    bpjskesehatan: string | null;
-    bpjsketenagakerjaan: string | null;
-};
-export type FormDataKeluarga = {
+    amanah_atasan: string;
+    kompetensi_quran: string;
+    sertifikasi: string;
+    no_hp: string;
+    bpjs_kesehatan: boolean;
+    bpjs_ketenagakerjaan: boolean;
+    data_keluarga: string;
+    data_pendidikan_formal: string;
+    data_pendidikan_non_formal: string;
+    data_pengalaman_organisasi: string;
+    data_pengalaman_kerja_pph: string;
+    data_pengalaman_kerja_non_pph: string;
+}
+export type FormPegawaiDataKeluarga = {
     status: string;
     nama: string;
     jenisKelamin: string;
@@ -110,39 +60,99 @@ export type FormDataKeluarga = {
     pekerjaan: string;
     pendidikan: string;
 };
-export type FormDataPendidikanFormal = {
+export type FormPegawaiDataPendidikanFormal = {
     tingkat: string;
     sekolah: string;
     lulus: string;
 };
-export type FormDataPendidikanNonFormal = {
+export type FormPegawaiDataPendidikanNonFormal = {
     jenis: string;
     penyelenggara: string;
     tempat: string;
     tahun: string;
 };
-export type FormDataOrganisasi = {
+export type FormPegawaiDataOrganisasi = {
     nama: string;
     jabatan: string;
     masa: string;
     keterangan: string;
 };
-export type FormDataPengalamanPPH = {
+export type FormPegawaiDataPengalamanPPH = {
     unit: string;
     jabatan: string;
     amanah: string;
     mulai: string;
     akhir: string;
 };
-export type FormDataPengalamanNonPPH = {
+export type FormPegawaiDataPengalamanNonPPH = {
     instansi: string;
     jabatan: string;
     tahun: string;
     keterangan: string;
 };
-export type JenisKelamin = 'Laki-Laki' | 'Perempuan';
-export type JenisPengajuanPromosi = 'golongan' | 'marhalah' | 'status_pegawai';
-export type StatusPengajuanPromosi = 'menunggu' | 'ditolak' | 'disetujui';
+export type FormRekapPegawai<T extends Record<string, unknown> = Record<string, unknown>> = T & {
+    pegawai_id: string;
+    unit_id: string | null;
+    golongan_id: string | null;
+    status_pegawai_id: string | null;
+    marhalah_id: string | null;
+    periode_rekap_id: string;
+    amanah: string;
+    organisasi: string | null;
+    gaji: number;
+    skill_manajerial: string | null;
+    skill_leadership: string | null;
+    raport_profesi: string;
+    kedisiplinan: string;
+    ketuntasan_kerja: string;
+    catatan_negatif: string | null;
+    prestasi: string | null;
+    pembinaan: string | null;
+    terverifikasi: boolean;
+};
+export type PegawaiToRekap = {
+    id: string;
+    nama: string;
+    unit: IDNamaColumn;
+    golongan: IDNamaColumn;
+    marhalah: IDNamaColumn;
+    status_pegawai: IDNamaColumn;
+};
+// export type FormRekapPegawai<T extends Record<string, unknown> = Record<string, unknown>> = T & {
+//     nik: string;
+//     nik: string;
+//     foto: string | null;
+//     nama: string;
+//     jenis_kelamin: JenisKelamin;
+//     tempat_lahir: string;
+//     tanggal_lahir: string;
+//     no_hp: string;
+//     suku: string;
+//     alamat: string;
+//     agama: string;
+//     status_pernikahan: StatusPernikahan;
+//     amanah: string;
+//     amanah_atasan: string;
+//     kompetensi_quran: string;
+//     sertifikasi: string | null;
+//     status_aktif: StatusAktif;
+//     tanggal_masuk?: Date;
+//     tanggal_promosi?: Date;
+//     tanggal_marhalah?: Date
+//     bpjs_kesehatan: boolean;
+//     bpjs_ketenagakerjaan: boolean;
+//     data_keluarga: string;
+//     pendidikan_formal: string;
+//     pendidikan_non_formal: string;
+//     pengalaman_organisasi: string;
+//     pengalaman_kerja_pph: string;
+//     pengalaman_kerja_non_pph: string;
+//     keahlian: string | null;
+//     golongan_id: string | null;
+//     marhalah_id: string | null;
+//     status_pegawai_id: string | null;
+//     unit_id: string | null;
+// };
 
 export type ModelOnlyColumns<T, K extends keyof T> = Pick<T, K>;
 export type ModelWithoutColumns<T, K extends keyof T> = Omit<T, K>;
@@ -175,15 +185,11 @@ export type PaginationData<T> = {
     to: number;
     total: number;
 };
-export type IDNamaColumn = {
-    id: string;
-    nama: string;
-};
-export type FilterBy<T extends Record<string, unknown> = Record<string, unknown>> = T & {
-    marhalah: string[];
+export type FilterBy = {
     golongan: string[];
-    statusPegawai: string[];
     jenisKelamin: string[];
+    marhalah: string[];
+    statusPegawai: string[];
     unit: string[];
 };
 

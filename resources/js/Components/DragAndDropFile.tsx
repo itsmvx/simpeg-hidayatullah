@@ -22,9 +22,9 @@ export const DragNDropFile = ({ setFile }: {
 
     return (
         <>
-            <div className="max-w-lg mx-auto p-6 bg-white dark:bg-gray-800 rounded-md">
-                <h2 className="text-3xl font-semibold text-center mb-6 dark:text-white">File Upload</h2>
-                <div className="relative border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-md px-2 py-8 text-center">
+            <div className="max-w-lg mx-auto p-6 bg-white rounded-md">
+                <h2 className="text-3xl font-semibold text-center mb-6">File Upload</h2>
+                <div className="relative border-2 border-dashed border-gray-300 rounded-md px-2 py-8 text-center">
                     <div
                         aria-current={false}
                         className="absolute inset-0 group bg-transparent z-20 aria-[current=true]:bg-blue-gray-100/70"
@@ -60,10 +60,10 @@ export const DragNDropFile = ({ setFile }: {
                         className="hidden"
                         id="fileInput"
                     />
-                    <svg className="mx-auto h-16 w-16 text-gray-400 dark:text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 17l-4 4m0 0l-4-4m4 4V3"></path>
                     </svg>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">Seret dan letakkan file disini</p>
+                    <p className="text-sm text-gray-600 font-medium">Seret dan letakkan file disini</p>
                 </div>
                 <p className="text-sm font-semibold text-gray-900 text-center">
                     <label htmlFor="fileInput" className="cursor-pointer text-blue-500 hover:underline"> Cari file</label> untuk diupload.

@@ -7,21 +7,12 @@ import { MoveLeft, Save } from "lucide-react";
 import { TextArea } from "@/Components/TextArea";
 import axios, { AxiosError } from "axios";
 import { notifyToast } from "@/Lib/Utils";
-import { JenisPeriodeRekap, jenisPeriodeRekap } from "@/Pages/Master/MASTER_PeriodeRekapIndexPage";
-import { PageProps } from "@/types";
-
-type PeriodeRekap = {
-    id: string;
-    nama: string;
-    keterangan: string;
-    awal: string;
-    akhir: string;
-    jenis: string;
-    status: boolean;
-};
+import { JenisPeriodeRekap, ModelWithoutColumns, PageProps } from "@/types";
+import { jenisPeriodeRekap } from "@/Lib/StaticData";
+import { PeriodeRekap } from "@/types/models";
 
 export default function MASTER_PeriodeRekapDetailsPage({ auth, periode }: PageProps<{
-    periode: PeriodeRekap
+    periode: ModelWithoutColumns<PeriodeRekap, 'updated_at'>
 }>) {
 
     const [ periodeState, setPeriodeState ] = useState(periode);
@@ -183,5 +174,5 @@ export default function MASTER_PeriodeRekapDetailsPage({ auth, periode }: PagePr
                 </div>
             </MasterLayout>
         </>
-    )
-}
+    );
+};

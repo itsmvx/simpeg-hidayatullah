@@ -28,6 +28,8 @@ import Pagination from "@/Components/Pagination";
 import { AdminLayout } from "@/Layouts/AdminLayout";
 import { jenisPengajuanPromosi } from "@/Lib/StaticData";
 import { notifyToast } from "@/Lib/Utils";
+import { ViewPerPageList } from "@/Components/ViewPerPageList";
+import { SearchInput } from "@/Components/SearchInput";
 
 type PengajuanPromosis = {
     id: string;
@@ -60,28 +62,6 @@ export default function ADMIN_PengajuanPromosiIndexPage({ auth, pagination }: Pa
         pengajuanPromosiId: string;
     }>(deleteDialogInit);
     const [ onSubmitDelete, setOnSubmitDelete ] = useState(false);
-    const [ sortBy, setSortBy ] = useState('');
-
-    const [viewPerPage, setViewPerPage] = useState(() => {
-        const searchParams = new URLSearchParams(window.location.search);
-        const viewParam = searchParams.get('view');
-        return viewParam ? parseInt(viewParam, 10) : 10;
-    });
-    const handleSetViewPerPage = (value: number) => {
-        const searchParams = new URLSearchParams(window.location.search);
-        if (value === 10) {
-            searchParams.delete('view');
-        } else {
-            searchParams.set('view', String(value));
-        }
-        setViewPerPage(value);
-        router.visit(window.location.pathname + '?' + searchParams.toString(), {
-            preserveState: true,
-            preserveScroll: true,
-        });
-    };
-
-    const [ search, setSearch ] = useState('');
 
     const handleOpenDelete = () => setDeleteDialog((prevState) => ({
         ...prevState,
@@ -112,7 +92,7 @@ export default function ADMIN_PengajuanPromosiIndexPage({ auth, pagination }: Pa
             <Head title="Admin - Pengajuan Promosi Pegawai" />
             <AdminLayout auth={auth}>
                 <Card className="h-full w-full" shadow={false}>
-                    <CardHeader floated={false} shadow={false} className="rounded-none">
+                    <CardHeader floated={ false } shadow={ false } className="rounded-none">
                         <div className="mb-8 flex flex-col md:flex-row items-start justify-between gap-3">
                             <div>
                                 <Typography variant="h5" color="blue-gray">
@@ -125,150 +105,39 @@ export default function ADMIN_PengajuanPromosiIndexPage({ auth, pagination }: Pa
                         </div>
                         <div className="w-full flex flex-col md:flex-row items-start justify-between gap-4">
                             <div className="ml-auto w-full md:w-72 flex flex-col justify-end gap-2">
-                                <div className="w-min text-sm *:!min-w-16 -space-y-1.5">
-                                    <Typography variant="h6" color="blue-gray" className="ml-0 md:ml-3">
-                                        Data per Halaman
-                                    </Typography>
-                                    <List className="flex-row">
-                                        <ListItem className="p-0 !gap-1" ripple={false}>
-                                            <label
-                                                htmlFor="show-10"
-                                                className="flex w-full cursor-pointer items-center px-3 py-2 *:!text-sm"
-                                            >
-                                                <ListItemPrefix className="mr-3">
-                                                    <Checkbox
-                                                        id="show-10"
-                                                        ripple={false}
-                                                        className="hover:before:opacity-0"
-                                                        containerProps={{
-                                                            className: "p-0",
-                                                        }}
-                                                        value={10}
-                                                        checked={viewPerPage === 10}
-                                                        onChange={() => handleSetViewPerPage(10)}
-                                                    />
-                                                </ListItemPrefix>
-                                                <Typography color="blue-gray" className="font-medium">
-                                                    10
-                                                </Typography>
-                                            </label>
-                                        </ListItem>
-                                        <ListItem className="p-0" ripple={false}>
-                                            <label
-                                                htmlFor="show-25"
-                                                className="flex w-full cursor-pointer items-center px-3 py-2 *:!text-sm"
-                                            >
-                                                <ListItemPrefix className="mr-3">
-                                                    <Checkbox
-                                                        id="show-25"
-                                                        ripple={false}
-                                                        className="hover:before:opacity-0"
-                                                        containerProps={{
-                                                            className: "p-0",
-                                                        }}
-                                                        value={25}
-                                                        checked={viewPerPage === 25}
-                                                        onChange={() => handleSetViewPerPage(25)}
-                                                    />
-                                                </ListItemPrefix>
-                                                <Typography color="blue-gray" className="font-medium">
-                                                    25
-                                                </Typography>
-                                            </label>
-                                        </ListItem>
-                                    </List>
-                                    <List className="flex-row !gap-1.5">
-                                        <ListItem className="p-0" ripple={false}>
-                                            <label
-                                                htmlFor="show-50"
-                                                className="flex w-full cursor-pointer items-center px-3 py-2 *:!text-sm"
-                                            >
-                                                <ListItemPrefix className="mr-3">
-                                                    <Checkbox
-                                                        id="show-50"
-                                                        ripple={false}
-                                                        className="hover:before:opacity-0"
-                                                        containerProps={{
-                                                            className: "p-0",
-                                                        }}
-                                                        value={50}
-                                                        checked={viewPerPage === 50}
-                                                        onChange={() => handleSetViewPerPage(50)}
-                                                    />
-                                                </ListItemPrefix>
-                                                <Typography color="blue-gray" className="font-medium">
-                                                    50
-                                                </Typography>
-                                            </label>
-                                        </ListItem>
-                                        <ListItem className="p-0" ripple={false}>
-                                            <label
-                                                htmlFor="show-100"
-                                                className="flex w-full cursor-pointer items-center px-3 py-2 *:!text-sm"
-                                            >
-                                                <ListItemPrefix className="mr-3">
-                                                    <Checkbox
-                                                        id="show-100"
-                                                        ripple={false}
-                                                        className="hover:before:opacity-0"
-                                                        containerProps={{
-                                                            className: "p-0",
-                                                        }}
-                                                        value={100}
-                                                        checked={viewPerPage === 100}
-                                                        onChange={() => handleSetViewPerPage(100)}
-                                                    />
-                                                </ListItemPrefix>
-                                                <Typography color="blue-gray" className="font-medium">
-                                                    100
-                                                </Typography>
-                                            </label>
-                                        </ListItem>
-                                    </List>
-                                </div>
-
-                               <div className="space-y-3">
-                                   <Input
-                                       label="Pencarian"
-                                       placeholder="cari berdasarkan nama"
-                                       value={ search }
-                                       onChange={ (event) => {
-                                           setSearch(event.target.value);
-                                       } }
-                                       icon={ <Search className="h-5 w-5"/> }
-                                   />
-                                   <Button
-                                       onClick={() => {
-                                           router.visit(route('admin.pengajuan-promosi.create'));
-                                       }}
-                                       className="ml-auto flex items-center gap-1.5 capitalize font-medium text-base" size="sm"
-                                   >
-                                       <Plus />
-                                       Buat Pengajuan baru
-                                   </Button>
-                               </div>
+                                <ViewPerPageList/>
+                                <SearchInput/>
+                            </div>
+                        </div>
+                        <div className="w-full flex flex-row-reverse justify-between gap-4">
+                            <div className="flex flex-col shrink-0 gap-2 lg:flex-row">
+                                <Button
+                                    onClick={ () => {
+                                        router.visit(route('admin.pengajuan-promosi.create'));
+                                    } }
+                                    className="flex items-center gap-1.5 capitalize font-medium text-base" size="sm"
+                                >
+                                    <Plus/>
+                                    Buat Pengajuan baru
+                                </Button>
                             </div>
                         </div>
                     </CardHeader>
                     <CardBody className="overflow-auto px-0">
-                    <table className="mt-4 w-full min-w-max table-auto text-left">
+                        <table className="mt-4 w-full min-w-max table-auto text-left">
                             <thead>
                             <tr>
                                 { TABLE_HEAD.map((head, index) => (
                                     <th
                                         key={ head }
-                                        onClick={ () => setSortBy(head) }
-                                        className="cursor-pointer border-y border-blue-gray-100 bg-blue-gray-50/50 p-4 transition-colors hover:bg-blue-gray-50 last:cursor-auto last:hover:bg-blue-gray-50/50"
+                                        className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-4"
                                     >
                                         <Typography
                                             variant="small"
                                             color="blue-gray"
                                             className="flex items-center justify-between gap-2 font-normal leading-none opacity-70"
                                         >
-                                            { head }{ " " }
-                                            { index !== TABLE_HEAD.length - 1 && (
-                                                <ChevronDown strokeWidth={ 2 } className="h-4 w-4"/>
-                                            ) }
+                                            { head }
                                         </Typography>
                                     </th>
                                 )) }
@@ -280,6 +149,7 @@ export default function ADMIN_PengajuanPromosiIndexPage({ auth, pagination }: Pa
                                 ? pagination.data.map(
                                     ({
                                          id,
+                                         jenis,
                                          asal,
                                          akhir,
                                          asal_type,
@@ -294,7 +164,6 @@ export default function ADMIN_PengajuanPromosiIndexPage({ auth, pagination }: Pa
                                         const classes = isLast
                                             ? "p-4"
                                             : "p-4 border-b border-blue-gray-50";
-                                        const jenisPromosi = jenisPengajuanPromosi.find((jenisPromosi) => jenisPromosi.value === asal_type)?.label ?? '';
 
                                         return (
                                             <tr key={ id }>
@@ -338,9 +207,9 @@ export default function ADMIN_PengajuanPromosiIndexPage({ auth, pagination }: Pa
                                                             color="blue-gray"
                                                             className="font-normal"
                                                         >
-                                                            Promosi { jenisPromosi } dari&nbsp;
-                                                            { asal?.nama ?? `${jenisPromosi} dihapus` } ke&nbsp;
-                                                            { akhir?.nama ?? `${jenisPromosi} dihapus` }
+                                                            Promosi { jenis } dari&nbsp;
+                                                            { asal?.nama ?? `${jenis} dihapus` } ke&nbsp;
+                                                            { akhir?.nama ?? `${jenis} dihapus` }
                                                         </Typography>
                                                     </div>
                                                 </td>

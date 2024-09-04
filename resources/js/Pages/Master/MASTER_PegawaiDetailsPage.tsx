@@ -3,39 +3,38 @@ import {
     Card,
     Collapse,
     IconButton, List, ListItem,
-    Typography, Button, Tooltip, Select, Option
+    Typography, Button, Tooltip, Select, Option, PopoverHandler, PopoverContent, Popover
 } from "@material-tailwind/react";
 import {
+    Award,
     CircleAlert,
     CircleUser,
     GraduationCap, Medal,
-    Menu as MenuIcon, Moon, MoveLeft, Pencil, RotateCcw, Save,
-    Star, Sun, TrendingUp, TriangleAlert,
+    Menu as MenuIcon, MoveLeft, Pencil, RotateCcw, Save,
+    Star, TrendingUp, TriangleAlert,
     Users,
     X
 } from "lucide-react";
-import { ChangeEvent, FormEvent, lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import "react-day-picker/dist/style.css";
-import { useTheme } from "@/Hooks/useTheme";
 import { MasterLayout } from "@/Layouts/MasterLayout";
-import PegawaiFormDataDiri from "@/Components/PegawaiDetailsFormDataDiri";
-import PegawaiFormDataKeluarga from "@/Components/PegawaiCreateFormDataKeluarga";
-import PegawaiFormDataPendidikanFormal from "@/Components/PegawaiCreateFormDataPendidikanFormal";
-import PegawaiFormDataPendidikanNonFormal from "@/Components/PegawaiCreateFormDataPendidikanNonFormal";
-import PegawaiFormDataOrganisasi from "@/Components/PegawaiCreateFormDataOrganisasi";
-import PegawaiFormDataPengalamanPPH from "@/Components/PegawaiCreateFormDataPengalamanPPH";
-import PegawaiFormDataPengalamanNonPPH from "@/Components/PegawaiCreateFormDataPengalamanNonPPH";
+import PegawaiFormDataKeluarga from "@/Components/FormDataKeluarga";
+import PegawaiFormDataPendidikanFormal from "@/Components/FormDataPendidikanFormal";
+import PegawaiFormDataPendidikanNonFormal from "@/Components/FormDataPendidikanNonFormal";
+import PegawaiFormDataOrganisasi from "@/Components/FormDataPengalamanOrganisasi";
+import PegawaiFormDataPengalamanPPH from "@/Components/FormDataPengalamanKerjaPPH";
+import PegawaiFormDataPengalamanNonPPH from "@/Components/FormDataPengalamanKerjaNonPPH";
 import type {
-    FormDataDiri, FormDataKeluarga,
-    FormDataOrganisasi,
-    FormDataPendidikanFormal,
-    FormDataPendidikanNonFormal, FormDataPengalamanNonPPH,
-    FormDataPengalamanPPH,
+    FormPegawai,
+    FormPegawaiDataKeluarga,
+    FormPegawaiDataOrganisasi,
+    FormPegawaiDataPendidikanFormal,
+    FormPegawaiDataPendidikanNonFormal, FormPegawaiDataPengalamanNonPPH,
+    FormPegawaiDataPengalamanPPH,
     PageProps,
-    Pegawai
 } from "@/types";
 import { z } from "zod";
-import { calculateAge, notifyToast } from "@/Lib/Utils";
+import { calculateAge, calculateDatePast, notifyToast } from "@/Lib/Utils";
 import axios, { AxiosError, AxiosProgressEvent } from "axios";
 import {
     formDataKeluargaDefault, formDataOrganisasiDefault,
@@ -43,15 +42,16 @@ import {
     formDataPendidikanNonFormalDefault, formDataPengalamanNonPPHDefault, formDataPengalamanPPHDefault
 } from "@/Lib/StaticData";
 import { toast } from "react-toastify";
-import { HarunaPP, MenAvatar, WomenAvatar } from "@/Lib/StaticImages";
+import { MenAvatar, WomenAvatar } from "@/Lib/StaticImages";
 import { id } from "date-fns/locale";
 import { format } from "date-fns";
+import { Pegawai } from "@/types/models";
+import MASTER_PegawaiDetailsForm from "@/Components/MASTER_PegawaiDetailsForm";
+import { Input } from "@/Components/Input";
+import { DayPicker } from "react-day-picker";
 
-export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, marhalahs, statusPegawais, units }: PageProps<{
-    pegawai: Pegawai & {
-        tanggal_promosi: string;
-        lama_promosi: string;
-    };
+export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, marhalahs, statusPegawais, units, currDate }: PageProps<{
+    pegawai: Pegawai;
     golongans: {
         id: string;
         nama: string;
@@ -68,9 +68,9 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
         id: string;
         nama: string;
     }[];
+    currDate: string;
 }>) {
 
-    const { theme, setTheme } = useTheme();
     const formDataDiriRef = useRef<HTMLDivElement | null>(null);
     const formDataKeluargaRef = useRef<HTMLDivElement | null>(null);
     const formDataPendidikanRef = useRef<HTMLDivElement | null>(null);
@@ -146,184 +146,118 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
             </>
         );
     };
-    const formDataDiriInit: FormDataDiri = useMemo(() => {
-        const { years, months } = calculateAge(new Date(pegawai.tanggal_lahir));
 
+    const pegawaiStateInit: FormPegawai<{
+        onSubmit: boolean;
+    }> = useMemo(() => {
+        const { years, months } = calculateAge(new Date(pegawai.tanggal_lahir));
         return {
+            id: pegawai.id,
             nik: pegawai.nik,
-            nip: pegawai.nik,
-            namaLengkap: pegawai.nama,
-            sukuBangsa: pegawai.suku,
-            tempatLahir: pegawai.tempat_lahir,
-            tanggalLahir: new Date(pegawai.tanggal_lahir),
-            usiaTahun: years.toString(),
-            usiaBulan: months.toString(),
-            jenisKelamin: pegawai.jenis_kelamin,
+            nip: pegawai.nip,
+            nama: pegawai.nama,
+            jenis_kelamin: pegawai.jenis_kelamin,
+            tempat_lahir: pegawai.tempat_lahir,
+            tanggal_lahir: new Date(pegawai.tanggal_lahir),
+            usia_tahun: years,
+            usia_bulan: months,
+            suku: pegawai.suku,
             alamat: pegawai.alamat,
             agama: pegawai.agama,
-            statusPernikahan: pegawai.status_pernikahan,
-            golonganId: pegawai.golongan_id,
-            marhalahId: pegawai.marhalah_id,
-            statusPegawaiId: pegawai.status_pegawai_id,
-            unitId: pegawai.unit_id,
-            tahunMasuk: new Date(pegawai.tanggal_masuk),
+            status_pernikahan: pegawai.status_pernikahan,
+            golongan_id: pegawai.golongan_id,
+            marhalah_id: pegawai.marhalah_id,
+            status_pegawai_id: pegawai.status_pegawai_id,
+            unit_id: pegawai.unit_id,
+            tanggal_masuk: new Date(pegawai.tanggal_masuk),
+            tanggal_promosi: pegawai.tanggal_promosi ? new Date(pegawai.tanggal_promosi) : undefined,
+            tanggal_marhalah: pegawai.tanggal_marhalah ? new Date(pegawai.tanggal_marhalah) : undefined,
+            status_aktif: pegawai.status_aktif,
             amanah: pegawai.amanah,
-            amanahAtasanLangsung: pegawai.amanah_atasan,
-            nomorHpWa: pegawai.no_hp,
-            bpjskesehatan: pegawai.bpjs_kesehatan,
-            bpjsketenagakerjaan: pegawai.bpjs_ketenagakerjaan
+            amanah_atasan: pegawai.amanah_atasan,
+            kompetensi_quran: pegawai.kompetensi_quran ?? '',
+            sertifikasi: pegawai.sertifikasi ?? '',
+            no_hp: pegawai.no_hp,
+            bpjs_kesehatan: Boolean(pegawai.bpjs_kesehatan),
+            bpjs_ketenagakerjaan: Boolean(pegawai.bpjs_ketenagakerjaan),
+            data_keluarga: pegawai.data_keluarga,
+            data_pendidikan_formal: pegawai.data_pendidikan_formal,
+            data_pendidikan_non_formal: pegawai.data_pendidikan_non_formal,
+            data_pengalaman_organisasi: pegawai.data_pengalaman_organisasi,
+            data_pengalaman_kerja_pph: pegawai.data_pengalaman_kerja_pph,
+            data_pengalaman_kerja_non_pph: pegawai.data_pengalaman_kerja_non_pph,
+            onSubmit: false
         }
     }, [ pegawai ]);
 
-    const formDataKeluargaInit: FormDataKeluarga[] = useMemo(() => (JSON.parse(pegawai.data_keluarga)), [ pegawai ]);
-    const formDataPendidikanFormalInit: FormDataPendidikanFormal[] = useMemo(() => JSON.parse(pegawai.pendidikan_formal), [ pegawai ]);
-    const formDataPendidikanNonFormalInit: FormDataPendidikanNonFormal[] = useMemo(() => JSON.parse(pegawai.pendidikan_non_formal), [ pegawai ]);
-    const formDataOrganisasiInit: FormDataOrganisasi[] = useMemo(() => JSON.parse(pegawai.pengalaman_organisasi), [ pegawai ]);
-    const formDataPengalamanPPHInit: FormDataPengalamanPPH[] = useMemo(() => JSON.parse(pegawai.pengalaman_kerja_pph), [ pegawai ]);
-    const formDataPengalamanNonPPHInit: FormDataPengalamanNonPPH[] = useMemo(() => JSON.parse(pegawai.pengalaman_kerja_non_pph), [ pegawai ]);
+    const [ pegawaiState, setPegawaiState ] = useState<FormPegawai<{
+        onSubmit: boolean;
+    }>>(pegawaiStateInit)
 
     const [ openNav, setOpenNav] = useState(false);
-    const [ formDataDiri, setFormDataDiri ] = useState<FormDataDiri>(formDataDiriInit);
-    const [ formDataKeluarga, setFormDataKeluarga ] = useState<{
-        status: string;
-        nama: string;
-        jenisKelamin: string;
-        tempatLahir: string;
-        tanggalLahir: string;
-        pekerjaan: string;
-        pendidikan: string;
-    }[]>(formDataKeluargaInit);
-    const [ formDataPendidikanFormal, setFormDataPendidikanFormal ] = useState<{
-        tingkat: string;
-        sekolah: string;
-        lulus: string;
-    }[]>(formDataPendidikanFormalInit);
-    const [ formDataPendidikanNonFormal, setFormDataPendidikanNonFormal ] = useState<{
-        jenis: string;
-        penyelenggara: string;
-        tempat: string;
-        tahun: string;
-    }[]>(formDataPendidikanNonFormalInit);
-    const [ formDataOrganisasi, setFormDataOrganisasi ] = useState<{
-        nama: string;
-        jabatan: string;
-        masa: string;
-        keterangan: string;
-    }[]>(formDataOrganisasiInit);
-    const [ formDataPengalamanPPH, setFormDataPengalamanPPH ] = useState<{
-        unit: string;
-        jabatan: string;
-        amanah: string;
-        mulai: string;
-        akhir: string;
-    }[]>(formDataPengalamanPPHInit);
-    const [ formDataPengalamanNonPPH, setFormPengalamanNonPPH ] = useState<{
-        instansi: string;
-        jabatan: string;
-        tahun: string;
-        keterangan: string;
-    }[]>(formDataPengalamanNonPPHInit);
+    const [ dataKeluarga, setDataKeluarga ] = useState<FormPegawaiDataKeluarga[]>( JSON.parse(pegawai.data_keluarga) );
+    const [ dataPendidikanFormal, setDataPendidikanFormal ] = useState<FormPegawaiDataPendidikanFormal[]>( JSON.parse(pegawai.data_pendidikan_formal));
+    const [ dataPendidikanNonFormal, setDataPendidikanNonFormal ] = useState<FormPegawaiDataPendidikanNonFormal[]>( JSON.parse(pegawai.data_pendidikan_non_formal) );
+    const [ dataOrganisasi, setDataOrganisasi ] = useState<FormPegawaiDataOrganisasi[]>( JSON.parse(pegawai.data_pengalaman_organisasi) );
+    const [ dataPengalamanPPH, setDataPengalamanPPH ] = useState<FormPegawaiDataPengalamanPPH[]>( JSON.parse(pegawai.data_pengalaman_kerja_pph) );
+    const [ dataPengalamanNonPPH, setDataPengalamanNonPPH ] = useState<FormPegawaiDataPengalamanNonPPH[]>( JSON.parse(pegawai.data_pengalaman_kerja_non_pph) );
 
-    const [ onChangeDataDiri, setOnChangeDataDiri ] = useState(false);
-    const [ onChangeDataKeluarga, setOnChangeDataKeluarga ] = useState(false);
-    const [ onChangeDataOrganisasi, setOnChangeDataOrganisasi ] = useState(false);
-    const [ onChangeDataPendidikanFormal, setOnChangeDataPendidikanFormal ] = useState(false);
-    const [ onChangeDataPendidikanNonFormal, setOnChangeDataPendidikanNonFormal ] = useState(false);
-    const [ onChangeDataPengalamanPPH, setOnChangeDataPengalamanPPH ] = useState(false);
-    const [ onChangeDataPengalamanNonPPH, setOnChangeDataPengalamanNonPPH ] = useState(false);
-    const [ onChangeDataPromosi, setOnChangeDataPromosi ] = useState(false);
-    const [ onSubmit, setOnSubmit ] = useState(false);
-    const [ onLoadImage, setOnLoadImage ] = useState(false);
-    const onChangeForm = (): boolean => onChangeDataDiri
-        || onChangeDataKeluarga
-        || onChangeDataOrganisasi
-        || onChangeDataPendidikanFormal
-        || onChangeDataPendidikanNonFormal
-        || onChangeDataPengalamanPPH
-        || onChangeDataPengalamanNonPPH;
-
-
-    const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = event.target;
-        setFormDataDiri((prevState) => ({
-            ...prevState,
-            [name]: value,
-        }));
-    };
-    const handleSelectChange = (key: keyof FormDataDiri, value: string) => {
-        setFormDataDiri((prevState) => ({
-            ...prevState,
-            [key]: value,
-        }));
-    };
-    const handleDateChange = (date: Date | undefined, key: keyof FormDataDiri) => {
-        setFormDataDiri((prevState) => ({
+    const handleDateChange = (date: Date | undefined, key: keyof FormPegawai) => {
+        setPegawaiState((prevState) => ({
             ...prevState,
             [key]: date,
         }));
     };
+    const handleSelectChange = (key: keyof FormPegawai, value: string) => {
+        setPegawaiState((prevState) => ({
+            ...prevState,
+            [key]: value,
+        }));
+    };
+
+    const [ onChangeDataPromosi, setOnChangeDataPromosi ] = useState(false);
+    const [ onSubmit, setOnSubmit ] = useState(false);
+    const [ onLoadImage, setOnLoadImage ] = useState(false);
+
     const handleFormSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         setOnSubmit(true);
         const pegawaiSchema = z.object({
-            id: z.string({ message: "Format Pegawai tidak valid!" }),
-            nip: z.string({ message: "NIP tidak boleh kosong" }),
-            nik: z.string({ message: "NIK tidak boleh kosong" }),
-            nama: z.string({ message: "Nama tidak boleh kosong" }),
-            jenis_kelamin: z.enum(['Laki-Laki', 'Perempuan'], { message: "Jenis kelamin harus Laki-Laki atau 'Perempuan" }),
-            tempat_lahir: z.string({ message: "Tempat lahir tidak boleh kosong" }),
-            tanggal_lahir: z.date({ message: "Tanggal lahir tidak valid" }),
-            no_hp: z.string({ message: "Nomor HP tidak boleh kosong" }),
-            suku: z.string({ message: 'Input Suku bangsa tidak boleh kosong' }),
-            alamat: z.string({ message: 'Alamat tidak boleh kosong' }),
-            agama: z.string({ message: 'Agama tidak boleh kosong' }),
-            status_pernikahan: z.string({ message: "Status pernikahan tidak boleh kosong" }),
-            amanah: z.string({ message: "Amanah tidak boleh kosong" }),
-            amanah_atasan: z.string({ message: "Amanah Atasan tidak boleh kosong" }),
-            tanggal_masuk: z.date({ message: "Tanggal masuk harus berupa tanggal yang valid" }),
-            bpjs_kesehatan: z.string().nullable(),
-            bpjs_ketenagakerjaan: z.string().nullable(),
-            data_keluarga: z.string({ message: "Data Keluarga tidak valid" }),
-            pendidikan_formal: z.string({ message: "Data Pendidikan formal tidak valid" }),
-            pendidikan_non_formal: z.string({ message: "Data Pendidikan non formal tidak valid" }),
-            pengalaman_organisasi: z.string({ message: "Data Pengalaman Organisasi tidak valid" }),
-            pengalaman_kerja_pph: z.string({ message: "Data Pengalaman Kerja di PPH tidak valid" }),
-            pengalaman_kerja_non_pph: z.string({ message: "Data Pengalaman kerja non PPH tidak valid" }),
-            keahlian: z.string({ message: "Format data keahlian tidak valid" }).nullable(),
-            golongan_id: z.string({ message: "Format Data Golongan tidak valid " }).uuid({ message: "Format Data Golongan tidak valid " }),
-            marhalah_id: z.string({ message: "Format Data Marhalah tidak valid " }).uuid({ message: "Format Data Marhalah tidak valid " }),
-            status_pegawai_id: z.string({ message: "Format Data Status Pegawai tidak valid " }).uuid({ message: "Format Data Status Pegawai tidak valid " }),
-            unit_id: z.string({ message: "Format Data Unit tidak valid " }).uuid({ message: "Format Data Unit tidak valid " })
+            nik: z.string({ message: "Format NIK tidak valid" }).min(1, { message: "NIK tidak boleh kosong" }),
+            nip: z.string({ message: "Format NIP tidak valid" }).min(1, { message: "NIP tidak boleh kosong" }),
+            nama: z.string({ message: "Format nama tidak valid" }).min(1, { message: "Nama tidak boleh kosong" }),
+            jenis_kelamin: z.enum(['Laki-Laki', 'Perempuan'], { message: "Format jenis kelamin tidak valid" }),
+            tempat_lahir: z.string({ message: "Format tempat lahir tidak valid" }).min(1, { message: "Tempat lahir tidak boleh kosong" }),
+            tanggal_lahir: z.date({ message: "Format tanggal lahir tidak valid" }),
+            suku: z.string({ message: "Format suku tidak valid" }).min(1, { message: "Suku tidak boleh kosong" }),
+            alamat: z.string({ message: "Format alamat tidak valid" }).min(1, { message: "Alamat tidak boleh kosong" }),
+            agama: z.string({ message: "Format agama tidak valid" }).min(1, { message: "Agama tidak boleh kosong" }),
+            status_pernikahan: z.enum(['Belum Menikah', 'Menikah', 'Cerai Hidup', 'Cerai Mati'], { message: "Format status pernikahan tidak valid" }),
+            golongan_id: z.string({ message: "Format Data Golongan tidak valid" }).uuid({ message: "Format Data Golongan tidak valid" }).nullable(),
+            marhalah_id: z.string({ message: "Format Data Marhalah tidak valid" }).uuid({ message: "Format Data Marhalah tidak valid" }).nullable(),
+            status_pegawai_id: z.string({ message: "Format Data Status Pegawai tidak valid" }).uuid({ message: "Format Data Status Pegawai tidak valid" }).nullable(),
+            unit_id: z.string({ message: "Format Data Unit tidak valid" }).uuid({ message: "Format Data Unit tidak valid" }).nullable(),
+            tanggal_masuk: z.date({ message: "Format tanggal masuk tidak valid" }),
+            tanggal_promosi: z.date({ message: "Format tanggal Promosi tidak valid" }).optional(),
+            tanggal_marhalah: z.date({ message: "Format tanggal marhalah tidak valid" }).optional(),
+            status_aktif: z.enum(['Aktif', 'Nonaktif', 'Cuti'], { message: "Format status aktif tidak valid" }),
+            amanah: z.string({ message: "Format amanah tidak valid" }).min(1, { message: "Amanah tidak boleh kosong" }),
+            amanah_atasan: z.string({ message: "Format amanah atasan tidak valid" }).min(1, { message: "Amanah atasan tidak boleh kosong" }),
+            kompetensi_quran: z.string({ message: "Format data kompetensi Qur'an tidak valid" }).min(1, { message: "Kompetensi Qur'an tidak boleh kosong" }),
+            sertifikasi: z.string({ message: "Format sertifikasi tidak valid" }).nullable(),
+            no_hp: z.string({ message: "Format nomor HP tidak valid" }).min(1, { message: "Nomor HP tidak boleh kosong" }),
+            bpjs_kesehatan: z.boolean({ message: "Format BPJS Kesehatan tidak valid" }),
+            bpjs_ketenagakerjaan: z.boolean({ message: "Format BPJS Ketenagakerjaan tidak valid" }),
+            data_keluarga: z.string({ message: "Format data keluarga tidak valid" }).min(1, { message: "Data keluarga tidak boleh kosong" }),
+            data_pendidikan_formal: z.string({ message: "Format data pendidikan formal tidak valid" }).min(1, { message: "Data pendidikan formal tidak boleh kosong" }),
+            data_pendidikan_non_formal: z.string({ message: "Format data pendidikan non formal tidak valid" }).min(1, { message: "Data pendidikan non formal tidak boleh kosong" }),
+            data_pengalaman_organisasi: z.string({ message: "Format data pengalaman organisasi tidak valid" }).min(1, { message: "Data pengalaman organisasi tidak boleh kosong" }),
+            data_pengalaman_kerja_pph: z.string({ message: "Format data pengalaman kerja PPH tidak valid" }).min(1, { message: "Data pengalaman kerja PPH tidak boleh kosong" }),
+            data_pengalaman_kerja_non_pph: z.string({ message: "Format data pengalaman kerja non PPH tidak valid" }).min(1, { message: "Data pengalaman kerja non PPH tidak boleh kosong" }),
+            keahlian: z.string({ message: "Format data keahlian tidak valid" }).nullable().optional(),
         });
         const pegawaiPayload = {
-            id: pegawai.id,
-            nip: formDataDiri.nip,
-            nik: formDataDiri.nik,
-            nama: formDataDiri.namaLengkap,
-            jenis_kelamin: formDataDiri.jenisKelamin,
-            tempat_lahir: formDataDiri.tempatLahir,
-            tanggal_lahir: formDataDiri.tanggalLahir,
-            no_hp: formDataDiri.nomorHpWa,
-            suku: formDataDiri.sukuBangsa,
-            alamat: formDataDiri.alamat,
-            agama: formDataDiri.agama,
-            status_pernikahan: formDataDiri.statusPernikahan,
-            amanah: formDataDiri.amanah,
-            amanah_atasan: formDataDiri.amanahAtasanLangsung,
-            tanggal_masuk: formDataDiri.tahunMasuk,
-            bpjs_kesehatan: formDataDiri.bpjskesehatan,
-            bpjs_ketenagakerjaan: formDataDiri.bpjsketenagakerjaan,
-            data_keluarga: JSON.stringify(formDataKeluarga),
-            pendidikan_formal: JSON.stringify(formDataPendidikanFormal),
-            pendidikan_non_formal: JSON.stringify(formDataPendidikanNonFormal),
-            pengalaman_organisasi: JSON.stringify(formDataOrganisasi),
-            pengalaman_kerja_pph: JSON.stringify(formDataPengalamanPPH),
-            pengalaman_kerja_non_pph: JSON.stringify(formDataPengalamanNonPPH),
-            keahlian: null,
-            golongan_id: formDataDiri.golonganId,
-            marhalah_id: formDataDiri.marhalahId,
-            status_pegawai_id: formDataDiri.statusPegawaiId,
-            unit_id: formDataDiri.unitId
+            ...pegawaiState,
         };
 
         const pegawaiParse = pegawaiSchema.safeParse(pegawaiPayload);
@@ -334,18 +268,12 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
         }
 
         axios.post(route('pegawai.update'), {
-            ...pegawaiParse.data
+            ...pegawaiParse.data,
+            id: pegawai.id,
         })
             .then(() => {
                 notifyToast('success', 'Pegawai berhasil diperbarui!');
                 router.reload({ only: [ 'pegawai' ]});
-                setOnChangeDataDiri(false);
-                setOnChangeDataKeluarga(false);
-                setOnChangeDataOrganisasi(false);
-                setOnChangeDataPendidikanFormal(false);
-                setOnChangeDataPendidikanNonFormal(false);
-                setOnChangeDataPengalamanPPH(false);
-                setOnChangeDataPengalamanNonPPH(false);
             })
             .catch((err: unknown) => {
                 const errMsg = err instanceof AxiosError
@@ -383,25 +311,60 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
         }
     };
     const handleRollbackPromosi = () => {
-        setFormDataDiri((prevState) => ({
+        setPegawaiState((prevState) => ({
             ...prevState,
-            golonganId: pegawai.golongan_id,
-            marhalahId: pegawai.marhalah_id,
-            statusPegawaiId: pegawai.status_pegawai_id
+            golongan_id: pegawai.golongan_id,
+            status_pegawai_id: pegawai.status_pegawai_id,
+            tanggal_promosi: pegawai.tanggal_promosi ? new Date(pegawai.tanggal_promosi) : undefined
         }));
     };
 
-
     useEffect(() => {
-        if (formDataDiri.tanggalLahir) {
-            const { years, months } = calculateAge(formDataDiri.tanggalLahir);
-            setFormDataDiri((prevState) => ({
+        if (pegawaiState.tanggal_lahir) {
+            const { years, months } = calculateAge(pegawaiState.tanggal_lahir);
+            setPegawaiState((prevState) => ({
                 ...prevState,
-                usiaTahun: years.toString(),
-                usiaBulan: months.toString(),
+                usia_tahun: years,
+                usia_bulan: months,
             }));
         }
-    }, [formDataDiri.tanggalLahir]);
+    }, [pegawaiState.tanggal_lahir]);
+    useEffect(() => {
+        setPegawaiState((prevState) => ({
+            ...prevState,
+            data_keluarga: JSON.stringify(dataKeluarga)
+        }))
+    }, [ dataKeluarga ]);
+    useEffect(() => {
+        setPegawaiState((prevState) => ({
+            ...prevState,
+            data_pendidikan_formal: JSON.stringify(dataPendidikanFormal)
+        }));
+    }, [ dataPendidikanFormal ]);
+    useEffect(() => {
+        setPegawaiState((prevState) => ({
+            ...prevState,
+            data_pendidikan_non_formal: JSON.stringify(dataPendidikanNonFormal)
+        }));
+    }, [ dataPendidikanNonFormal ]);
+    useEffect(() => {
+        setPegawaiState((prevState) => ({
+            ...prevState,
+            data_pengalaman_organisasi: JSON.stringify(dataOrganisasi)
+        }));
+    }, [ dataOrganisasi ]);
+    useEffect(() => {
+        setPegawaiState((prevState) => ({
+            ...prevState,
+            data_pengalaman_kerja_pph: JSON.stringify(dataPengalamanPPH)
+        }));
+    }, [ dataPengalamanPPH ]);
+    useEffect(() => {
+        setPegawaiState((prevState) => ({
+            ...prevState,
+            data_pengalaman_kerja_non_pph: JSON.stringify(dataPengalamanNonPPH)
+        }));
+    }, [ dataPengalamanNonPPH ]);
 
     useEffect(() => {
         const handleResize = () => {
@@ -413,31 +376,20 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
     }, []);
 
     useEffect(() => {
-        setOnChangeDataDiri(JSON.stringify(formDataDiri) !== JSON.stringify(formDataDiriInit));
-        setOnChangeDataPromosi(formDataDiri.golonganId !== pegawai.golongan_id || formDataDiri.marhalahId !== pegawai.marhalah_id || formDataDiri.statusPegawaiId !== pegawai.status_pegawai_id);
-    }, [ formDataDiri ]);
+        setOnChangeDataPromosi(pegawaiState.golongan_id !== pegawai.golongan_id ||  pegawaiState.status_pegawai_id !== pegawai.status_pegawai_id);
+    }, [ pegawaiState ]);
     useEffect(() => {
-        setOnChangeDataKeluarga(JSON.stringify(formDataKeluarga) !== JSON.stringify(formDataKeluargaInit));
-    }, [ formDataKeluarga ]);
-    useEffect(() => {
-        setOnChangeDataOrganisasi(JSON.stringify(formDataOrganisasi) !== JSON.stringify(formDataOrganisasiInit));
-    }, [ formDataOrganisasi ]);
-    useEffect(() => {
-        setOnChangeDataPendidikanFormal(JSON.stringify(formDataPendidikanFormal) !== JSON.stringify(formDataPendidikanFormalInit));
-    }, [ formDataPendidikanFormal ]);
-    useEffect(() => {
-        setOnChangeDataPendidikanNonFormal(JSON.stringify(formDataPendidikanNonFormal) !== JSON.stringify(formDataPendidikanNonFormalInit));
-    }, [ formDataPendidikanNonFormal ]);
-    useEffect(() => {
-        setOnChangeDataPengalamanPPH(JSON.stringify(formDataPengalamanPPH) !== JSON.stringify(formDataPengalamanPPHInit));
-    }, [ formDataPengalamanPPH ]);
-    useEffect(() => {
-        setOnChangeDataPengalamanNonPPH(JSON.stringify(formDataPengalamanNonPPH) !== JSON.stringify(formDataPengalamanNonPPHInit));
-    }, [ formDataPengalamanNonPPH ]);
+        if (onChangeDataPromosi && pegawai.tanggal_promosi) {
+            setPegawaiState((prevState) => ({
+                ...prevState,
+                tanggal_promosi: new Date(currDate)
+            }));
+        }
+    }, [ onChangeDataPromosi ]);
 
     return (
         <>
-            <Head title="Form Pegawai"/>
+            <Head title="Master - Detail Pegawai"/>
             <MasterLayout auth={auth}>
                 <main className="w-full min-h-screen bg-gray-50 space-y-4">
                     <header className="my-5 px-6 sticky top-16 z-10 py-2 bg-white rounded-md rounded-b-none border ">
@@ -500,32 +452,84 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
                                 </div>
                             </div>
                         </div>
-                        <Typography className="mt-5 text-sm text-center font-medium">
-                            Promosi terakhir : { format(pegawai.tanggal_promosi, 'PPP', {
-                            locale: id
-                        }) }
+                        <Typography className="mt-5 flex flex-col text-sm text-center font-medium">
+                            Promosi terakhir : { pegawai.tanggal_promosi ? format(pegawai.tanggal_promosi, 'PPP', { locale: id }) : '-' }
                             <span className="italic">
-                                &nbsp;({ pegawai.lama_promosi } hari lalu)
+                                &nbsp;( { pegawai.tanggal_promosi ? `${calculateDatePast(new Date(pegawai.tanggal_promosi), new Date())} hari lalu` : 'belum ada keterangan' } )
                             </span>
                         </Typography>
-                        <form onSubmit={ handleFormSubmit } className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-4 p-5">
+                        <form onSubmit={ handleFormSubmit }
+                              className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-4 p-5">
                             <div ref={ formDataDiriRef } className="col-span-1 lg:col-span-2">
                                 <Typography variant="h4" className="flex items-center gap-2">
                                     <CircleUser/>
                                     Data Diri
                                 </Typography>
                             </div>
-                            <PegawaiFormDataDiri
-                                formState={ formDataDiri }
-                                changeInput={ handleInputChange }
-                                changeDate={ handleDateChange }
-                                changeSelect={ handleSelectChange }
-                                handleSubmit={ handleFormSubmit }
-                                golongans={ golongans }
-                                marhalahs={ marhalahs }
-                                statusPegawais={ statusPegawais }
+                            <MASTER_PegawaiDetailsForm
+                                state={ pegawaiState }
+                                setState={ setPegawaiState }
                                 units={ units }
                             />
+
+                            <div className="col-span-1 lg:col-span-2">
+                                <Typography variant="h4" className="flex items-center gap-2">
+                                    <Award/>
+                                    Data Marhalah
+                                </Typography>
+                            </div>
+                            <div className="col-span-full grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-4">
+                                <Select
+                                    label="Marhalah"
+                                    color="teal"
+                                    name="marhalah_id"
+                                    value={ pegawaiState.marhalah_id ?? undefined }
+                                    onChange={ (value: string | undefined) => handleSelectChange('marhalah_id', value ?? '') }
+                                >
+                                    {
+                                        marhalahs.length > 0
+                                            ? marhalahs
+                                                .sort((a, b) => a.nama.localeCompare(b.nama))
+                                                .map(({ id, nama }) => ((
+                                                    <Option key={ id } value={ id }>{ nama }</Option>
+                                                )))
+                                            : (
+                                                <Option disabled value="null">
+                                                    <p className="flex items-center gap-2">
+                                                        <TriangleAlert className="text-red-600"/>
+                                                        <span className="text-gray-900 font-semibold">
+                                                            Belum ada Marhalah terdaftar
+                                                        </span>
+                                                    </p>
+                                                </Option>
+                                            )
+                                    }
+                                </Select>
+                                <Popover placement="bottom">
+                                    <PopoverHandler>
+                                        <Input
+                                            color="teal"
+                                            label="Tanggal Marhalah"
+                                            value={ pegawaiState.tanggal_marhalah ? `${ format(pegawaiState.tanggal_marhalah, "PPP", { locale: id }) } ( ${ calculateDatePast(new Date(pegawaiState.tanggal_marhalah), new Date(currDate)) } lalu )` : "Belum diatur" }
+                                            readOnly
+                                            className="italic !font-semibold"
+                                        />
+                                    </PopoverHandler>
+                                    <PopoverContent className="z-30">
+                                        <DayPicker
+                                            mode="single"
+                                            // selected={ pegawaiState.tanggal_marhalah }
+                                            onSelect={ (value: Date | undefined) => handleDateChange(value, 'tanggal_marhalah') }
+                                            showOutsideDays
+                                            className="border-0"
+                                            captionLayout="dropdown-buttons"
+                                            fromYear={ 1970 }
+                                            toYear={ new Date().getFullYear() }
+                                            disabled={ { after: new Date() } }
+                                        />
+                                    </PopoverContent>
+                                </Popover>
+                            </div>
 
                             <div className="mt-6 col-span-1 lg:col-span-2">
                                 <Typography variant="h4" className="flex items-center gap-2">
@@ -543,40 +547,38 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
                                         Informasi
                                     </Typography>
                                     <ul className="list-disc list-inside px-2 font-medium text-sm text-blue-gray-900">
-                                        <li>Mengubah informasi Golongan, Marhalah atau Status Pegawai akan mengatur ulang lama masa promosi pegawai</li>
+                                        <li>Mengubah informasi Golongan atau Status Pegawai akan mengatur ulang lama masa promosi pegawai</li>
                                         <li>Anda dapat membatalkan perubahan jika data belum disimpan</li>
                                     </ul>
                                 </div>
                                 <div className="col-span-full flex flex-row items-center justify-end gap-2">
-                                    <p className={ `text-sm font-medium ${onChangeDataPromosi ? 'text-red-600' : 'text-gray-900'}` }>
+                                    <p className={ `text-sm font-medium ${ onChangeDataPromosi ? 'text-red-600' : 'text-gray-900' }` }>
                                         { onChangeDataPromosi ? 'Anda membuat perubahan!' : 'Tidak ada perubahan' }
                                     </p>
-                                    <Tooltip content={onChangeDataPromosi ? 'Batalkan perubahan' : undefined} className="bg-green-600">
+                                    <Tooltip content={ onChangeDataPromosi ? 'Batalkan perubahan' : undefined } className="bg-green-600">
                                         <IconButton
-                                            variant={onChangeDataPromosi ? 'filled' : 'text'}
-                                            color={onChangeDataPromosi ? 'green' : 'black'}
-                                            disabled={!onChangeDataPromosi}
-                                            onClick={handleRollbackPromosi} className="rounded-full !shadow-none"
+                                            variant={ onChangeDataPromosi ? 'filled' : 'text' }
+                                            color={ onChangeDataPromosi ? 'green' : 'black' }
+                                            disabled={ !onChangeDataPromosi }
+                                            onClick={ handleRollbackPromosi } className="rounded-full !shadow-none"
                                         >
-                                            <RotateCcw />
+                                            <RotateCcw/>
                                         </IconButton>
                                     </Tooltip>
                                 </div>
                                 <Select
                                     label="Golongan"
                                     color="teal"
-                                    name="golonganId"
-                                    value={ formDataDiri.golonganId ?? undefined }
-                                    onChange={ (value: string | undefined) => handleSelectChange('golonganId', value ?? '') }
+                                    name="golongan_id"
+                                    value={ pegawaiState.golongan_id ?? undefined }
+                                    onChange={ (value: string | undefined) => handleSelectChange('golongan_id', value ?? '') }
                                 >
                                     {
                                         golongans.length > 0
-                                            ? golongans.sort((a, b) => a.nama.localeCompare(b.nama)).map(({
-                                                                                                              id,
-                                                                                                              nama
-                                                                                                          }) => ((
-                                                <Option key={ id } value={ id }>{ nama }</Option>
-                                            )))
+                                            ? golongans.sort((a, b) => a.nama.localeCompare(b.nama))
+                                                .map(({ id, nama }) => ((
+                                                    <Option key={ id } value={ id }>{ nama }</Option>
+                                                )))
                                             : (
                                                 <Option disabled value="null">
                                                     <p className="flex items-center gap-2">
@@ -590,47 +592,19 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
                                     }
                                 </Select>
                                 <Select
-                                    label="Marhalah"
-                                    color="teal"
-                                    name="marhalahId"
-                                    value={ formDataDiri.marhalahId ?? undefined }
-                                    onChange={ (value: string | undefined) => handleSelectChange('marhalahId', value ?? '') }
-                                >
-                                    {
-                                        marhalahs.length > 0
-                                            ? marhalahs.sort((a, b) => a.nama.localeCompare(b.nama)).map(({
-                                                                                                              id,
-                                                                                                              nama
-                                                                                                          }) => ((
-                                                <Option key={ id } value={ id }>{ nama }</Option>
-                                            )))
-                                            : (
-                                                <Option disabled value="null">
-                                                    <p className="flex items-center gap-2">
-                                                        <TriangleAlert className="text-red-600"/>
-                                                        <span className="text-gray-900 font-semibold">
-                                                            Belum ada Marhalah terdaftar
-                                                        </span>
-                                                    </p>
-                                                </Option>
-                                            )
-                                    }
-                                </Select>
-                                <Select
                                     label="Status Pegawai"
                                     color="teal"
-                                    name="statusPegawaiId"
-                                    value={ formDataDiri.statusPegawaiId ?? undefined }
-                                    onChange={ (value: string | undefined) => handleSelectChange('statusPegawaiId', value ?? '') }
+                                    name="status_pegawai_id"
+                                    value={ pegawaiState.status_pegawai_id ?? undefined }
+                                    onChange={ (value: string | undefined) => handleSelectChange('status_pegawai_id', value ?? '') }
                                 >
                                     {
                                         statusPegawais.length > 0
-                                            ? statusPegawais.sort((a, b) => a.nama.localeCompare(b.nama)).map(({
-                                                                                                                   id,
-                                                                                                                   nama
-                                                                                                               }) => ((
-                                                <Option key={ id } value={ id }>{ nama }</Option>
-                                            )))
+                                            ? statusPegawais
+                                                .sort((a, b) => a.nama.localeCompare(b.nama))
+                                                .map(({ id, nama }) => ((
+                                                    <Option key={ id } value={ id }>{ nama }</Option>
+                                                )))
                                             : (
                                                 <Option disabled value="null">
                                                     <p className="flex items-center gap-2">
@@ -644,6 +618,33 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
                                     }
                                 </Select>
                             </div>
+                            <div className="col-span-full grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-4">
+                                <Popover placement="bottom">
+                                    <PopoverHandler>
+                                        <Input
+                                            color="teal"
+                                            label="Tanggal Promosi"
+                                            value={ pegawaiState.tanggal_promosi ? `${ format(pegawaiState.tanggal_promosi, "PPP", { locale: id }) } ( ${ calculateDatePast(new Date(pegawaiState.tanggal_promosi), new Date(currDate)) } lalu )` : "Belum diatur" }
+                                            readOnly
+                                            className="italic !font-semibold"
+                                        />
+                                    </PopoverHandler>
+                                    <PopoverContent className="z-30">
+                                        <DayPicker
+                                            mode="single"
+                                            // selected={ pegawaiState.tanggal_promosi ?? undefined }
+                                            onSelect={ (value: Date | undefined) => handleDateChange(value, 'tanggal_promosi') }
+                                            showOutsideDays
+                                            className="border-0"
+                                            captionLayout="dropdown-buttons"
+                                            fromYear={ 1970 }
+                                            toYear={ new Date().getFullYear() }
+                                            disabled={ pegawai.tanggal_promosi ? [{ before: new Date(9999, 11, 31) }] : { after: new Date() }}
+                                            disableNavigation={!!pegawai.tanggal_promosi}
+                                        />
+                                    </PopoverContent>
+                                </Popover>
+                            </div>
 
                             <div ref={ formDataKeluargaRef } id="data-keluarga"
                                  className="mt-6 col-span-1 lg:col-span-2">
@@ -653,8 +654,8 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
                                 </Typography>
                             </div>
                             <PegawaiFormDataKeluarga
-                                formState={ formDataKeluarga }
-                                setFormState={ setFormDataKeluarga }
+                                formState={ dataKeluarga }
+                                setFormState={ setDataKeluarga }
                                 formDefault={ formDataKeluargaDefault }
                             />
 
@@ -666,8 +667,8 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
                                 </Typography>
                             </div>
                             <PegawaiFormDataPendidikanFormal
-                                formState={ formDataPendidikanFormal }
-                                setFormState={ setFormDataPendidikanFormal }
+                                formState={ dataPendidikanFormal }
+                                setFormState={ setDataPendidikanFormal }
                                 formDefault={ formDataPendidikanFormalDefault }
                             />
 
@@ -678,8 +679,8 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
                                 </Typography>
                             </div>
                             <PegawaiFormDataPendidikanNonFormal
-                                formState={ formDataPendidikanNonFormal }
-                                setFormState={ setFormDataPendidikanNonFormal }
+                                formState={ dataPendidikanNonFormal }
+                                setFormState={ setDataPendidikanNonFormal }
                                 formDefault={ formDataPendidikanNonFormalDefault }
                             />
 
@@ -690,8 +691,8 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
                                 </Typography>
                             </div>
                             <PegawaiFormDataOrganisasi
-                                formState={ formDataOrganisasi }
-                                setFormState={ setFormDataOrganisasi }
+                                formState={ dataOrganisasi }
+                                setFormState={ setDataOrganisasi }
                                 formDefault={ formDataOrganisasiDefault }
                             />
 
@@ -701,8 +702,8 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
                                 </Typography>
                             </div>
                             <PegawaiFormDataPengalamanPPH
-                                formState={ formDataPengalamanPPH }
-                                setFormState={ setFormDataPengalamanPPH }
+                                formState={ dataPengalamanPPH }
+                                setFormState={ setDataPengalamanPPH }
                                 formDefault={ formDataPengalamanPPHDefault }
                             />
 
@@ -712,14 +713,13 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
                                 </Typography>
                             </div>
                             <PegawaiFormDataPengalamanNonPPH
-                                formState={ formDataPengalamanNonPPH }
-                                setFormState={ setFormPengalamanNonPPH }
+                                formState={ dataPengalamanNonPPH }
+                                setFormState={ setDataPengalamanNonPPH }
                                 formDefault={ formDataPengalamanNonPPHDefault }
                             />
 
                             <Button
                                 type="submit"
-                                disabled={ !onChangeForm() || onSubmit }
                                 loading={ onSubmit }
                                 className="col-span-1 lg:col-span-2 w-52 min-h-14 ml-auto flex items-center justify-center gap-3"
                             >

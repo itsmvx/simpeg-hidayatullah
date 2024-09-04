@@ -33,6 +33,9 @@ Route::get('/', function () {
         ]
     ]);
 });
+Route::get('/test', function () {
+    return Inertia::render('Test');
+});
 Route::get('/hall-of-fames', function () {
     return Inertia::render('HallOfFames');
 })->name('hall-of-fames');
@@ -70,7 +73,7 @@ Route::prefix('pegawai')->name('pegawai.')->group(function () {
     Route::post('/update', [PegawaiController::class, 'update'])->name('update');
     Route::post('/update-by-admin', [PegawaiController::class, 'updateByAdmin'])->name('update-by-admin');
     Route::post('/delete', [PegawaiController::class, 'destroy'])->name('delete');
-    Route::post('/data-to-rekap', [PegawaiController::class, 'dataToRekap'])->name('data-to-rekap');
+    Route::post('/data-to-rekap', [PegawaiController::class, 'pegawaiToRekap'])->name('data-to-rekap');
     Route::post('/data-to-rekap-by-admin', [PegawaiController::class, 'dataToRekapByAdmin'])->name('data-to-rekap-by-admin');
     Route::post('/upload-foto', [PegawaiController::class, 'uploadFoto'])->name('upload-foto');
 });

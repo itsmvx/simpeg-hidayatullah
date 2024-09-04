@@ -1,4 +1,6 @@
 import { Bounce, toast } from "react-toastify";
+import { id } from "date-fns/locale";
+import { differenceInDays, differenceInMonths, differenceInYears, subMonths, subYears } from "date-fns";
 
 export const generateRandomPassword = (length = 12): string => {
     const symbols = "!@#$%^&*_-.";
@@ -46,4 +48,12 @@ export const calculateAge = (birthDate: Date) => {
     }
 
     return { years, months };
+};
+
+export const calculateDatePast = (startDate: Date, endDate?: Date): string => {
+    const years = differenceInYears(endDate ?? new Date(), startDate);
+    const months = differenceInMonths(subYears(endDate ?? new Date(), years), startDate);
+    const days = differenceInDays(subMonths(subYears(endDate ?? new Date(), years), months), startDate);
+
+    return `${years} tahun, ${months} bulan, ${days} hari`;
 };
