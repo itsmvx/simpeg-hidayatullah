@@ -1,18 +1,17 @@
 import { Input } from "@/Components/Input";
 import { MasterLayout } from "@/Layouts/MasterLayout";
-import { Head, router } from "@inertiajs/react"; // Import router dari Inertia
+import { Head, router } from "@inertiajs/react";
 import { ChangeEvent, FormEvent, useState } from "react";
 import { Button, IconButton, Tooltip, Typography } from "@material-tailwind/react";
-import { format } from "date-fns";
-import { id } from "date-fns/locale";
 import { MoveLeft, Save } from "lucide-react";
 import { TextArea } from "@/Components/TextArea";
-import { Golongan, PageProps } from "@/types";
+import { ModelWithoutColumns, PageProps } from "@/types";
 import axios, { AxiosError } from "axios";
 import { notifyToast } from "@/Lib/Utils";
+import { Golongan } from "@/types/models";
 
 export default function GolonganDetailsPage({ auth, golongan }: PageProps<{
-    golongan: Golongan;
+    golongan: ModelWithoutColumns<Golongan, 'updated_at'>;
 }>) {
     const [ golonganState, setGolonganState ] = useState(golongan);
     const [ onChangeGolongan, setOnChangeGolongan ] = useState(false);
@@ -64,7 +63,7 @@ export default function GolonganDetailsPage({ auth, golongan }: PageProps<{
 
     return (
         <>
-            <Head title="Master - Golongan Details" />
+            <Head title="Master - Detail Golongan" />
             <MasterLayout auth={auth}>
                 <Tooltip content="Kembali">
                     <IconButton variant="text" onClick={() => router.visit(route('master.golongan.index'))}>
@@ -135,5 +134,5 @@ export default function GolonganDetailsPage({ auth, golongan }: PageProps<{
                 </div>
             </MasterLayout>
         </>
-    )
-}
+    );
+};

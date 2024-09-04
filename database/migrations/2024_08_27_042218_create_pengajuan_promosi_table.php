@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('pengajuan_promosi', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('nama');
-            $table->string('jenis')->nullable();
+            $table->string('jenis');
             $table->foreignUuid('unit_id')->constrained('unit')->cascadeOnDelete();
             $table->foreignUuid('admin_id')->nullable()->constrained('admin')->onDelete('set null');
             $table->foreignUuid('admin_penyetuju_id')->nullable()->constrained('admin')->onDelete('set null');

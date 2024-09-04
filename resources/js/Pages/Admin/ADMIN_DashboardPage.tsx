@@ -1,6 +1,5 @@
-import { Head, Link, router } from "@inertiajs/react";
-import { MasterLayout } from "@/Layouts/MasterLayout";
-import { Card, CardHeader, CardBody, Typography, IconButton, CardFooter, Button } from "@material-tailwind/react";
+import { Head, router } from "@inertiajs/react";
+import { Card, CardHeader, CardBody, Typography, CardFooter, Button } from "@material-tailwind/react";
 import { PageProps } from "@/types";
 import {
     ExternalLink,
@@ -10,6 +9,7 @@ import {
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import { AdminLayout } from "@/Layouts/AdminLayout";
+import { WorkSpaceIcon } from "@/Lib/StaticIcons";
 
 type CountAndLastUpdate = {
     count: number;
@@ -17,9 +17,10 @@ type CountAndLastUpdate = {
 };
 type Props = {
     pegawai: CountAndLastUpdate;
+    pengajuanPromosi: CountAndLastUpdate;
     rekapPegawai: CountAndLastUpdate;
 }
-export default function ADMIN_DashboardPage({ auth, pegawai, rekapPegawai }: PageProps<Props>) {
+export default function ADMIN_DashboardPage({ auth, pegawai, pengajuanPromosi, rekapPegawai }: PageProps<Props>) {
 
     const cardData = [
         {
@@ -37,6 +38,14 @@ export default function ADMIN_DashboardPage({ auth, pegawai, rekapPegawai }: Pag
             link: route('admin.rekap-pegawai.index'),
             count: rekapPegawai.count,
             lastUpdate: rekapPegawai.lastUpdate
+        },
+        {
+            title: "Pengajuan Promosi",
+            description: "Pengajuan Promosi masih menunggu",
+            icon: <WorkSpaceIcon width={25} />,
+            link: route('admin.pengajuan-promosi.index'),
+            count: pengajuanPromosi.count,
+            lastUpdate: pengajuanPromosi.lastUpdate
         },
     ];
 

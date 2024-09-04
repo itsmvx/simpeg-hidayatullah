@@ -1,112 +1,33 @@
 import { Head, router } from "@inertiajs/react";
-import {
-    Card,
-    Collapse,
-    IconButton, List, ListItem,
-    Typography, Button
-} from "@material-tailwind/react";
-import {
-    CircleAlert,
-    CircleUser,
-    GraduationCap, Medal,
-    Menu as MenuIcon, Moon, Save,
-    Star, Sun,
-    Users,
-    X
-} from "lucide-react";
-import { ChangeEvent, FormEvent, lazy, Suspense, SyntheticEvent, useEffect, useRef, useState } from "react";
+import { Card, Typography, Button } from "@material-tailwind/react";
+import { CircleAlert, Save } from "lucide-react";
+import { SyntheticEvent, useEffect, useState } from "react";
 import "react-day-picker/dist/style.css";
-import { useTheme } from "@/Hooks/useTheme";
-import { MasterLayout } from "@/Layouts/MasterLayout";
-import PegawaiFormDataDiri from "@/Components/PegawaiCreateFormDataDiri";
-import PegawaiFormDataKeluarga from "@/Components/PegawaiCreateFormDataKeluarga";
-import PegawaiFormDataPendidikanFormal from "@/Components/PegawaiCreateFormDataPendidikanFormal";
-import PegawaiFormDataPendidikanNonFormal from "@/Components/PegawaiCreateFormDataPendidikanNonFormal";
-import PegawaiFormDataOrganisasi from "@/Components/PegawaiCreateFormDataOrganisasi";
-import PegawaiFormDataPengalamanPPH from "@/Components/PegawaiCreateFormDataPengalamanPPH";
-import PegawaiFormDataPengalamanNonPPH from "@/Components/PegawaiCreateFormDataPengalamanNonPPH";
-import { FormDataDiri, PageProps } from "@/types";
+import { FormRekapPegawai, PageProps, PegawaiToRekap } from "@/types";
 import { z } from "zod";
 import { notifyToast } from "@/Lib/Utils";
 import axios, { AxiosError } from "axios";
-import {
-    formDataKeluargaDefault,
-    formDataOrganisasiDefault,
-    formDataPendidikanFormalDefault,
-    formDataPendidikanNonFormalDefault,
-    formDataPengalamanNonPPHDefault,
-    formDataPengalamanPPHDefault
-} from "@/Lib/StaticData";
-import RekapPegawaiForm from "@/Components/RekapPegawaiForm";
-import { Bounce, toast } from "react-toastify";
+import RekapPegawaiForm from "@/Components/MASTER_RekapPegawaiForm";
+import { toast } from "react-toastify";
+import { MasterLayout } from "@/Layouts/MasterLayout";
 
-export type FormRekapPegawai = {
-    amanah: string;
-    organisasi: string;
-    gaji: number;
-    skill_manajerial: string;
-    skill_leadership: string;
-    raport_profesi: string;
-    kedisiplinan: string;
-    ketuntasan_kerja: string;
-    catatan_negatif: string;
-    prestasi: string;
-    pegawai_id: string;
-    unit_id: string;
-    rekap_id: string;
-    golongan_id: string;
-    status_pegawai_id: string;
-    marhalah_id: string;
-    periode_rekap_id: string;
-};
-export type PegawaisToRekap = {
-    id: string;
-    nama: string;
-    unit: {
-        id: string;
-        nama: string;
-    };
-    status_pegawai: {
-        id: string;
-        nama: string;
-    };
-    marhalah: {
-        id: string;
-        nama: string;
-    };
-    golongan: {
-        id: string;
-        nama: string;
-    };
-}[];
-export type PeriodesToRekap = {
-    id: string;
-    nama: string;
-    awal: string;
-    akhir: string;
-    available: boolean;
-}[];
-
-export default function MASTER_RekapPegawaiCreatePage({ auth, units, marhalahs, golongans, statusPegawais }: PageProps<{
+export default function MASTER_RekapPegawaiCreatePage({ auth, units, periodes }: PageProps<{
     units: {
         id: string;
         nama: string;
     }[];
-    marhalahs: {
+    periodes: {
         id: string;
         nama: string;
-    }[];
-    golongans: {
-        id: string;
-        nama: string;
-    }[];
-    statusPegawais: {
-        id: string;
-        nama: string;
+        awal: string;
+        akhir: string;
     }[];
 }>) {
 
-    const formRekapPegawaiInit: FormRekapPegawai= {
+    const formRekapPegawaiInit: FormRekapPegawai<{
+        onSubmit: boolean;
+        onSuccess: boolean;
+    }> = {
         amanah: '',
         organisasi: '',
         gaji: 0,
@@ -117,22 +38,36 @@ export default function MASTER_RekapPegawaiCreatePage({ auth, units, marhalahs, 
         ketuntasan_kerja: '',
         catatan_negatif: '',
         prestasi: '',
+        pembinaan: '',
         pegawai_id: '',
         unit_id: '',
-        rekap_id: '',
         golongan_id: '',
         status_pegawai_id: '',
         marhalah_id: '',
-        periode_rekap_id: ''
+        periode_rekap_id: '',
+        onSubmit: false,
+        onSuccess: false,
+        terverifikasi: true
     };
-    const { theme, setTheme } = useTheme();
 
-    const [ formInput, setFormInput ] = useState<FormRekapPegawai>(formRekapPegawaiInit);
-    const [ pegawais, setPegawais ] = useState<PegawaisToRekap>([]);
-    const [ periodes, setPeriodes ] = useState<PeriodesToRekap>([]);
-    const [ onLoadPegawais, setOnLoadPegawais ] = useState(false);
-    const [ onLoadPeriodes, setOnLoadPeriodes ] = useState(false);
-    const formSubmitDisabled = (): boolean => Object.keys(formInput).filter((filt) => !['skill_manajerial', 'skill_leadership', 'catatan_negatif', 'prestasi'].includes(filt)).some((key) => !formInput[key]);
+    const [ formInput, setFormInput ] = useState<FormRekapPegawai<{
+        onSubmit: boolean;
+        onSuccess: boolean;
+    }>>(formRekapPegawaiInit);
+    const [ pegawais, setPegawais ] = useState<{
+        data: PegawaiToRekap[];
+        input: string;
+        onError: boolean;
+        onLoad: boolean;
+        selected: PegawaiToRekap | null;
+    }>({
+        data: [],
+        input: '',
+        onError: false,
+        onLoad: false,
+        selected: null
+    });
+    const formSubmitDisabled = (): boolean => Object.keys(formInput).filter((filt) => !['skill_manajerial', 'skill_leadership', 'catatan_negatif', 'prestasi', 'organisasi', 'pembinaan', 'onSubmit', 'onSuccess'].includes(filt)).some((key) => !formInput[key]) || formInput.onSubmit;
     const handleFormSubmit = (event: SyntheticEvent<HTMLFormElement>) => {
         event.preventDefault();
         setFormInput((prevState) => ({
@@ -140,22 +75,62 @@ export default function MASTER_RekapPegawaiCreatePage({ auth, units, marhalahs, 
             onSubmit: true
         }));
         const rekapSchema = z.object({
-            pegawai_id: z.string({ message: 'Pegawai belum dipilih' }).uuid({ message: 'Format Pegawai tidak valid' }),
-            unit_id: z.string({ message: 'Unit belum dipilih' }).uuid({ message: 'Format Unit tidak valid' }),
-            golongan_id: z.string({ message: 'Golongan belum dipilih' }).uuid({ message: 'Format Golongan tidak valid' }),
-            status_pegawai_id: z.string({ message: 'Status Pegawai belum dipilih' }).uuid({ message: 'Format Status Pegawai tidak valid' }),
-            marhalah_id: z.string({ message: 'Marhalah belum dipilih' }).uuid({ message: 'Format Marhalah tidak valid' }),
-            periode_rekap_id: z.string({ message: 'Periode rekap belum dipilih' }).uuid({ message: 'Format Periode rekap tidak valid' }),
-            amanah: z.string({ message: 'Amanah tidak boleh kosong' }),
-            organisasi: z.string({ message: 'Format Amanah Organisasi tidak valid' }).nullable(),
-            gaji: z.number({ message: 'Gaji harus berupa angka' }).int({ message: 'Gaji harus berupa angka bulat' }),
-            skill_manajerial: z.string({ message: 'Skill Manajerial tidak boleh kosong' }).nullable(),
-            skill_leadership: z.string({ message: 'Skill Leadership tidak boleh kosong' }).nullable(),
-            raport_profesi: z.string({ message: 'Raport Profesi tidak boleh kosong' }),
-            kedisiplinan: z.string({ message: 'Kedisiplinan tidak boleh kosong' }),
-            ketuntasan_kerja: z.string({ message: 'Ketuntasan Kerja tidak boleh kosong' }),
-            catatan_negatif: z.string({ message: 'Catatan Negatif tidak boleh kosong' }).nullable(),
-            prestasi: z.string({ message: 'Prestasi tidak boleh kosong' }).nullable(),
+            pegawai_id: z
+                .string({ message: 'Pegawai belum dipilih' })
+                .uuid({ message: 'Format Pegawai tidak valid' }),
+            unit_id: z
+                .string({ message: 'Unit belum dipilih' })
+                .uuid({ message: 'Format Unit tidak valid' })
+                .nullable(),
+            golongan_id: z
+                .string({ message: 'Golongan belum dipilih' })
+                .uuid({ message: 'Format Golongan tidak valid' })
+                .nullable(),
+            status_pegawai_id: z
+                .string({ message: 'Status Pegawai belum dipilih' })
+                .uuid({ message: 'Format Status Pegawai tidak valid' })
+                .nullable(),
+            marhalah_id: z
+                .string({ message: 'Marhalah belum dipilih' })
+                .uuid({ message: 'Format Marhalah tidak valid' })
+                .nullable(),
+            periode_rekap_id: z
+                .string({ message: 'Periode rekap belum dipilih' })
+                .uuid({ message: 'Format Periode rekap tidak valid' }),
+            amanah: z
+                .string({ message: 'Amanah tidak boleh kosong' })
+                .min(1, { message: 'Amanah tidak boleh kosong' }),
+            organisasi: z
+                .string({ message: 'Format Organisasi tidak valid' })
+                .nullable(),
+            gaji: z
+                .number({ message: 'Gaji harus berupa angka' })
+                .int({ message: 'Gaji harus berupa angka bulat' }),
+            skill_manajerial: z
+                .string({ message: 'Format Skill Manajerial tidak valid' })
+                .nullable(),
+            skill_leadership: z
+                .string({ message: 'Format Skill Leadership tidak valid' })
+                .nullable(),
+            raport_profesi: z
+                .string({ message: 'Raport Profesi tidak boleh kosong' })
+                .min(1, { message: 'Raport Profesi tidak boleh kosong' }),
+            kedisiplinan: z
+                .string({ message: 'Kedisiplinan tidak boleh kosong' })
+                .min(1, { message: 'Kedisiplinan tidak boleh kosong' }),
+            ketuntasan_kerja: z
+                .string({ message: 'Ketuntasan Kerja tidak boleh kosong' })
+                .min(1, { message: 'Ketuntasan Kerja tidak boleh kosong' }),
+            catatan_negatif: z
+                .string({ message: 'Format Catatan Negatif tidak valid' })
+                .nullable(),
+            prestasi: z
+                .string({ message: 'Format Prestasi tidak valid' })
+                .nullable(),
+            pembinaan: z
+                .string({ message: 'Format Pembinaan tidak valid' })
+                .nullable(),
+            terverifikasi: z.boolean(),
         });
         const zodRekapResult = rekapSchema.safeParse({
             ...formInput,
@@ -163,117 +138,121 @@ export default function MASTER_RekapPegawaiCreatePage({ auth, units, marhalahs, 
         });
         if (!zodRekapResult.success) {
             const errorMessages = zodRekapResult.error.issues[0].message;
-            notifyToast('error', errorMessages, theme as 'light' | 'dark');
+            notifyToast('error', errorMessages);
+            return;
         }
 
         axios.post(route('rekap-pegawai.create'), {
-            ...zodRekapResult.data
+            ...zodRekapResult.data,
+            terverifikasi: true
         })
             .then(() => {
-                notifyToast('success', 'Rekap Pegawai berhasil ditambahkan!', theme as 'light' | 'dark');
+                notifyToast('success', 'Rekap Pegawai berhasil ditambahkan!');
+                setFormInput((prevState) => ({
+                    ...prevState,
+                    onSuccess: true
+                }));
                 setTimeout(() => {
                     router.visit(route('master.rekap-pegawai.index'));
-                }, 1500);
+                }, 2000);
             })
             .catch((err: unknown) => {
                 const errMsg = err instanceof AxiosError
                     ? err.response?.data.message as string ?? 'Error tidak diketahui terjadi!'
                     : 'Error tidak diketahui terjadi!'
-                notifyToast('error', errMsg, theme as 'light' | 'dark');
-            })
-            .finally(() => {
+                notifyToast('error', errMsg);
                 setFormInput((prevState) => ({ ...prevState, onSubmit: false }))
             });
     };
 
     useEffect(() => {
         if (formInput.unit_id) {
-            setOnLoadPegawais(true);
-            setFormInput((prevState) => ({
-                ...prevState,
-                marhalah_id: '',
-                golongan_id: '',
-                status_pegawai_id: ''
+            setPegawais((prevState) => ({
+                data: [],
+                input: '',
+                onError: false,
+                onLoad: false,
+                selected: null
             }));
-            axios.post<{ data: PegawaisToRekap }>(route('pegawai.data-to-rekap'), {
-                unit_id: formInput.unit_id,
-            })
-                .then((res) => {
-                    setPegawais(res.data.data);
-                    if (res.data.data.length < 1) {
-                        toast.warn('Tidak ada Pegawai ditemukan di Unit ini!', {
-                            position: "top-right",
-                            autoClose: 5000,
-                            hideProgressBar: false,
-                            closeOnClick: true,
-                            pauseOnHover: true,
-                            draggable: true,
-                            progress: undefined,
-                            theme: "light",
-                            transition: Bounce,
-                        });
-                    }
-                })
-                .catch((err: unknown) => {
-                    const errMsg = err instanceof AxiosError && err.status !== 500
-                        ? err?.response?.data.message ?? 'Server gagal memproses permintaan'
-                        : 'Server gagal memproses permintaan';
-                    notifyToast('error', errMsg);
-                })
-                .finally(() => setOnLoadPegawais(false));
+            setFormInput((prevState) => ({
+                ...formRekapPegawaiInit,
+                unit_id: prevState.unit_id
+            }));
         }
     }, [ formInput.unit_id ]);
-    useEffect(() => {
-        if (formInput.pegawai_id) {
-            setOnLoadPeriodes(true);
-            axios.post<{ data: PeriodesToRekap }>(route('periode-rekap.periodes-to-rekap'), {
-                pegawai_id: formInput.pegawai_id,
-            })
-                .then((res) => {
-                    setPeriodes(res.data.data);
-                    if (res.data.data.length < 1) {
-                        toast.warn('Tidak ada Periode yang tersedia!', {
-                            position: "top-right",
-                            autoClose: 5000,
-                            hideProgressBar: false,
-                            closeOnClick: true,
-                            pauseOnHover: true,
-                            draggable: true,
-                            progress: undefined,
-                            theme: "light",
-                            transition: Bounce,
-                        });
-                    }
-                })
-                .catch((err: unknown) => {
-                    const errMsg = err instanceof AxiosError && err.status !== 500
-                        ? err?.response?.data.message ?? 'Server gagal memproses permintaan'
-                        : 'Server gagal memproses permintaan';
-                    notifyToast('error', errMsg);
-                })
-                .finally(() => setOnLoadPeriodes(false));
-        }
-    }, [ formInput.pegawai_id ]);
 
     useEffect(() => {
-        if (!formInput.pegawai_id) {
-            setFormInput((prevState) => ({
+        if (formInput.periode_rekap_id) {
+            setPegawais((prevState) => ({
                 ...prevState,
-                marhalah_id: '',
-                golongan_id: '',
-                status_pegawai_id: '',
-                periode_rekap_id: ''
+                data: [],
+                onError: false,
+                onLoad: true,
+                selected: null
             }));
-        } else {
-            const selectedPegawai = pegawais.find((pegawai) => pegawai.id === formInput.pegawai_id);
             setFormInput((prevState) => ({
+                ...formRekapPegawaiInit,
+                unit_id: prevState.unit_id,
+                periode_rekap_id: prevState.periode_rekap_id
+            }));
+            axios.post<{
+                data: PegawaiToRekap[]
+            }>(route('pegawai.data-to-rekap'), {
+                periode_id: formInput.periode_rekap_id,
+                unit_id: formInput.unit_id
+            })
+                .then((res) => {
+                    setPegawais((prevState) => ({
+                        ...prevState,
+                        data: res.data.data,
+                        onLoad: false
+                    }));
+                    if (res.data.data.length < 1) {
+                        toast.warn('Tidak ada Pegawai tersedia dari Unit terpilih dan untuk Periode terpilih');
+                        return;
+                    }
+                    notifyToast('success', 'Data Pegawai berhasil diperbarui');
+                })
+                .catch((err: unknown) => {
+                    const errMsg = err instanceof AxiosError
+                        ? err.response?.data.message ?? 'Error tidak diketahui terjadi'
+                        : 'Error tidak diketahui terjadi';
+                    setPegawais((prevState) => ({
+                        ...prevState,
+                        onLoad: false,
+                        onError: true
+                    }))
+                    notifyToast('error', errMsg);
+                });
+        }
+    }, [ formInput.periode_rekap_id ]);
+
+    useEffect(() => {
+        const selectedPegawai = pegawais.data.find((pegawai) => pegawai.id === formInput.pegawai_id) ?? null;
+        setPegawais((prevState) => {
+            if (formInput.pegawai_id) {
+                return {
+                    ...prevState,
+                    selected: selectedPegawai
+                }
+            }
+            return {
                 ...prevState,
-                marhalah_id: selectedPegawai?.marhalah?.id || '',
-                golongan_id: selectedPegawai?.golongan?.id || '',
-                status_pegawai_id: selectedPegawai?.status_pegawai?.id || '',
+                selected: null
+            }
+        });
+        if (formInput.pegawai_id && selectedPegawai) {
+            setFormInput((prevState) => ({
+                ...formRekapPegawaiInit,
+                periode_rekap_id: prevState.periode_rekap_id,
+                pegawai_id: selectedPegawai.id,
+                unit_id: selectedPegawai.unit.id,
+                golongan_id: selectedPegawai.golongan.id,
+                marhalah_id: selectedPegawai.marhalah.id,
+                status_pegawai_id: selectedPegawai.status_pegawai.id,
             }));
         }
-    }, [formInput.pegawai_id, pegawais]);
+    }, [ formInput.pegawai_id ]);
 
     return (
         <>
@@ -298,25 +277,34 @@ export default function MASTER_RekapPegawaiCreatePage({ auth, units, marhalahs, 
                             <RekapPegawaiForm
                                 formState={ formInput }
                                 setFormState={setFormInput}
-                                units={ units }
+                                units={units}
                                 pegawais={pegawais}
                                 periodes={periodes}
-                                marhalahs={marhalahs}
-                                golongans={golongans}
-                                statusPegawais={statusPegawais}
-                                onLoadPegawais={onLoadPegawais}
                             />
                             <Button
                                 type="submit"
-                                className="col-span-1 lg:col-span-2 w-52 ml-auto flex items-center justify-center gap-3"
+                                disabled={formSubmitDisabled()}
+                                className="col-span-1 lg:col-span-2 w-52 min-h-12 ml-auto flex items-center justify-center gap-3"
                             >
-                                <Save/>
-                                Simpan
+                                {
+                                    formInput.onSubmit && !formInput.onSuccess
+                                        ? (
+                                            <div className="w-4 h-4 border-2 border-r-transparent border-gray-100 rounded-full animate-spin"></div>
+                                        ) : (
+                                            <Save/>
+                                        )
+                                }
+                                {
+                                    formInput.onSubmit && !formInput.onSuccess
+                                        ? 'Menyimpan...'
+                                        : formInput.onSubmit && formInput.onSuccess
+                                            ? 'Tersimpan'
+                                            : 'Simpan'
+                                }
                             </Button>
                         </form>
                     </Card>
                 </main>
-
             </MasterLayout>
         </>
     );

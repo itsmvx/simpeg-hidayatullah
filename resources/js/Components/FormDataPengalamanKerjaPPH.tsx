@@ -2,12 +2,12 @@ import { ChangeEvent, Dispatch, memo, SetStateAction } from "react";
 import { Button, Card, Tooltip, Typography } from "@material-tailwind/react";
 import { Input } from "@/Components/Input";
 import { ListPlus, ListX } from "lucide-react";
-import type { FormDataPengalamanPPH } from "@/types";
+import type { FormPegawaiDataPengalamanPPH } from "@/types";
 
-const PegawaiCreateFormDataPengalamanPPH = ({ formState, setFormState, formDefault }: {
-    formState: FormDataPengalamanPPH[];
-    setFormState: Dispatch<SetStateAction<FormDataPengalamanPPH[]>>;
-    formDefault: FormDataPengalamanPPH;
+const FormDataPengalamanKerjaPPH = ({ formState, setFormState, formDefault }: {
+    formState: FormPegawaiDataPengalamanPPH[];
+    setFormState: Dispatch<SetStateAction<FormPegawaiDataPengalamanPPH[]>>;
+    formDefault: FormPegawaiDataPengalamanPPH;
 }) => {
 
     const TABLE_HEAD = [
@@ -111,4 +111,4 @@ const PegawaiCreateFormDataPengalamanPPH = ({ formState, setFormState, formDefau
     )
 };
 
-export default memo(PegawaiCreateFormDataPengalamanPPH);
+export default memo(FormDataPengalamanKerjaPPH);

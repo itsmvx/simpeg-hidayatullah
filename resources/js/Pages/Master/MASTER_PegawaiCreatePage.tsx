@@ -1,4 +1,4 @@
-import { Head } from "@inertiajs/react";
+import { Head, router } from "@inertiajs/react";
 import {
     Card,
     Collapse,
@@ -8,25 +8,29 @@ import {
 import {
     CircleUser,
     GraduationCap, Medal,
-    Menu as MenuIcon, Moon, Save,
-    Star, Sun,
+    Menu as MenuIcon, Save,
+    Star,
     Users,
     X
 } from "lucide-react";
-import { ChangeEvent, FormEvent, lazy, Suspense, useEffect, useRef, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import "react-day-picker/dist/style.css";
-import { useTheme } from "@/Hooks/useTheme";
 import { MasterLayout } from "@/Layouts/MasterLayout";
-import PegawaiFormDataDiri from "@/Components/PegawaiCreateFormDataDiri";
-import PegawaiFormDataKeluarga from "@/Components/PegawaiCreateFormDataKeluarga";
-import PegawaiFormDataPendidikanFormal from "@/Components/PegawaiCreateFormDataPendidikanFormal";
-import PegawaiFormDataPendidikanNonFormal from "@/Components/PegawaiCreateFormDataPendidikanNonFormal";
-import PegawaiFormDataOrganisasi from "@/Components/PegawaiCreateFormDataOrganisasi";
-import PegawaiFormDataPengalamanPPH from "@/Components/PegawaiCreateFormDataPengalamanPPH";
-import PegawaiFormDataPengalamanNonPPH from "@/Components/PegawaiCreateFormDataPengalamanNonPPH";
-import { FormDataDiri, PageProps } from "@/types";
+import PegawaiFormDataKeluarga from "@/Components/FormDataKeluarga";
+import PegawaiFormDataPendidikanFormal from "@/Components/FormDataPendidikanFormal";
+import PegawaiFormDataPendidikanNonFormal from "@/Components/FormDataPendidikanNonFormal";
+import PegawaiFormDataOrganisasi from "@/Components/FormDataPengalamanOrganisasi";
+import PegawaiFormDataPengalamanPPH from "@/Components/FormDataPengalamanKerjaPPH";
+import PegawaiFormDataPengalamanNonPPH from "@/Components/FormDataPengalamanKerjaNonPPH";
+import {
+    FormPegawai,
+    FormPegawaiDataKeluarga, FormPegawaiDataOrganisasi, FormPegawaiDataPendidikanFormal,
+    FormPegawaiDataPendidikanNonFormal, FormPegawaiDataPengalamanNonPPH, FormPegawaiDataPengalamanPPH,
+    IDNamaColumn,
+    PageProps
+} from "@/types";
 import { z } from "zod";
-import { notifyToast } from "@/Lib/Utils";
+import { calculateAge, notifyToast } from "@/Lib/Utils";
 import axios, { AxiosError } from "axios";
 import {
     formDataKeluargaDefault,
@@ -36,25 +40,13 @@ import {
     formDataPengalamanNonPPHDefault,
     formDataPengalamanPPHDefault
 } from "@/Lib/StaticData";
-const PegawaiFormSuccess = lazy(() => import('./../../Components/PegawaiFormSuccess'));
+import MASTER_PegawaiCreateForm from "@/Components/MASTER_PegawaiCreateForm";
 
 export default function MASTER_PegawaiCreatePage({ auth, golongans, marhalahs, statusPegawais, units }: PageProps<{
-    golongans: {
-        id: string;
-        nama: string;
-    }[];
-    marhalahs: {
-        id: string;
-        nama: string;
-    }[];
-    statusPegawais: {
-        id: string;
-        nama: string;
-    }[];
-    units: {
-        id: string;
-        nama: string;
-    }[];
+    golongans: IDNamaColumn[];
+    marhalahs: IDNamaColumn[];
+    statusPegawais: IDNamaColumn[];
+    units: IDNamaColumn[];
 }>) {
 
     const formDataDiriRef = useRef<HTMLDivElement | null>(null);
@@ -133,150 +125,92 @@ export default function MASTER_PegawaiCreatePage({ auth, golongans, marhalahs, s
         );
     };
 
-    const [ onSuccess, setOnSuccess ]  = useState<boolean>(false);
-    const [ openNav, setOpenNav] = useState(false);
-    const [ formDataDiri, setFormDataDiri ] = useState<FormDataDiri>({
+    const formDataDiriInit: FormPegawai<{
+        onSubmit: boolean;
+    }> = {
         nik: '',
         nip: '',
-        namaLengkap: '',
-        sukuBangsa: '',
-        tempatLahir: '',
-        usiaTahun: '',
-        usiaBulan: '',
-        jenisKelamin: '',
+        nama: '',
+        jenis_kelamin: '',
+        tempat_lahir: '',
+        usia_tahun: 0,
+        usia_bulan: 0,
+        suku: '',
         alamat: '',
-        agama: '',
-        statusPernikahan: '',
-        golonganId: '',
-        marhalahId: '',
-        statusPegawaiId: '',
-        unitId: '',
+        agama: 'Islam',
+        status_pernikahan: '',
+        golongan_id: '',
+        marhalah_id: '',
+        status_pegawai_id: '',
+        unit_id: '',
+        status_aktif: 'Aktif',
         amanah: '',
-        amanahAtasanLangsung: '',
-        nomorHpWa: '',
-        bpjskesehatan: '',
-        bpjsketenagakerjaan: ''
-    });
-    const [ formDataKeluarga, setFormDataKeluarga ] = useState<{
-        status: string;
-        nama: string;
-        jenisKelamin: string;
-        tempatLahir: string;
-        tanggalLahir: string;
-        pekerjaan: string;
-        pendidikan: string;
-    }[]>([ formDataKeluargaDefault ]);
-    const [ formDataPendidikanFormal, setFormDataPendidikanFormal ] = useState<{
-        tingkat: string;
-        sekolah: string;
-        lulus: string;
-    }[]>([ formDataPendidikanFormalDefault ]);
-    const [ formDataPendidikanNonFormal, setFormDataPendidikanNonFormal ] = useState<{
-        jenis: string;
-        penyelenggara: string;
-        tempat: string;
-        tahun: string;
-    }[]>([ formDataPendidikanNonFormalDefault ]);
-    const [ formDataOrganisasi, setFormDataOrganisasi ] = useState<{
-        nama: string;
-        jabatan: string;
-        masa: string;
-        keterangan: string;
-    }[]>([ formDataOrganisasiDefault ]);
-    const [ formDataPengalamanPPH, setFormDataPengalamanPPH ] = useState<{
-        unit: string;
-        jabatan: string;
-        amanah: string;
-        mulai: string;
-        akhir: string;
-    }[]>([ formDataPengalamanPPHDefault ]);
-    const [ formDataPengalamanNonPPH, setFormPengalamanNonPPH ] = useState<{
-        instansi: string;
-        jabatan: string;
-        tahun: string;
-        keterangan: string;
-    }[]>([ formDataPengalamanNonPPHDefault ]);
+        amanah_atasan: '',
+        kompetensi_quran: '',
+        sertifikasi: '',
+        no_hp: '',
+        bpjs_kesehatan: false,
+        bpjs_ketenagakerjaan: false,
+        data_keluarga: JSON.stringify(formDataKeluargaDefault),
+        data_pendidikan_formal: JSON.stringify(formDataPendidikanFormalDefault),
+        data_pendidikan_non_formal: JSON.stringify(formDataPendidikanNonFormalDefault),
+        data_pengalaman_organisasi: JSON.stringify(formDataOrganisasiDefault),
+        data_pengalaman_kerja_pph: JSON.stringify(formDataPengalamanPPHDefault),
+        data_pengalaman_kerja_non_pph: JSON.stringify(formDataPengalamanNonPPHDefault),
+        onSubmit: false
+    };
 
-    const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = event.target;
-        setFormDataDiri((prevState) => ({
-            ...prevState,
-            [name]: value,
-        }));
-    };
-    const handleSelectChange = (key: keyof FormDataDiri, value: string) => {
-        setFormDataDiri((prevState) => ({
-            ...prevState,
-            [key]: value,
-        }));
-    };
-    const handleDateChange = (date: Date | undefined, key: keyof FormDataDiri) => {
-        setFormDataDiri((prevState) => ({
-            ...prevState,
-            [key]: date,
-        }));
-    };
+    const [ openNav, setOpenNav] = useState(false);
+    const [ formState, setFormState ] = useState<FormPegawai<{
+        onSubmit: boolean;
+    }>>(formDataDiriInit);
+
+    const [ dataKeluarga, setDataKeluarga ] = useState<FormPegawaiDataKeluarga[]>([ formDataKeluargaDefault ]);
+    const [ dataPendidikanFormal, setDataPendidikanFormal ] = useState<FormPegawaiDataPendidikanFormal[]>([ formDataPendidikanFormalDefault ]);
+    const [ dataPendidikanNonFormal, setDataPendidikanNonFormal ] = useState<FormPegawaiDataPendidikanNonFormal[]>([ formDataPendidikanNonFormalDefault ]);
+    const [ dataOrganisasi, setDataOrganisasi ] = useState<FormPegawaiDataOrganisasi[]>([ formDataOrganisasiDefault ]);
+    const [ dataPengalamanPPH, setDataPengalamanPPH ] = useState<FormPegawaiDataPengalamanPPH[]>([ formDataPengalamanPPHDefault ]);
+    const [ dataPengalamanNonPPH, setDataPengalamanNonPPH ] = useState<FormPegawaiDataPengalamanNonPPH[]>([ formDataPengalamanNonPPHDefault ]);
+
     const handleFormSubmit = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const pegawaiSchema = z.object({
-            nip: z.string({ message: "NIP tidak boleh kosong" }),
-            nik: z.string({ message: "NIK tidak boleh kosong" }),
-            foto: z.string().url({ message: "Foto harus berupa URL yang valid" }).nullable(),
-            nama: z.string({ message: "Nama tidak boleh kosong" }),
-            jenis_kelamin: z.enum(['Laki-Laki', 'Perempuan'], { message: "Jenis kelamin belum dipilih" }),
-            tempat_lahir: z.string({ message: "Tempat lahir tidak boleh kosong" }),
-            tanggal_lahir: z.date({ message: "Tanggal lahir tidak valid" }),
-            no_hp: z.string({ message: "Nomor HP tidak boleh kosong" }),
-            suku: z.string({ message: 'Input Suku bangsa tidak boleh kosong' }),
-            alamat: z.string({ message: 'Alamat tidak boleh kosong' }),
-            agama: z.string({ message: 'Agama tidak boleh kosong' }),
-            status_pernikahan: z.string({ message: "Status pernikahan tidak boleh kosong" }),
-            amanah: z.string({ message: "Amanah tidak boleh kosong" }),
-            amanah_atasan: z.string({ message: "Amanah Atasan tidak boleh kosong" }),
-            tanggal_masuk: z.date({ message: "Tanggal masuk harus berupa tanggal yang valid" }),
-            bpjs_kesehatan: z.string().nullable(),
-            bpjs_ketenagakerjaan: z.string().nullable(),
-            data_keluarga: z.string({ message: "Data Keluarga tidak valid" }),
-            pendidikan_formal: z.string({ message: "Data Pendidikan formal tidak valid" }),
-            pendidikan_non_formal: z.string({ message: "Data Pendidikan non formal tidak valid" }),
-            pengalaman_organisasi: z.string({ message: "Data Pengalaman Organisasi tidak valid" }),
-            pengalaman_kerja_pph: z.string({ message: "Data Pengalaman Kerja di PPH tidak valid" }),
-            pengalaman_kerja_non_pph: z.string({ message: "Data Pengalaman kerja non PPH tidak valid" }),
-            keahlian: z.string({ message: "Format data keahlian tidak valid" }).nullable(),
-            golongan_id: z.string({ message: "Format Data Golongan tidak valid " }).uuid({ message: "Format Data Golongan tidak valid " }),
-            marhalah_id: z.string({ message: "Format Data Marhalah tidak valid " }).uuid({ message: "Format Data Marhalah tidak valid " }),
-            status_pegawai_id: z.string({ message: "Format Data Status Pegawai tidak valid " }).uuid({ message: "Format Data Status Pegawai tidak valid " }),
-            unit_id: z.string({ message: "Format Data Unit tidak valid " }).uuid({ message: "Format Data Unit tidak valid " })
+            nik: z.string({ message: "Format NIK tidak valid" }).min(1, { message: "NIK tidak boleh kosong" }),
+            nip: z.string({ message: "Format NIP tidak valid" }).min(1, { message: "NIP tidak boleh kosong" }),
+            nama: z.string({ message: "Format nama tidak valid" }).min(1, { message: "Nama tidak boleh kosong" }),
+            jenis_kelamin: z.enum(['Laki-Laki', 'Perempuan'], { message: "Format jenis kelamin tidak valid" }),
+            tempat_lahir: z.string({ message: "Format tempat lahir tidak valid" }).min(1, { message: "Tempat lahir tidak boleh kosong" }),
+            tanggal_lahir: z.date({ message: "Format tanggal lahir tidak valid" }),
+            usia_tahun: z.number({ message: "Format usia tahun tidak valid" }),
+            usia_bulan: z.number({ message: "Format usia bulan tidak valid" }),
+            suku: z.string({ message: "Format suku tidak valid" }).min(1, { message: "Suku tidak boleh kosong" }),
+            alamat: z.string({ message: "Format alamat tidak valid" }).min(1, { message: "Alamat tidak boleh kosong" }),
+            agama: z.string({ message: "Format agama tidak valid" }).min(1, { message: "Agama tidak boleh kosong" }),
+            status_pernikahan: z.enum(['Belum Menikah', 'Menikah', 'Cerai Hidup', 'Cerai Mati'], { message: "Format status pernikahan tidak valid" }),
+            golongan_id: z.string({ message: "Format Data Golongan tidak valid" }).uuid({ message: "Format Data Golongan tidak valid" }).nullable(),
+            marhalah_id: z.string({ message: "Format Data Marhalah tidak valid" }).uuid({ message: "Format Data Marhalah tidak valid" }).nullable(),
+            status_pegawai_id: z.string({ message: "Format Data Status Pegawai tidak valid" }).uuid({ message: "Format Data Status Pegawai tidak valid" }).nullable(),
+            unit_id: z.string({ message: "Format Data Unit tidak valid" }).uuid({ message: "Format Data Unit tidak valid" }).nullable(),
+            tanggal_masuk: z.date({ message: "Format tanggal masuk tidak valid" }),
+            tanggal_marhalah: z.date({ message: "Format tanggal marhalah tidak valid" }).optional(),
+            status_aktif: z.enum(['Aktif', 'Nonaktif', 'Cuti'], { message: "Format status aktif tidak valid" }),
+            amanah: z.string({ message: "Format amanah tidak valid" }).min(1, { message: "Amanah tidak boleh kosong" }),
+            amanah_atasan: z.string({ message: "Format amanah atasan tidak valid" }).min(1, { message: "Amanah atasan tidak boleh kosong" }),
+            kompetensi_quran: z.string({ message: "Format data kompetensi Qur'an tidak valid" }).min(1, { message: "Kompetensi Qur'an tidak boleh kosong" }),
+            sertifikasi: z.string({ message: "Format sertifikasi tidak valid" }).nullable(),
+            no_hp: z.string({ message: "Format nomor HP tidak valid" }).min(1, { message: "Nomor HP tidak boleh kosong" }),
+            bpjs_kesehatan: z.boolean({ message: "Format BPJS Kesehatan tidak valid" }),
+            bpjs_ketenagakerjaan: z.boolean({ message: "Format BPJS Ketenagakerjaan tidak valid" }),
+            data_keluarga: z.string({ message: "Format data keluarga tidak valid" }).min(1, { message: "Data keluarga tidak boleh kosong" }),
+            data_pendidikan_formal: z.string({ message: "Format data pendidikan formal tidak valid" }).min(1, { message: "Data pendidikan formal tidak boleh kosong" }),
+            data_pendidikan_non_formal: z.string({ message: "Format data pendidikan non formal tidak valid" }).min(1, { message: "Data pendidikan non formal tidak boleh kosong" }),
+            data_pengalaman_organisasi: z.string({ message: "Format data pengalaman organisasi tidak valid" }).min(1, { message: "Data pengalaman organisasi tidak boleh kosong" }),
+            data_pengalaman_kerja_pph: z.string({ message: "Format data pengalaman kerja PPH tidak valid" }).min(1, { message: "Data pengalaman kerja PPH tidak boleh kosong" }),
+            data_pengalaman_kerja_non_pph: z.string({ message: "Format data pengalaman kerja non PPH tidak valid" }).min(1, { message: "Data pengalaman kerja non PPH tidak boleh kosong" }),
+            keahlian: z.string({ message: "Format data keahlian tidak valid" }).nullable().optional(),
         });
         const pegawaiPayload = {
-            nip: formDataDiri.nip,
-            nik: formDataDiri.nik,
-            foto: null,
-            nama: formDataDiri.namaLengkap,
-            jenis_kelamin: formDataDiri.jenisKelamin,
-            tempat_lahir: formDataDiri.tempatLahir,
-            tanggal_lahir: formDataDiri.tanggalLahir,
-            no_hp: formDataDiri.nomorHpWa,
-            suku: formDataDiri.sukuBangsa,
-            alamat: formDataDiri.alamat,
-            agama: formDataDiri.agama,
-            status_pernikahan: formDataDiri.statusPernikahan,
-            amanah: formDataDiri.amanah,
-            amanah_atasan: formDataDiri.amanahAtasanLangsung,
-            tanggal_masuk: formDataDiri.tahunMasuk,
-            bpjs_kesehatan: formDataDiri.bpjskesehatan,
-            bpjs_ketenagakerjaan: formDataDiri.bpjsketenagakerjaan,
-            data_keluarga: JSON.stringify(formDataKeluarga),
-            pendidikan_formal: JSON.stringify(formDataPendidikanFormal),
-            pendidikan_non_formal: JSON.stringify(formDataPendidikanNonFormal),
-            pengalaman_organisasi: JSON.stringify(formDataOrganisasi),
-            pengalaman_kerja_pph: JSON.stringify(formDataPengalamanPPH),
-            pengalaman_kerja_non_pph: JSON.stringify(formDataPengalamanNonPPH),
-            keahlian: null,
-            golongan_id: formDataDiri.golonganId,
-            marhalah_id: formDataDiri.marhalahId,
-            status_pegawai_id: formDataDiri.statusPegawaiId,
-            unit_id: formDataDiri.unitId
+            ...formState
         };
 
         const pegawaiParse = pegawaiSchema.safeParse(pegawaiPayload);
@@ -291,7 +225,9 @@ export default function MASTER_PegawaiCreatePage({ auth, golongans, marhalahs, s
         })
             .then(() => {
                 notifyToast('success', 'Pegawai berhasil ditambahkan!');
-                setOnSuccess(true);
+                setTimeout(() => {
+                    router.visit(route('master.pegawai.index'));
+                }, 1500);
             })
             .catch((err: unknown) => {
                 const errMsg = err instanceof AxiosError
@@ -302,28 +238,52 @@ export default function MASTER_PegawaiCreatePage({ auth, golongans, marhalahs, s
     };
 
     useEffect(() => {
-        if (formDataDiri.tanggalLahir) {
-            const calculateAge = (birthDate: Date) => {
-                const now = new Date();
-                let years = now.getFullYear() - birthDate.getFullYear();
-                let months = now.getMonth() - birthDate.getMonth();
-
-                if (months < 0) {
-                    years--;
-                    months += 12;
-                }
-
-                return { years, months };
-            };
-
-            const { years, months } = calculateAge(formDataDiri.tanggalLahir);
-            setFormDataDiri((prevState) => ({
+        if (formState.tanggal_lahir) {
+            const { years, months } = calculateAge(formState.tanggal_lahir);
+            setFormState((prevState) => ({
                 ...prevState,
-                usiaTahun: years.toString(),
-                usiaBulan: months.toString(),
+                usia_tahun: years,
+                usia_bulan: months,
             }));
         }
-    }, [formDataDiri.tanggalLahir]);
+    }, [ formState.tanggal_lahir ]);
+
+    useEffect(() => {
+        setFormState((prevState) => ({
+            ...prevState,
+            data_keluarga: JSON.stringify(dataKeluarga)
+        }))
+    }, [ dataKeluarga ]);
+    useEffect(() => {
+        setFormState((prevState) => ({
+            ...prevState,
+            data_pendidikan_formal: JSON.stringify(dataPendidikanFormal)
+        }));
+    }, [ dataPendidikanFormal ]);
+    useEffect(() => {
+        setFormState((prevState) => ({
+            ...prevState,
+            data_pendidikan_non_formal: JSON.stringify(dataPendidikanNonFormal)
+        }));
+    }, [ dataPendidikanNonFormal ]);
+    useEffect(() => {
+        setFormState((prevState) => ({
+            ...prevState,
+            data_pengalaman_organisasi: JSON.stringify(dataOrganisasi)
+        }));
+    }, [ dataOrganisasi ]);
+    useEffect(() => {
+        setFormState((prevState) => ({
+            ...prevState,
+            data_pengalaman_kerja_pph: JSON.stringify(dataPengalamanPPH)
+        }));
+    }, [ dataPengalamanPPH ]);
+    useEffect(() => {
+        setFormState((prevState) => ({
+            ...prevState,
+            data_pengalaman_kerja_non_pph: JSON.stringify(dataPengalamanNonPPH)
+        }));
+    }, [ dataPengalamanNonPPH ]);
 
     useEffect(() => {
         const handleResize = () => {
@@ -336,148 +296,135 @@ export default function MASTER_PegawaiCreatePage({ auth, golongans, marhalahs, s
 
     return (
         <>
-            <Head title="Form Pegawai"/>
-            <MasterLayout auth={auth}>
-                {
-                    onSuccess ? (
-                        <Suspense fallback={<div>Loading</div>}>
-                            <div className="flex-1">
-                                <PegawaiFormSuccess nama="orang" nip="1111" password="2222" />
-                            </div>
-                        </Suspense>
-                    ) : (
-                        <main className="w-full min-h-screen bg-gray-50 space-y-4">
-                            <header
-                                className="my-5 px-6 sticky top-16 z-10 py-2 bg-white rounded-md rounded-b-none border ">
-                                <div className="flex items-center justify-between text-blue-gray-900">
-                                    <Typography
-                                        className="cursor-pointer py-1.5 font-medium w-40"
-                                    >
-                                        Form Pegawai PPH Surabaya
-                                    </Typography>
-                                    <div className="flex-1 flex items-center justify-end gap-4">
-                                        <IconButton
-                                            variant="text"
-                                            className="ml-auto h-6 w-6 text-inherit hover:bg-transparent focus:bg-transparent active:bg-transparent lg:hidden"
-                                            ripple={ false }
-                                            onClick={ () => setOpenNav(!openNav) }
-                                        >
-                                            { openNav ? (<X/>) : (<MenuIcon/>) }
-                                        </IconButton>
-                                        <div className="mr-4 hidden lg:block">
-                                            <NavLists/>
-                                        </div>
-                                    </div>
-                                </div>
-                                <Collapse open={ openNav }>
+            <Head title="Menambahkan Pegawai"/>
+            <MasterLayout auth={ auth }>
+                <main className="w-full min-h-screen bg-gray-50 space-y-4">
+                    <header
+                        className="my-5 px-6 sticky top-16 z-10 py-2 bg-white rounded-md rounded-b-none border ">
+                        <div className="flex items-center justify-between text-blue-gray-900">
+                            <Typography
+                                className="cursor-pointer py-1.5 font-medium w-40"
+                            >
+                                Form Pegawai PPH Surabaya
+                            </Typography>
+                            <div className="flex-1 flex items-center justify-end gap-4">
+                                <IconButton
+                                    variant="text"
+                                    className="ml-auto h-6 w-6 text-inherit hover:bg-transparent focus:bg-transparent active:bg-transparent lg:hidden"
+                                    ripple={ false }
+                                    onClick={ () => setOpenNav(!openNav) }
+                                >
+                                    { openNav ? (<X/>) : (<MenuIcon/>) }
+                                </IconButton>
+                                <div className="mr-4 hidden lg:block">
                                     <NavLists/>
-                                </Collapse>
-                            </header>
-                            <Card className="w-full px-1.5 lg:px-6">
-                                <form onSubmit={ handleFormSubmit }
-                                      className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-4 p-5">
-                                    <div ref={ formDataDiriRef } className="col-span-1 lg:col-span-2">
-                                        <Typography variant="h4" className="flex items-center gap-2">
-                                            <CircleUser/>
-                                            Data Diri
-                                        </Typography>
-                                    </div>
-                                    <PegawaiFormDataDiri
-                                        formState={ formDataDiri }
-                                        changeInput={ handleInputChange }
-                                        changeDate={ handleDateChange }
-                                        changeSelect={ handleSelectChange }
-                                        handleSubmit={ handleFormSubmit }
-                                        golongans={ golongans }
-                                        marhalahs={ marhalahs }
-                                        statusPegawais={ statusPegawais }
-                                        units={ units }
-                                    />
+                                </div>
+                            </div>
+                        </div>
+                        <Collapse open={ openNav }>
+                            <NavLists/>
+                        </Collapse>
+                    </header>
+                    <Card className="w-full px-1.5 lg:px-6">
+                        <form onSubmit={ handleFormSubmit }
+                              className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-4 p-5">
+                            <div ref={ formDataDiriRef } className="col-span-1 lg:col-span-2">
+                                <Typography variant="h4" className="flex items-center gap-2">
+                                    <CircleUser/>
+                                    Data Diri
+                                </Typography>
+                            </div>
+                            <MASTER_PegawaiCreateForm
+                                state={ formState }
+                                setState={ setFormState }
+                                golongans={ golongans }
+                                marhalahs={ marhalahs }
+                                statusPegawais={ statusPegawais }
+                                units={ units }
+                            />
 
-                                    <div ref={ formDataKeluargaRef } id="data-keluarga"
-                                         className="mt-6 col-span-1 lg:col-span-2">
-                                        <Typography variant="h4" className="flex items-center gap-2">
-                                            <Users/>
-                                            Data Keluarga
-                                        </Typography>
-                                    </div>
-                                    <PegawaiFormDataKeluarga
-                                        formState={ formDataKeluarga }
-                                        setFormState={ setFormDataKeluarga }
-                                        formDefault={ formDataKeluargaDefault }
-                                    />
+                            <div ref={ formDataKeluargaRef } id="data-keluarga"
+                                 className="mt-6 col-span-1 lg:col-span-2">
+                                <Typography variant="h4" className="flex items-center gap-2">
+                                    <Users/>
+                                    Data Keluarga
+                                </Typography>
+                            </div>
+                            <PegawaiFormDataKeluarga
+                                formState={ dataKeluarga }
+                                setFormState={ setDataKeluarga }
+                                formDefault={ formDataKeluargaDefault }
+                            />
 
-                                    <div ref={ formDataPendidikanRef } id="data-pendidikan"
-                                         className="mt-6 col-span-1 lg:col-span-2">
-                                        <Typography variant="h4" className="flex items-center gap-2">
-                                            <GraduationCap/>
-                                            Data Pendidikan Formal
-                                        </Typography>
-                                    </div>
-                                    <PegawaiFormDataPendidikanFormal
-                                        formState={ formDataPendidikanFormal }
-                                        setFormState={ setFormDataPendidikanFormal }
-                                        formDefault={ formDataPendidikanFormalDefault }
-                                    />
+                            <div ref={ formDataPendidikanRef } id="data-pendidikan"
+                                 className="mt-6 col-span-1 lg:col-span-2">
+                                <Typography variant="h4" className="flex items-center gap-2">
+                                    <GraduationCap/>
+                                    Data Pendidikan Formal
+                                </Typography>
+                            </div>
+                            <PegawaiFormDataPendidikanFormal
+                                formState={ dataPendidikanFormal }
+                                setFormState={ setDataPendidikanFormal }
+                                formDefault={ formDataPendidikanFormalDefault }
+                            />
 
-                                    <div className="mt-6 col-span-1 lg:col-span-2">
-                                        <Typography variant="h4" className="flex items-center gap-2">
-                                            <Medal/>
-                                            Data Pendidikan non Formal
-                                        </Typography>
-                                    </div>
-                                    <PegawaiFormDataPendidikanNonFormal
-                                        formState={ formDataPendidikanNonFormal }
-                                        setFormState={ setFormDataPendidikanNonFormal }
-                                        formDefault={ formDataPendidikanNonFormalDefault }
-                                    />
+                            <div className="mt-6 col-span-1 lg:col-span-2">
+                                <Typography variant="h4" className="flex items-center gap-2">
+                                    <Medal/>
+                                    Data Pendidikan non Formal
+                                </Typography>
+                            </div>
+                            <PegawaiFormDataPendidikanNonFormal
+                                formState={ dataPendidikanNonFormal }
+                                setFormState={ setDataPendidikanNonFormal }
+                                formDefault={ formDataPendidikanNonFormalDefault }
+                            />
 
-                                    <div ref={ formDataPengalaman } id="data-pengalaman"
-                                         className="mt-6 col-span-1 lg:col-span-2">
-                                        <Typography variant="h4" className="flex items-center gap-2">
-                                            Pengalaman Organisasi
-                                        </Typography>
-                                    </div>
-                                    <PegawaiFormDataOrganisasi
-                                        formState={ formDataOrganisasi }
-                                        setFormState={ setFormDataOrganisasi }
-                                        formDefault={ formDataOrganisasiDefault }
-                                    />
+                            <div ref={ formDataPengalaman } id="data-pengalaman"
+                                 className="mt-6 col-span-1 lg:col-span-2">
+                                <Typography variant="h4" className="flex items-center gap-2">
+                                    Pengalaman Organisasi
+                                </Typography>
+                            </div>
+                            <PegawaiFormDataOrganisasi
+                                formState={ dataOrganisasi }
+                                setFormState={ setDataOrganisasi }
+                                formDefault={ formDataOrganisasiDefault }
+                            />
 
-                                    <div className="mt-6 col-span-1 lg:col-span-2">
-                                        <Typography variant="h4" className="flex items-center gap-2">
-                                            Pengalaman bekerja di PPH
-                                        </Typography>
-                                    </div>
-                                    <PegawaiFormDataPengalamanPPH
-                                        formState={ formDataPengalamanPPH }
-                                        setFormState={ setFormDataPengalamanPPH }
-                                        formDefault={ formDataPengalamanPPHDefault }
-                                    />
+                            <div className="mt-6 col-span-1 lg:col-span-2">
+                                <Typography variant="h4" className="flex items-center gap-2">
+                                    Pengalaman bekerja di PPH
+                                </Typography>
+                            </div>
+                            <PegawaiFormDataPengalamanPPH
+                                formState={ dataPengalamanPPH }
+                                setFormState={ setDataPengalamanPPH }
+                                formDefault={ formDataPengalamanPPHDefault }
+                            />
 
-                                    <div className="mt-6 col-span-1 lg:col-span-2">
-                                        <Typography variant="h4" className="flex items-center gap-2">
-                                            Pengalaman bekerja di luar PPH
-                                        </Typography>
-                                    </div>
-                                    <PegawaiFormDataPengalamanNonPPH
-                                        formState={ formDataPengalamanNonPPH }
-                                        setFormState={ setFormPengalamanNonPPH }
-                                        formDefault={ formDataPengalamanNonPPHDefault }
-                                    />
+                            <div className="mt-6 col-span-1 lg:col-span-2">
+                                <Typography variant="h4" className="flex items-center gap-2">
+                                    Pengalaman bekerja di luar PPH
+                                </Typography>
+                            </div>
+                            <PegawaiFormDataPengalamanNonPPH
+                                formState={ dataPengalamanNonPPH }
+                                setFormState={ setDataPengalamanNonPPH }
+                                formDefault={ formDataPengalamanNonPPHDefault }
+                            />
 
-                                    <Button
-                                        type="submit"
-                                        className="col-span-1 lg:col-span-2 w-52 ml-auto flex items-center justify-center gap-3"
-                                    >
-                                        <Save/>
-                                        Simpan
-                                    </Button>
-                                </form>
-                            </Card>
-                        </main>
-                    )
-                }
+                            <Button
+                                type="submit"
+                                className="col-span-1 lg:col-span-2 w-52 ml-auto flex items-center justify-center gap-3"
+                            >
+                                <Save/>
+                                Simpan
+                            </Button>
+                        </form>
+                    </Card>
+                </main>
             </MasterLayout>
         </>
     );

@@ -18,6 +18,7 @@ use Illuminate\Support\Arr;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class AdminMasterPagesController extends Controller
@@ -56,16 +57,20 @@ class AdminMasterPagesController extends Controller
             'periodeRekap' => fn() => [
                 'count' => PeriodeRekap::count(),
                 'lastUpdate' => PeriodeRekap::latest('updated_at')->value('updated_at')
+            ],
+            'pengajuanPromosi' => fn() => [
+                'count' => PengajuanPromosi::where('status_pengajuan', '=', 'menunggu')->count(),
+                'lastUpdate' => PengajuanPromosi::latest('updated_at')->value('updated_at')
             ]
         ]);
     }
     public function unitIndexPage(Request $request)
     {
-        $viewList = [10,25,50,100];
+        $viewList = ["25", "50", "100", "150"];
         $viewPerPage = $request->query('view');
 
-        if (!is_numeric($viewPerPage) || intval($viewPerPage) <= 0 || !Arr::has($viewList, $viewPerPage)) {
-            $viewPerPage = 10;
+        if (!Arr::has($viewList, $viewPerPage)) {
+            $viewPerPage = 25;
         } else {
             $viewPerPage = intval($viewPerPage);
         }
@@ -73,7 +78,13 @@ class AdminMasterPagesController extends Controller
         $query = Unit::select('id', 'nama', 'keterangan', 'created_at')
             ->with(['admin' => function ($query) {
                 $query->select('id', 'username', 'unit_id');
-            }]);
+            }])
+            ->orderBy('nama', 'asc');
+
+        $search = $request->query('search');
+        if ($search) {
+            $query->where('nama', 'like', '%' . $search . '%');
+        }
 
         $units = $query->paginate($viewPerPage)->withQueryString();
 
@@ -103,16 +114,21 @@ class AdminMasterPagesController extends Controller
     }
     public function golonganIndexPage(Request $request)
     {
-        $viewList = [10,25,50,100];
+        $viewList = ["25", "50", "100", "150"];
         $viewPerPage = $request->query('view');
 
-        if (!is_numeric($viewPerPage) || intval($viewPerPage) <= 0 || !Arr::has($viewList, $viewPerPage)) {
-            $viewPerPage = 10;
+        if (!Arr::has($viewList, $viewPerPage)) {
+            $viewPerPage = 25;
         } else {
             $viewPerPage = intval($viewPerPage);
         }
 
         $query = Golongan::select('id', 'nama', 'keterangan', 'created_at')->orderBy('nama', 'asc');
+
+        $search = $request->query('search');
+        if ($search) {
+            $query->where('nama', 'like', '%' . $search . '%');
+        }
 
         $golongans = $query->paginate($viewPerPage)->withQueryString();
 
@@ -142,16 +158,21 @@ class AdminMasterPagesController extends Controller
     }
     public function marhalahIndexPage(Request $request)
     {
-        $viewList = [10,25,50,100];
+        $viewList = ["25", "50", "100", "150"];
         $viewPerPage = $request->query('view');
 
-        if (!is_numeric($viewPerPage) || intval($viewPerPage) <= 0 || !Arr::has($viewList, $viewPerPage)) {
-            $viewPerPage = 10;
+        if (!Arr::has($viewList, $viewPerPage)) {
+            $viewPerPage = 25;
         } else {
             $viewPerPage = intval($viewPerPage);
         }
 
-        $query = Marhalah::select('id', 'nama', 'keterangan', 'created_at');
+        $query = Marhalah::select('id', 'nama', 'keterangan', 'created_at')->orderBy('nama', 'asc');
+
+        $search = $request->query('search');
+        if ($search) {
+            $query->where('nama', 'like', '%' . $search . '%');
+        }
 
         $marhalahs = $query->paginate($viewPerPage)->withQueryString();
 
@@ -179,6 +200,31 @@ class AdminMasterPagesController extends Controller
             abort(500);
         }
     }
+
+    public function statusPegawaiIndexPage(Request $request)
+    {
+        $viewList = ["25", "50", "100", "150"];
+        $viewPerPage = $request->query('view');
+
+        if (!Arr::has($viewList, $viewPerPage)) {
+            $viewPerPage = 25;
+        } else {
+            $viewPerPage = intval($viewPerPage);
+        }
+
+        $query = StatusPegawai::select('id', 'nama', 'keterangan', 'created_at')->orderBy('nama', 'asc');
+
+        $search = $request->query('search');
+        if ($search) {
+            $query->where('nama', 'like', '%' . $search . '%');
+        }
+
+        $statusPegawais = $query->paginate($viewPerPage)->withQueryString();
+
+        return Inertia::render('Master/MASTER_StatusPegawaiIndexPage', [
+            'pagination' => fn() => $statusPegawais,
+        ]);
+    }
     public function statusPegawaiDetailsPage(Request $request)
     {
         $idParam = $request->query->get('q');
@@ -199,13 +245,14 @@ class AdminMasterPagesController extends Controller
             abort(500);
         }
     }
+
     public function adminIndexPage(Request $request)
     {
-        $viewList = [10,25,50,100];
+        $viewList = ["25", "50", "100", "150"];
         $viewPerPage = $request->query('view');
 
-        if (!is_numeric($viewPerPage) || intval($viewPerPage) <= 0 || !Arr::has($viewList, $viewPerPage)) {
-            $viewPerPage = 10;
+        if (!Arr::has($viewList, $viewPerPage)) {
+            $viewPerPage = 25;
         } else {
             $viewPerPage = intval($viewPerPage);
         }
@@ -214,12 +261,17 @@ class AdminMasterPagesController extends Controller
             ->with('unit:id,nama')
             ->orderByRaw('unit_id IS NULL ASC')
             ->orderBy('nama', 'asc');
+
+        $search = $request->query('search');
+        if ($search) {
+            $query->where('nama', 'like', '%' . $search . '%');
+        }
+
         $admins = $query->paginate($viewPerPage)->withQueryString();
 
         return Inertia::render('Master/MASTER_AdminIndexPage', [
             'pagination' => fn() => $admins,
             'units' => fn () => Unit::select('id', 'nama')->get(),
-
         ]);
     }
     public function adminDetailsPage(Request $request)
@@ -247,11 +299,11 @@ class AdminMasterPagesController extends Controller
     }
     public function pegawaiIndexPage(Request $request)
     {
-        $viewList = [10,25,50,100];
+        $viewList = ["25", "50", "100", "150"];
         $viewPerPage = $request->query('view');
 
-        if (!is_numeric($viewPerPage) || intval($viewPerPage) <= 0 || !Arr::has($viewList, $viewPerPage)) {
-            $viewPerPage = 10;
+        if (!Arr::has($viewList, $viewPerPage)) {
+            $viewPerPage = 25;
         } else {
             $viewPerPage = intval($viewPerPage);
         }
@@ -262,12 +314,12 @@ class AdminMasterPagesController extends Controller
             'nama',
             'jenis_kelamin',
             'tanggal_promosi',
+            'tanggal_marhalah',
             'unit_id',
             'status_pegawai_id',
             'marhalah_id',
             'golongan_id',
             'created_at',
-            DB::raw('DATEDIFF(CURDATE(), tanggal_promosi) as lama_promosi'),
         ])->with([
             'unit:id,nama',
             'status_pegawai:id,nama',
@@ -303,6 +355,11 @@ class AdminMasterPagesController extends Controller
             }
         }
 
+        $search = $request->query('search');
+        if ($search) {
+            $query->where('nama', 'like', '%' . $search . '%');
+        }
+
         $pegawais = $query->paginate($viewPerPage)->withQueryString();
 
         return Inertia::render('Master/MASTER_PegawaiIndexPage', [
@@ -311,6 +368,7 @@ class AdminMasterPagesController extends Controller
             'marhalahs' => fn() => Marhalah::select('id', 'nama')->get(),
             'statusPegawais' => fn() => StatusPegawai::select('id', 'nama')->get(),
             'units' => fn() => Unit::select('id', 'nama')->get(),
+            'currDate' => fn() => Carbon::now('Asia/Jakarta')->toDateString()
         ]);
     }
     public function pegawaiCreatePage()
@@ -339,7 +397,7 @@ class AdminMasterPagesController extends Controller
         }
 
         try {
-            $pegawai = Pegawai::select('*', DB::raw('DATEDIFF(CURDATE(), tanggal_promosi) as lama_promosi'))
+            $pegawai = Pegawai::select('*')
                 ->find($idParam);
             if (!$pegawai) {
                 abort(404);
@@ -353,39 +411,20 @@ class AdminMasterPagesController extends Controller
                 'marhalahs' => fn () => Marhalah::select('id', 'nama')->get(),
                 'statusPegawais' => fn () => StatusPegawai::select('id', 'nama')->get(),
                 'units' => fn () => Unit::select('id', 'nama')->get(),
+                'currDate' => fn() => Carbon::now('Asia/Jakarta')->toDateString()
             ]);
         } catch (QueryException $exception) {
             abort(500);
         }
     }
 
-    public function statusPegawaiIndexPage(Request $request)
-    {
-        $viewList = [10,25,50,100];
-        $viewPerPage = $request->query('view');
-
-        if (!is_numeric($viewPerPage) || intval($viewPerPage) <= 0 || !Arr::has($viewList, $viewPerPage)) {
-            $viewPerPage = 10;
-        } else {
-            $viewPerPage = intval($viewPerPage);
-        }
-
-        $query = StatusPegawai::select('id', 'nama', 'keterangan', 'created_at');
-
-        $statusPegawai = $query->paginate($viewPerPage)->withQueryString();
-
-        return Inertia::render('Master/MASTER_StatusPegawaiIndexPage', [
-            'pagination' => fn() => $statusPegawai,
-        ]);
-    }
-
     public function rekapPegawaiIndexPage(Request $request)
     {
-        $viewList = [10,25,50,100];
+        $viewList = ["25", "50", "100", "150"];
         $viewPerPage = $request->query('view');
 
-        if (!is_numeric($viewPerPage) || intval($viewPerPage) <= 0 || !Arr::has($viewList, $viewPerPage)) {
-            $viewPerPage = 10;
+        if (!Arr::has($viewList, $viewPerPage)) {
+            $viewPerPage = 25;
         } else {
             $viewPerPage = intval($viewPerPage);
         }
@@ -440,6 +479,20 @@ class AdminMasterPagesController extends Controller
             }
         }
 
+        $search = $request->query('search');
+        if ($search) {
+            if (Str::startsWith($search, 'id:')) {
+                $uuid = Str::after($search, 'id:');
+                if (Str::isUuid($uuid)) {
+                    $query->where('pegawai_id', $uuid);
+                }
+            } else {
+                $query->whereHas('pegawai', function ($q) use ($search) {
+                    $q->where('nama', 'like', '%' . $search . '%');
+                });
+            }
+        }
+
         $rekaps = $query->paginate($viewPerPage)->withQueryString();
 
         return Inertia::render('Master/MASTER_RekapPegawaiIndexPage', [
@@ -448,16 +501,14 @@ class AdminMasterPagesController extends Controller
             'marhalahs' => fn() => Marhalah::select('id', 'nama')->get(),
             'statusPegawais' => fn() => StatusPegawai::select('id', 'nama')->get(),
             'units' => fn() => Unit::select('id', 'nama')->get(),
-            'unverifiedCount' => RekapPegawai::where('terverifikasi', '=', false)->count(),
         ]);
     }
-
-
     public function rekapPegawaiCreatePage()
     {
         try {
             return Inertia::render('Master/MASTER_RekapPegawaiCreatePage', [
                 'units' => Unit::select('id', 'nama')->get(),
+                'periodes' => fn() => PeriodeRekap::select('id', 'nama', 'awal', 'akhir')->get(),
                 'golongans' => fn() => Golongan::select('id', 'nama')->get(),
                 'marhalahs' => fn() => Marhalah::select('id', 'nama')->get(),
                 'statusPegawais' => fn() => StatusPegawai::select('id', 'nama')->get()
@@ -474,14 +525,15 @@ class AdminMasterPagesController extends Controller
         }
 
         try {
-            $rekapPegawai = RekapPegawai::find($idParam)->with([
+            $rekapPegawai = RekapPegawai::with([
                 'golongan:id,nama',
                 'unit:id,nama',
                 'periode_rekap:id,nama',
                 'status_pegawai:id,nama',
                 'marhalah:id,nama',
                 'pegawai:id,nama',
-            ])->first();
+            ])->find($idParam);
+
             if (!$rekapPegawai) {
                 abort(404);
             }
@@ -496,11 +548,11 @@ class AdminMasterPagesController extends Controller
 
     public function periodeRekapIndexPage(Request $request)
     {
-        $viewList = [10,25,50,100];
+        $viewList = ["25", "50", "100", "150"];
         $viewPerPage = $request->query('view');
 
-        if (!is_numeric($viewPerPage) || intval($viewPerPage) <= 0 || !Arr::has($viewList, $viewPerPage)) {
-            $viewPerPage = 10;
+        if (!Arr::has($viewList, $viewPerPage)) {
+            $viewPerPage = 25;
         } else {
             $viewPerPage = intval($viewPerPage);
         }
@@ -508,6 +560,11 @@ class AdminMasterPagesController extends Controller
         $query = PeriodeRekap::select('id', 'nama', 'keterangan', 'awal', 'akhir', 'jenis', 'status')
             ->orderBy('akhir', 'desc')
             ->orderBy('awal', 'asc');
+
+        $search = $request->query('search');
+        if ($search) {
+            $query->where('nama', 'like', '%' . $search . '%');
+        }
 
         $periodeRekaps = $query->paginate($viewPerPage)->withQueryString();
 
@@ -538,11 +595,11 @@ class AdminMasterPagesController extends Controller
 
     public function pengajuanPromosiIndexPage(Request $request)
     {
-        $viewList = [10,25,50,100];
+        $viewList = ["25", "50", "100", "150"];
         $viewPerPage = $request->query('view');
 
-        if (!is_numeric($viewPerPage) || intval($viewPerPage) <= 0 || !Arr::has($viewList, $viewPerPage)) {
-            $viewPerPage = 10;
+        if (!Arr::has($viewList, $viewPerPage)) {
+            $viewPerPage = 25;
         } else {
             $viewPerPage = intval($viewPerPage);
         }
@@ -572,6 +629,10 @@ class AdminMasterPagesController extends Controller
         $pengajuanPromosis = $query->paginate($viewPerPage)->withQueryString();
 
         return Inertia::render('Master/MASTER_PengajuanPromosiIndexPage', [
+            'golongans' => fn() => Golongan::select('id', 'nama')->get(),
+            'marhalahs' => fn() => Marhalah::select('id', 'nama')->get(),
+            'statusPegawais' => fn() => StatusPegawai::select('id', 'nama')->get(),
+            'units' => fn() => Unit::select('id', 'nama')->get(),
             'pagination' => fn() => $pengajuanPromosis,
         ]);
     }
@@ -597,6 +658,48 @@ class AdminMasterPagesController extends Controller
                 'golongans' => fn() => Golongan::select('id', 'nama')->get(),
                 'marhalahs' => fn() => Marhalah::select('id', 'nama')->get(),
                 'statusPegawais' => fn() => StatusPegawai::select('id', 'nama')->get(),
+            ]);
+        } catch (QueryException $exception) {
+            abort(500);
+        }
+    }
+    public function pengajuanPromosiDetailsPage(Request $request)
+    {
+        $idParam = $request->query->get('q');
+        if (!$idParam) {
+            abort(404);
+        }
+
+        try {
+            $pengajuanPromosi = PengajuanPromosi::select([
+                'id',
+                'nama',
+                'jenis',
+                'pegawai_id',
+                'unit_id',
+                'admin_id',
+                'admin_penyetuju_id',
+                'asal_type',
+                'asal_id',
+                'akhir_type',
+                'akhir_id',
+                'created_at',
+                'status_pengajuan'
+            ])->with([
+                'pegawai:id,nama',
+                'unit:id,nama',
+                'admin:id,nama',
+                'admin_penyetuju:id,nama',
+                'asal:id,nama',
+                'akhir:id,nama',
+            ])->find($idParam);
+
+            if (!$pengajuanPromosi) {
+                abort(404);
+            }
+
+            return Inertia::render('Master/MASTER_PengajuanPromosiDetailsPage', [
+                'pengajuanPromosi' => $pengajuanPromosi
             ]);
         } catch (QueryException $exception) {
             abort(500);

@@ -2,19 +2,19 @@ import { ChangeEvent, Dispatch, memo, SetStateAction } from "react";
 import { Button, Card, Tooltip, Typography } from "@material-tailwind/react";
 import { Input } from "@/Components/Input";
 import { ListPlus, ListX } from "lucide-react";
-import type { FormDataPendidikanNonFormal } from "@/types";
+import type { FormPegawaiDataOrganisasi } from "@/types";
 
-const PegawaiFormDataPendidikanFormal = ({ formState, setFormState, formDefault }: {
-    formState: FormDataPendidikanNonFormal[];
-    setFormState: Dispatch<SetStateAction<FormDataPendidikanNonFormal[]>>;
-    formDefault: FormDataPendidikanNonFormal;
+const FormDataPengalamanOrganisasi = ({ formState, setFormState, formDefault }: {
+    formState: FormPegawaiDataOrganisasi[];
+    setFormState: Dispatch<SetStateAction<FormPegawaiDataOrganisasi[]>>;
+    formDefault: FormPegawaiDataOrganisasi;
 }) => {
 
     const TABLE_HEAD = [
-        { key: "jenis", label: "Jenis Kursus/Training" },
-        { key: "penyelenggara", label: "Penyelenggara" },
-        { key: "tempat", label: "Tempat" },
-        { key: "tahun", label: "Tahun" }
+        { key: "nama", label: "Nama Organisasi" },
+        { key: "jabatan", label: "Jabatan" },
+        { key: "masa", label: "Masa Bhakti" },
+        { key: "keterangan", label: "Keterangan" }
     ];
 
     const handleChangeInput = (event: ChangeEvent<HTMLInputElement>) => {
@@ -110,4 +110,4 @@ const PegawaiFormDataPendidikanFormal = ({ formState, setFormState, formDefault 
     )
 };
 
-export default memo(PegawaiFormDataPendidikanFormal);
+export default memo(FormDataPengalamanOrganisasi);

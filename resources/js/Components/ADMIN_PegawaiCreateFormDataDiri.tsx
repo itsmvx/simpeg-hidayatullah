@@ -4,14 +4,14 @@ import { Input } from "@/Components/Input";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import { DayPicker } from "react-day-picker";
-import type { FormDataDiri, IDNamaColumn } from "@/types";
 import { ADMIN_FormDataDiriPegawai } from "@/Pages/Admin/ADMIN_PegawaiDetailsPage";
+import { FormPegawaiDataDiri, IDNamaColumn } from "@/types";
 
 const ADMIN_PegawaiCreateFormDataDiri = ({ formState, changeInput, changeDate, changeSelect, pegawai }: {
     formState: ADMIN_FormDataDiriPegawai;
     changeInput: (event: ChangeEvent<HTMLInputElement>) => void;
-    changeDate: (date: Date | undefined, key: keyof FormDataDiri) => void;
-    changeSelect: (key: keyof FormDataDiri, value: string) => void;
+    changeDate: (date: Date | undefined, key: keyof FormPegawaiDataDiri) => void;
+    changeSelect: (key: keyof FormPegawaiDataDiri, value: string) => void;
     handleSubmit: (event: FormEvent<HTMLFormElement>) => void;
     pegawai: {
         unit: IDNamaColumn;

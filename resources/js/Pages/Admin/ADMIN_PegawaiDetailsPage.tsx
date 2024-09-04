@@ -17,18 +17,18 @@ import {
 import { ChangeEvent, FormEvent, lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import "react-day-picker/dist/style.css";
 import { AdminLayout } from "@/Layouts/AdminLayout";
-import PegawaiFormDataKeluarga from "@/Components/PegawaiCreateFormDataKeluarga";
-import PegawaiFormDataPendidikanFormal from "@/Components/PegawaiCreateFormDataPendidikanFormal";
-import PegawaiFormDataPendidikanNonFormal from "@/Components/PegawaiCreateFormDataPendidikanNonFormal";
-import PegawaiFormDataOrganisasi from "@/Components/PegawaiCreateFormDataOrganisasi";
-import PegawaiFormDataPengalamanPPH from "@/Components/PegawaiCreateFormDataPengalamanPPH";
-import PegawaiFormDataPengalamanNonPPH from "@/Components/PegawaiCreateFormDataPengalamanNonPPH";
+import PegawaiFormDataKeluarga from "@/Components/FormDataKeluarga";
+import PegawaiFormDataPendidikanFormal from "@/Components/FormDataPendidikanFormal";
+import PegawaiFormDataPendidikanNonFormal from "@/Components/FormDataPendidikanNonFormal";
+import PegawaiFormDataOrganisasi from "@/Components/FormDataPengalamanOrganisasi";
+import PegawaiFormDataPengalamanPPH from "@/Components/FormDataPengalamanKerjaPPH";
+import PegawaiFormDataPengalamanNonPPH from "@/Components/FormDataPengalamanKerjaNonPPH";
 import type {
-    FormDataDiri, FormDataKeluarga,
-    FormDataOrganisasi,
-    FormDataPendidikanFormal,
-    FormDataPendidikanNonFormal, FormDataPengalamanNonPPH,
-    FormDataPengalamanPPH, IDNamaColumn, ModelWithoutColumns,
+    FormDataDiri, FormPegawaiDataKeluarga,
+    FormPegawaiDataOrganisasi,
+    FormPegawaiDataPendidikanFormal,
+    FormPegawaiDataPendidikanNonFormal, FormPegawaiDataPengalamanNonPPH,
+    FormPegawaiDataPengalamanPPH, IDNamaColumn, ModelWithoutColumns,
     PageProps,
     Pegawai
 } from "@/types";
@@ -158,12 +158,12 @@ export default function ADMIN_PegawaiDetailsPage({ auth, pegawai }: PageProps<{
         }
     }, [ pegawai ]);
 
-    const formDataKeluargaInit: FormDataKeluarga[] = useMemo(() => (JSON.parse(pegawai.data_keluarga)), [ pegawai ]);
-    const formDataPendidikanFormalInit: FormDataPendidikanFormal[] = useMemo(() => JSON.parse(pegawai.pendidikan_formal), [ pegawai ]);
-    const formDataPendidikanNonFormalInit: FormDataPendidikanNonFormal[] = useMemo(() => JSON.parse(pegawai.pendidikan_non_formal), [ pegawai ]);
-    const formDataOrganisasiInit: FormDataOrganisasi[] = useMemo(() => JSON.parse(pegawai.pengalaman_organisasi), [ pegawai ]);
-    const formDataPengalamanPPHInit: FormDataPengalamanPPH[] = useMemo(() => JSON.parse(pegawai.pengalaman_kerja_pph), [ pegawai ]);
-    const formDataPengalamanNonPPHInit: FormDataPengalamanNonPPH[] = useMemo(() => JSON.parse(pegawai.pengalaman_kerja_non_pph), [ pegawai ]);
+    const formDataKeluargaInit: FormPegawaiDataKeluarga[] = useMemo(() => (JSON.parse(pegawai.data_keluarga)), [ pegawai ]);
+    const formDataPendidikanFormalInit: FormPegawaiDataPendidikanFormal[] = useMemo(() => JSON.parse(pegawai.pendidikan_formal), [ pegawai ]);
+    const formDataPendidikanNonFormalInit: FormPegawaiDataPendidikanNonFormal[] = useMemo(() => JSON.parse(pegawai.pendidikan_non_formal), [ pegawai ]);
+    const formDataOrganisasiInit: FormPegawaiDataOrganisasi[] = useMemo(() => JSON.parse(pegawai.pengalaman_organisasi), [ pegawai ]);
+    const formDataPengalamanPPHInit: FormPegawaiDataPengalamanPPH[] = useMemo(() => JSON.parse(pegawai.pengalaman_kerja_pph), [ pegawai ]);
+    const formDataPengalamanNonPPHInit: FormPegawaiDataPengalamanNonPPH[] = useMemo(() => JSON.parse(pegawai.pengalaman_kerja_non_pph), [ pegawai ]);
 
     const [ openNav, setOpenNav] = useState(false);
     const [ formDataDiri, setFormDataDiri ] = useState<ADMIN_FormDataDiriPegawai>(formDataDiriInit);

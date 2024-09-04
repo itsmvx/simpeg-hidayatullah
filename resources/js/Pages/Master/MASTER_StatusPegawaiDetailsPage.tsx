@@ -5,15 +5,16 @@ import { ChangeEvent, FormEvent, useState } from "react";
 import { Button, IconButton, Tooltip, Typography } from "@material-tailwind/react";
 import { MoveLeft, Save } from "lucide-react";
 import { TextArea } from "@/Components/TextArea";
-import { PageProps, StatusPegawai } from "@/types";
+import { ModelWithoutColumns, PageProps } from "@/types";
 import axios, { AxiosError } from "axios";
 import { notifyToast } from "@/Lib/Utils";
+import { StatusPegawai } from "@/types/models";
 
 export default function MASTER_StatusPegawaiDetailsPage({ auth, statusPegawai }: PageProps<{
-    statusPegawai: StatusPegawai;
+    statusPegawai: ModelWithoutColumns<StatusPegawai, 'updated_at'>;
 }>) {
-    const [statusPegawaiState, setStatusPegawaiState] = useState(statusPegawai);
-    const [onChangeStatusPegawai, setOnChangeStatusPegawai] = useState(false);
+    const [ statusPegawaiState, setStatusPegawaiState ] = useState(statusPegawai);
+    const [ onChangeStatusPegawai, setOnChangeStatusPegawai ] = useState(false);
     const [ onSubmit, setOnSubmit ] = useState(false);
 
     const handleStatusPegawaiChange = (event: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>) => {
@@ -64,7 +65,7 @@ export default function MASTER_StatusPegawaiDetailsPage({ auth, statusPegawai }:
 
     return (
         <>
-            <Head title="Master - Status Pegawai Details" />
+            <Head title="Master - Detail Status Pegawai" />
             <MasterLayout auth={auth}>
                 <Tooltip content="Kembali">
                     <IconButton variant="text" onClick={() => router.visit(route('master.status-pegawai.index'))}>
@@ -143,5 +144,5 @@ export default function MASTER_StatusPegawaiDetailsPage({ auth, statusPegawai }:
                 </div>
             </MasterLayout>
         </>
-    )
-}
+    );
+};

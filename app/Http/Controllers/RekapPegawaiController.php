@@ -43,6 +43,8 @@ class RekapPegawaiController extends Controller
             'ketuntasan_kerja',
             'catatan_negatif',
             'prestasi',
+            'pembinaan',
+            'terverifikasi',
         ]), [
             'pegawai_id' => 'required|uuid|exists:pegawai,id',
             'unit_id' => 'required|uuid|exists:unit,id',
@@ -60,6 +62,8 @@ class RekapPegawaiController extends Controller
             'ketuntasan_kerja' => 'required|string|max:255',
             'catatan_negatif' => 'nullable|string',
             'prestasi' => 'nullable|string',
+            'pembinaan' => 'nullable|string',
+            'terverifikasi' => 'nullable|boolean'
         ], [
             'pegawai_id.required' => 'Pegawai tidak boleh kosong',
             'pegawai_id.exists' => 'Pegawai tidak ditemukan',
@@ -163,6 +167,7 @@ class RekapPegawaiController extends Controller
             'ketuntasan_kerja' => 'required|string|max:255',
             'catatan_negatif' => 'nullable|string|max:255',
             'prestasi' => 'nullable|string|max:255',
+            'pembinaan' => 'nullable|string|max:255',
             'terverifikasi' => 'required|boolean',
         ], [
             'id.required' => 'Informasi Rekap tidak boleh kosong.',
@@ -206,6 +211,8 @@ class RekapPegawaiController extends Controller
             'catatan_negatif.max' => 'Catatan negatif maksimal 255 karakter.',
             'prestasi.string' => 'Prestasi harus berupa teks.',
             'prestasi.max' => 'Prestasi maksimal 255 karakter.',
+            'pembinaan.string' => 'Pembinaan harus berupa teks.',
+            'pembinaan.max' => 'Pembinaan maksimal 255 karakter.',
             'terverifikasi.required' => 'Status verifikasi tidak boleh kosong.',
             'terverifikasi.boolean' => 'Status verifikasi harus berupa nilai true atau false.',
         ]);
