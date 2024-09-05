@@ -1,6 +1,6 @@
-import { Head, Link, router } from "@inertiajs/react";
+import { Head, router } from "@inertiajs/react";
 import { MasterLayout } from "@/Layouts/MasterLayout";
-import { Card, CardHeader, CardBody, Typography, IconButton, CardFooter, Button } from "@material-tailwind/react";
+import { Card, CardHeader, CardBody, Typography, CardFooter, Button } from "@material-tailwind/react";
 import { PageProps } from "@/types";
 import {
     Award,
@@ -8,7 +8,7 @@ import {
     CalendarDays,
     CircleUserRound,
     ExternalLink,
-    Newspaper,
+    Newspaper, NotebookPen,
     ShieldCheck,
     UserRound,
     UsersRound,
@@ -161,6 +161,40 @@ export default function MASTER_DashboardPage({ auth, unit, golongan, marhalah, a
                             </CardFooter>
                         </Card>
                     )) }
+                    <Card className="border border-blue-gray-100 shadow-sm">
+                        <CardHeader
+                            variant="gradient"
+                            color="gray"
+                            floated={ false }
+                            shadow={ false }
+                            className="absolute grid h-12 w-12 place-items-center"
+                        >
+                            <NotebookPen />
+                        </CardHeader>
+                        <CardBody className="p-4 text-left ml-20">
+                            <Typography variant="small" className="font-normal text-blue-gray-900">
+                                Buat Surat Kontrak kerja
+                            </Typography>
+                            <Typography variant="h4" color="blue-gray" className="flex items-center gap-1.5">
+                                {""}
+                                <span className="text-xs text-blue-gray-800 mt-1.5">
+                                    Buat
+                                </span>
+                            </Typography>
+                        </CardBody>
+                        <CardFooter className="-mt-3">
+                            <Button
+                                fullWidth
+                                variant="outlined"
+                                size="sm"
+                                className="!py-1.5 !px-3 flex flex-row gap-2.5 items-center justify-center !rounded-xl !shadow-none !text-xs font-semibold font-sans !border-gray-400/90"
+                                onClick={() => router.visit('/')}
+                            >
+                                Kelola
+                                <ExternalLink  width={18} />
+                            </Button>
+                        </CardFooter>
+                    </Card>
                 </section>
             </MasterLayout>
         </>

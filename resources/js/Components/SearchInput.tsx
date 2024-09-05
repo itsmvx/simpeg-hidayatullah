@@ -4,7 +4,9 @@ import { FormEvent, useRef, useState } from "react";
 import { router } from "@inertiajs/react";
 import { Button, Typography } from "@material-tailwind/react";
 
-export const SearchInput = () => {
+export const SearchInput = ({ placeholder }: {
+    placeholder?: string;
+}) => {
     const [ search, setSearch ] = useState<{
         input: string;
         result: string;
@@ -75,7 +77,7 @@ export const SearchInput = () => {
                 <form ref={ searchFormRef } onSubmit={ handleFormSubmit } className="flex items-center justify-end gap-1">
                     <Input
                         label="Pencarian"
-                        placeholder="cari berdasarkan nama"
+                        placeholder={placeholder ?? "cari berdasarkan nama"}
                         value={ search.input }
                         onChange={ (event) => {
                             setSearch((prevState) => ({
