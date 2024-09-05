@@ -57,6 +57,7 @@ const ADMIN_RekapPegawaiForm = ({ formState, setFormState, periodes, pegawais }:
                 color="teal"
                 name="periode_rekap_id"
                 onChange={ (value: string | undefined) => handleSelectChange('periode_rekap_id', value ?? '') }
+                value={formState.periode_rekap_id}
             >
                 {
                     periodes.length > 0

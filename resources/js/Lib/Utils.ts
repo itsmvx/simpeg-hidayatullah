@@ -57,3 +57,17 @@ export const calculateDatePast = (startDate: Date, endDate?: Date): string => {
 
     return `${years} tahun, ${months} bulan, ${days} hari`;
 };
+export const getGreetingTimeOfDay = (date: Date) => {
+    const currentHour = date.getHours();
+
+    if (currentHour >= 5 && currentHour < 12) {
+        return 'Pagi';
+    } else if (currentHour >= 12 && currentHour < 15) {
+        return 'Siang';
+    } else if (currentHour >= 15 && currentHour < 18) {
+        return 'Sore';
+    } else {
+        return 'Malam';
+    }
+};
+

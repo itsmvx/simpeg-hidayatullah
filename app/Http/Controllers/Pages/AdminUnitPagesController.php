@@ -11,6 +11,7 @@ use App\Models\PeriodeRekap;
 use App\Models\RekapPegawai;
 use App\Models\StatusPegawai;
 use App\Models\Unit;
+use Carbon\Carbon;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
@@ -58,11 +59,11 @@ class AdminUnitPagesController extends Controller
     }
     public function pegawaiIndexPage(Request $request)
     {
-        $viewList = [10,25,50,100];
+        $viewList = ["25", "50", "100", "150"];
         $viewPerPage = $request->query('view');
 
-        if (!is_numeric($viewPerPage) || intval($viewPerPage) <= 0 || !Arr::has($viewList, $viewPerPage)) {
-            $viewPerPage = 10;
+        if (!Arr::has($viewList, $viewPerPage)) {
+            $viewPerPage = 25;
         } else {
             $viewPerPage = intval($viewPerPage);
         }
@@ -73,11 +74,11 @@ class AdminUnitPagesController extends Controller
             'nama',
             'jenis_kelamin',
             'tanggal_promosi',
+            'tanggal_marhalah',
             'status_pegawai_id',
             'marhalah_id',
             'golongan_id',
             'created_at',
-            DB::raw('DATEDIFF(CURDATE(), tanggal_promosi) as lama_promosi'),
         ])->with([
             'status_pegawai:id,nama',
             'marhalah:id,nama',
@@ -112,6 +113,11 @@ class AdminUnitPagesController extends Controller
             }
         }
 
+        $search = $request->query('search');
+        if ($search) {
+            $query->where('nama', 'like', '%' . $search . '%');
+        }
+
         $pegawais = $query->paginate($viewPerPage)->withQueryString();
 
         return Inertia::render('Admin/ADMIN_PegawaiIndexPage', [
@@ -119,7 +125,7 @@ class AdminUnitPagesController extends Controller
             'golongans' => fn() => Golongan::select('id', 'nama')->get(),
             'marhalahs' => fn() => Marhalah::select('id', 'nama')->get(),
             'statusPegawais' => fn() => StatusPegawai::select('id', 'nama')->get(),
-            'units' => fn() => Unit::select('id', 'nama')->get(),
+            'currDate' => fn() => Carbon::now('Asia/Jakarta')->toDateString()
         ]);
     }
 
@@ -131,20 +137,18 @@ class AdminUnitPagesController extends Controller
         }
 
         try {
-            $pegawai = Pegawai::select('*', DB::raw('DATEDIFF(CURDATE(), tanggal_promosi) as lama_promosi'))
-                ->with([
-                    'status_pegawai:id,nama',
-                    'marhalah:id,nama',
-                    'golongan:id,nama',
-                    'unit:id,nama',
-                ])
-                ->where('unit_id', '=', $this->unitId)
+            $pegawai = Pegawai::with([
+                'golongan:id,nama',
+                'marhalah:id,nama',
+                'status_pegawai:id,nama',
+                'unit:id,nama',
+            ])
                 ->find($idParam);
             if (!$pegawai) {
                 abort(404);
             }
 
-            $pegawai->makeHidden(['password', 'updated_at', 'status_pegawai_id', 'marhalah_id', 'golongan_id', 'unit_id']);
+            $pegawai->makeHidden(['password', 'updated_at']);
 
             return Inertia::render('Admin/ADMIN_PegawaiDetailsPage', [
                 'pegawai' => fn() => $pegawai,
@@ -152,6 +156,7 @@ class AdminUnitPagesController extends Controller
                 'marhalahs' => fn () => Marhalah::select('id', 'nama')->get(),
                 'statusPegawais' => fn () => StatusPegawai::select('id', 'nama')->get(),
                 'units' => fn () => Unit::select('id', 'nama')->get(),
+                'currDate' => fn() => Carbon::now('Asia/Jakarta')->toDateString()
             ]);
         } catch (QueryException $exception) {
             abort(500);

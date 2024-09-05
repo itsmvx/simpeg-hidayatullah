@@ -9,11 +9,11 @@ export const ViewPerPageList = ({ className }: {
     const [ viewPerPage, setViewPerPage ] = useState(() => {
         const searchParams = new URLSearchParams(window.location.search);
         const viewParam = searchParams.get('view');
-        return viewParam ? parseInt(viewParam, 10) : 10;
+        return viewParam ? parseInt(viewParam, 10) : 25;
     });
     const handleSetViewPerPage = (value: number) => {
         const viewPerPageParam = new URLSearchParams(window.location.search);
-        if (value === 10) {
+        if (value === 25) {
             viewPerPageParam.delete('view');
         } else {
             viewPerPageParam.set('view', String(value));

@@ -1,6 +1,6 @@
 import { Head, router } from "@inertiajs/react";
-import { Card, Typography, Button, Select, Option } from "@material-tailwind/react";
-import { CircleAlert, Save, TriangleAlert } from "lucide-react";
+import { Card, Typography, Button, Select, Option, Tooltip, IconButton } from "@material-tailwind/react";
+import { CircleAlert, MoveLeft, Save } from "lucide-react";
 import { ChangeEvent, SyntheticEvent, useEffect, useState } from "react";
 import "react-day-picker/dist/style.css";
 import { AdminLayout } from "@/Layouts/AdminLayout";
@@ -8,9 +8,6 @@ import { IDNamaColumn, JenisPengajuanPromosi, PageProps } from "@/types";
 import { z } from "zod";
 import { notifyToast } from "@/Lib/Utils";
 import axios, { AxiosError } from "axios";
-import { FormRekapPegawaiByAdmin } from "@/Pages/Admin/ADMIN_RekapPegawaiCreatePage";
-import { format } from "date-fns";
-import { id } from "date-fns/locale";
 import ReactSelect from "react-select";
 import { Input } from "@/Components/Input";
 import { TextArea } from "@/Components/TextArea";
@@ -138,9 +135,10 @@ export default function ADMIN_PengajuanPromosiCreatePage({ auth, admin, pegawais
                     ...prevState,
                     onSuccess: true
                 }));
-                setTimeout(() => {
-                    router.visit(route('admin.pengajuan-promosi.index'));
-                }, 2000);
+                setFormInput(formPengajuanPromosiInit);
+                // setTimeout(() => {
+                //     router.visit(route('admin.pengajuan-promosi.index'));
+                // }, 2000);
             })
             .catch((err: unknown) => {
                 const errMsg = err instanceof AxiosError
@@ -264,6 +262,11 @@ export default function ADMIN_PengajuanPromosiCreatePage({ auth, admin, pegawais
                         </ul>
                     </header>
                     <Card className="w-full px-6">
+                        <Tooltip content="Kembali">
+                            <IconButton variant="text" onClick={() => router.visit(route('admin.pengajuan-promosi.index'))}>
+                                <MoveLeft />
+                            </IconButton>
+                        </Tooltip>
                         <form onSubmit={ handleFormSubmit } className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-4 p-5">
                            <HeadingInfo
                                asal_id={formInput.asal_id}
