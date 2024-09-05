@@ -20,7 +20,8 @@ class DatabaseSeeder extends Seeder
             MarhalahSeeder::class,
             StatusPegawaiSeeder::class,
             UnitSeeder::class,
-            PeriodeRekapSeeder::class
+            PeriodeRekapSeeder::class,
+            PegawaiSeeder::class
         ]);
     }
 }
