@@ -302,7 +302,7 @@ class AdminMasterPagesController extends Controller
         $viewList = ["25", "50", "100", "150"];
         $viewPerPage = $request->query('view');
 
-        if (!Arr::has($viewList, $viewPerPage)) {
+        if (!in_array($viewPerPage, $viewList)) {
             $viewPerPage = 25;
         } else {
             $viewPerPage = intval($viewPerPage);
