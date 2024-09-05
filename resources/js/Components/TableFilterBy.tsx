@@ -19,7 +19,7 @@ export const TableFilterBy = ({ golongans, marhalahs, statusPegawais, units }: {
     golongans: IDNamaColumn[];
     marhalahs: IDNamaColumn[];
     statusPegawais: IDNamaColumn[];
-    units: IDNamaColumn[];
+    units?: IDNamaColumn[];
 }) => {
     const filterByInit: FilterBy = {
         marhalah: [],
@@ -83,19 +83,23 @@ export const TableFilterBy = ({ golongans, marhalahs, statusPegawais, units }: {
                     <Pencil width={ 20 }/>
                 </Button>
             </div>
-            <div className="flex flex-row gap-1.5 text-sm">
-                <p className="min-w-28">
-                    Unit
-                </p>
-                <p>:&nbsp;
-                    { filterBy.unit.length < 1
-                        ? 'Semua'
-                        : filterBy.unit.length === units.length
-                            ? 'Semua'
-                            : filterBy.unit.flat().join(', ')
-                    }
-                </p>
-            </div>
+            {
+                units && (
+                    <div className="flex flex-row gap-1.5 text-sm">
+                        <p className="min-w-28">
+                            Unit
+                        </p>
+                        <p>:&nbsp;
+                            { filterBy.unit.length < 1
+                                ? 'Semua'
+                                : filterBy.unit.length === units.length
+                                    ? 'Semua'
+                                    : filterBy.unit.flat().join(', ')
+                            }
+                        </p>
+                    </div>
+                )
+            }
             <div className="flex flex-row gap-1.5 text-sm">
                 <p className="min-w-28">
                     Marhalah
@@ -168,38 +172,44 @@ export const TableFilterBy = ({ golongans, marhalahs, statusPegawais, units }: {
                 <DialogBody className="h-80 overflow-auto">
                     <div className="flex flex-col md:flex-row flex-wrap gap-2 justify-around">
                         <div>
-                            <Typography variant="h6">
-                                Unit
-                            </Typography>
-                            <List>
-                                {
-                                    units.sort((a, b) => a.nama.localeCompare(b.nama)).map((unit, index) => ((
-                                        <ListItem className="p-0" key={unit.id}>
-                                            <label
-                                                htmlFor={ unit.id }
-                                                className="flex w-full cursor-pointer items-center px-3 py-2"
-                                            >
-                                                <ListItemPrefix className="mr-3">
-                                                    <Checkbox
-                                                        id={ unit.id }
-                                                        ripple={ false }
-                                                        className="hover:before:opacity-0"
-                                                        containerProps={ {
-                                                            className: "p-0",
-                                                        } }
-                                                        value={ unit.nama }
-                                                        checked={ filterBy.unit.includes(unit.nama) }
-                                                        onChange={ (event) => handleChangeFilterBy('unit', event) }
-                                                    />
-                                                </ListItemPrefix>
-                                                <Typography color="blue-gray" className="text-sm font-medium">
-                                                    { unit.nama }
-                                                </Typography>
-                                            </label>
-                                        </ListItem>
-                                    )))
-                                }
-                            </List>
+                            {
+                                units && (
+                                    <>
+                                        <Typography variant="h6">
+                                            Unit
+                                        </Typography>
+                                        <List>
+                                            {
+                                                units.sort((a, b) => a.nama.localeCompare(b.nama)).map((unit, index) => ((
+                                                    <ListItem className="p-0" key={unit.id}>
+                                                        <label
+                                                            htmlFor={ unit.id }
+                                                            className="flex w-full cursor-pointer items-center px-3 py-2"
+                                                        >
+                                                            <ListItemPrefix className="mr-3">
+                                                                <Checkbox
+                                                                    id={ unit.id }
+                                                                    ripple={ false }
+                                                                    className="hover:before:opacity-0"
+                                                                    containerProps={ {
+                                                                        className: "p-0",
+                                                                    } }
+                                                                    value={ unit.nama }
+                                                                    checked={ filterBy.unit.includes(unit.nama) }
+                                                                    onChange={ (event) => handleChangeFilterBy('unit', event) }
+                                                                />
+                                                            </ListItemPrefix>
+                                                            <Typography color="blue-gray" className="text-sm font-medium">
+                                                                { unit.nama }
+                                                            </Typography>
+                                                        </label>
+                                                    </ListItem>
+                                                )))
+                                            }
+                                        </List>
+                                    </>
+                                )
+                            }
                             <Typography variant="h6">
                                 Status Pegawai
                             </Typography>

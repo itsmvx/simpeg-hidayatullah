@@ -1,6 +1,6 @@
 import { Head, router } from "@inertiajs/react";
-import { Card, Typography, Button } from "@material-tailwind/react";
-import { CircleAlert, Save } from "lucide-react";
+import { Card, Typography, Button, Tooltip, IconButton } from "@material-tailwind/react";
+import { CircleAlert, MoveLeft, Save } from "lucide-react";
 import { SyntheticEvent, useEffect, useState } from "react";
 import "react-day-picker/dist/style.css";
 import { AdminLayout } from "@/Layouts/AdminLayout";
@@ -125,9 +125,7 @@ export default function ADMIN_RekapPegawaiCreatePage({ auth, periodes }: PagePro
                     ...prevState,
                     onSuccess: true
                 }));
-                setTimeout(() => {
-                    router.visit(route('admin.rekap-pegawai.index'));
-                }, 2000);
+                setFormInput(formRekapPegawaiInit);
             })
             .catch((err: unknown) => {
                 const errMsg = err instanceof AxiosError
@@ -225,7 +223,12 @@ export default function ADMIN_RekapPegawaiCreatePage({ auth, periodes }: PagePro
                         </ul>
                     </header>
                     <Card className="w-full px-6">
-                    <form onSubmit={ handleFormSubmit } className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-4 p-5">
+                        <Tooltip content="Kembali">
+                            <IconButton variant="text" onClick={() => router.visit(route('admin.rekap-pegawai.index'))}>
+                                <MoveLeft />
+                            </IconButton>
+                        </Tooltip>
+                        <form onSubmit={ handleFormSubmit } className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-4 p-5">
                             <RekapPegawaiForm
                                 formState={ formInput }
                                 setFormState={setFormInput}

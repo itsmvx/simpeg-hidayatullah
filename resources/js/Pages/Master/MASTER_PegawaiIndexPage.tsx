@@ -24,7 +24,7 @@ import axios, { AxiosError, AxiosProgressEvent } from "axios";
 import Pagination from "@/Components/Pagination";
 import { calculateDatePast, notifyToast } from "@/Lib/Utils";
 import { z } from "zod";
-import CV_PDFGenerator, { PegawaiExportCV } from "@/Lib/Dokumen_RekapPegawai";
+import CV_PDFGenerator, { PegawaiExportCV } from "@/Lib/Generate_Dokumen/RekapPegawai";
 import { pdf } from "@react-pdf/renderer";
 import { saveAs } from "file-saver";
 import { ViewPerPageList } from "@/Components/ViewPerPageList";
@@ -288,7 +288,7 @@ export default function MASTER_PegawaiIndexPage({ auth, marhalahs, golongans, st
                                                         <Typography
                                                             variant="small"
                                                             color="blue-gray"
-                                                            className={ `font-normal ${ !unit ? 'italic' : '' }` }
+                                                            className={ `font-normal ${ !status_pegawai ? 'italic' : '' }` }
                                                         >
                                                             { status_pegawai?.nama ?? 'Tidak terdaftar' }
                                                         </Typography>

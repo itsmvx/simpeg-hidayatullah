@@ -14,6 +14,7 @@ import { ReactElement } from "react";
 import { MasterNavbar } from "@/Components/Admin/MasterNavbar";
 import { AdminNavbar } from "@/Components/Admin/AdminNavbar";
 import { Footer } from "@/Components/Footer";
+import { PegawaiNavbar } from "@/Components/Pegawai/PegawaiNavbar";
 const Home = ({ auth, data }: PageProps<{
     data: {
         unit: number;
@@ -38,7 +39,7 @@ const Home = ({ auth, data }: PageProps<{
             }
             return <MasterNavbar auth={auth} />
         } else if(auth.user && auth.role === 'pegawai') {
-            return <AdminNavbar auth={auth} />
+            return <PegawaiNavbar auth={auth} />
         }
 
         return (
@@ -164,7 +165,7 @@ const Home = ({ auth, data }: PageProps<{
                                         Lorem Ipsum
                                     </Typography>
                                     <Typography className="font-normal text-blue-gray-500" >
-                                        vituperatoribus dolorem euripidis sodales scripserit sed suas iuvaret integer tale altera idque vis scelerisque porro autem tortor homero est reformidans
+                                        lorem vituperatoribus dolorem euripidis sodales scripserit sed suas iuvaret integer tale altera idque vis scelerisque porro autem tortor homero est reformidans
                                     </Typography>
                                 </CardBody>
                             </Card>

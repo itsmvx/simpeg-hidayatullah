@@ -28,6 +28,9 @@ import Pagination from "@/Components/Pagination";
 import { AdminLayout } from "@/Layouts/AdminLayout";
 import { jenisKelamin } from "@/Lib/StaticData";
 import { notifyToast } from "@/Lib/Utils";
+import { TableFilterBy } from "@/Components/TableFilterBy";
+import { ViewPerPageList } from "@/Components/ViewPerPageList";
+import { SearchInput } from "@/Components/SearchInput";
 
 
 type Rekaps = {
@@ -56,7 +59,7 @@ export default function ADMIN_RekapPegawaiIndexPage({ auth, unverifiedCount, mar
     pagination: PaginationData<Rekaps>;
 }>) {
 
-    const TABLE_HEAD = ['No', 'Pegawai', 'Periode', 'Amanah', 'Status Pegawai', 'Golongan dan Marhalah','Status Verifikasi', 'Tanggal pelaporan', 'Aksi'];
+    const TABLE_HEAD = ['No', 'Pegawai', 'Periode', 'Amanah', 'Status Pegawai', 'Golongan', 'Marhalah','Status Verifikasi', 'Tanggal pelaporan', 'Aksi'];
 
     const deleteDialogInit = {
         open: false,
@@ -170,214 +173,44 @@ export default function ADMIN_RekapPegawaiIndexPage({ auth, unverifiedCount, mar
             <Head title="Admin - Rekap Pegawai" />
             <AdminLayout auth={auth}>
                 <Card className="h-full w-full" shadow={false}>
-                    <CardHeader floated={false} shadow={false} className="rounded-none">
+                    <CardHeader floated={ false } shadow={ false } className="rounded-none">
                         <div className="mb-8 flex flex-col lg:flex-row items-start justify-between gap-3">
                             <div>
                                 <Typography variant="h5" color="blue-gray">
-                                    Daftar Rekap
+                                    Daftar Rekap Pegawai
                                 </Typography>
                                 <Typography color="gray" className="mt-1 font-normal">
-                                    Informasi mengenai Rekap yang terdaftar
+                                    Informasi mengenai Rekap Pegawai yang terdaftar
                                 </Typography>
+                                <div className="my-3">
+                                    <TableFilterBy
+                                        golongans={ golongans }
+                                        marhalahs={ marhalahs }
+                                        statusPegawais={ statusPegawais }
+                                    />
+                                </div>
                             </div>
-                            <div className="flex flex-col shrink-0 gap-2 lg:flex-row">
-                                <Button
-                                    onClick={() => {
-                                        router.visit(route('admin.rekap-pegawai.create'));
-                                    }}
-                                    className="flex items-center gap-1.5 capitalize font-medium text-base" size="sm"
-                                >
-                                    <Plus />
-                                    Buat Rekap Pegawai baru
-                                </Button>
+                            <div className="w-full lg:w-72 flex flex-col justify-end gap-2">
+                                <ViewPerPageList/>
+                                <SearchInput/>
                             </div>
                         </div>
-                        <div className="w-full flex flex-col md:flex-row items-start justify-between gap-4">
-                            <div className="flex-1 h-full max-w-xl space-y-0.5 content-start">
-                                <div className="flex flex-row gap-2.5 items-center">
-                                    <Typography variant="h5" color="blue-gray">
-                                        Filter berdasarkan
-                                    </Typography>
-                                    <Button
-                                        variant="text"
-                                        size="sm"
-                                        color="blue-gray"
-                                        className="!p-2"
-                                        onClick={() => setOpenFilterBy(true)}
-                                    >
-                                        <Pencil width={20} />
-                                    </Button>
-                                </div>
-                                <div className="flex flex-row gap-1.5 text-sm">
-                                    <p className="min-w-28">
-                                        Marhalah
-                                    </p>
-                                    <p>:&nbsp;
-                                        { filterBy.marhalah.length < 1
-                                            ? 'Semua'
-                                            : filterBy.marhalah.length === marhalahs.length
-                                                ? 'Semua'
-                                                : filterBy.marhalah.flat().join(', ')
-                                        }
-                                    </p>
-                                </div>
-                                <div className="flex flex-row gap-1.5 text-sm ">
-                                    <p className="min-w-28">
-                                        Golongan
-                                    </p>
-                                    <p>:&nbsp;
-                                        { filterBy.golongan.length < 1
-                                            ? 'Semua'
-                                            : filterBy.golongan.length === golongans.length
-                                                ? 'Semua'
-                                                : filterBy.golongan.flat().join(', ')
-                                        }
-                                    </p>
-                                </div>
-                                <div className="flex flex-row gap-1.5 text-sm ">
-                                    <p className="min-w-28">
-                                        Jenis Kelamin
-                                    </p>
-                                    <p>:&nbsp;
-                                        { filterBy.jenisKelamin.length < 1
-                                            ? 'Semua'
-                                            : filterBy.jenisKelamin.length === jenisKelamin.length
-                                                ? 'Semua'
-                                                : filterBy.jenisKelamin.flat().join(', ')
-                                        }
-                                    </p>
-                                </div>
-                                <div className="flex flex-row gap-1.5 text-sm ">
-                                    <p className="min-w-28">
-                                        Status Pegawai
-                                    </p>
-                                    <p>:&nbsp;
-                                        { filterBy.statusPegawai.length < 1
-                                            ? 'Semua'
-                                            : filterBy.statusPegawai.length === statusPegawais.length
-                                                ? 'Semua'
-                                                : filterBy.statusPegawai.flat().join(', ')
-                                        }
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="w-full md:w-72 flex flex-col justify-end gap-2">
-                                <div className="w-min text-sm *:!min-w-16 -space-y-1.5">
-                                    <Typography variant="h6" color="blue-gray" className="ml-0 md:ml-3">
-                                        Data per Halaman
-                                    </Typography>
-                                    <List className="flex-row">
-                                        <ListItem className="p-0 !gap-1" ripple={false}>
-                                            <label
-                                                htmlFor="show-10"
-                                                className="flex w-full cursor-pointer items-center px-3 py-2 *:!text-sm"
-                                            >
-                                                <ListItemPrefix className="mr-3">
-                                                    <Checkbox
-                                                        id="show-10"
-                                                        ripple={false}
-                                                        className="hover:before:opacity-0"
-                                                        containerProps={{
-                                                            className: "p-0",
-                                                        }}
-                                                        value={10}
-                                                        checked={viewPerPage === 10}
-                                                        onChange={() => handleSetViewPerPage(10)}
-                                                    />
-                                                </ListItemPrefix>
-                                                <Typography color="blue-gray" className="font-medium">
-                                                    10
-                                                </Typography>
-                                            </label>
-                                        </ListItem>
-                                        <ListItem className="p-0" ripple={false}>
-                                            <label
-                                                htmlFor="show-25"
-                                                className="flex w-full cursor-pointer items-center px-3 py-2 *:!text-sm"
-                                            >
-                                                <ListItemPrefix className="mr-3">
-                                                    <Checkbox
-                                                        id="show-25"
-                                                        ripple={false}
-                                                        className="hover:before:opacity-0"
-                                                        containerProps={{
-                                                            className: "p-0",
-                                                        }}
-                                                        value={25}
-                                                        checked={viewPerPage === 25}
-                                                        onChange={() => handleSetViewPerPage(25)}
-                                                    />
-                                                </ListItemPrefix>
-                                                <Typography color="blue-gray" className="font-medium">
-                                                    25
-                                                </Typography>
-                                            </label>
-                                        </ListItem>
-                                    </List>
-                                    <List className="flex-row !gap-1.5">
-                                        <ListItem className="p-0" ripple={false}>
-                                            <label
-                                                htmlFor="show-50"
-                                                className="flex w-full cursor-pointer items-center px-3 py-2 *:!text-sm"
-                                            >
-                                                <ListItemPrefix className="mr-3">
-                                                    <Checkbox
-                                                        id="show-50"
-                                                        ripple={false}
-                                                        className="hover:before:opacity-0"
-                                                        containerProps={{
-                                                            className: "p-0",
-                                                        }}
-                                                        value={50}
-                                                        checked={viewPerPage === 50}
-                                                        onChange={() => handleSetViewPerPage(50)}
-                                                    />
-                                                </ListItemPrefix>
-                                                <Typography color="blue-gray" className="font-medium">
-                                                    50
-                                                </Typography>
-                                            </label>
-                                        </ListItem>
-                                        <ListItem className="p-0" ripple={false}>
-                                            <label
-                                                htmlFor="show-100"
-                                                className="flex w-full cursor-pointer items-center px-3 py-2 *:!text-sm"
-                                            >
-                                                <ListItemPrefix className="mr-3">
-                                                    <Checkbox
-                                                        id="show-100"
-                                                        ripple={false}
-                                                        className="hover:before:opacity-0"
-                                                        containerProps={{
-                                                            className: "p-0",
-                                                        }}
-                                                        value={100}
-                                                        checked={viewPerPage === 100}
-                                                        onChange={() => handleSetViewPerPage(100)}
-                                                    />
-                                                </ListItemPrefix>
-                                                <Typography color="blue-gray" className="font-medium">
-                                                    100
-                                                </Typography>
-                                            </label>
-                                        </ListItem>
-                                    </List>
-                                </div>
-
-                                <Input
-                                    label="Pencarian"
-                                    placeholder="cari berdasarkan nama"
-                                    value={ search }
-                                    onChange={ (event) => {
-                                        setSearch(event.target.value);
+                        <div className="w-full flex flex-row-reverse justify-between gap-4">
+                            <div className="flex flex-col shrink-0 gap-2 lg:flex-row">
+                                <Button
+                                    onClick={ () => {
+                                        router.visit(route('admin.rekap-pegawai.create'));
                                     } }
-                                    icon={ <Search className="h-5 w-5"/> }
-                                />
+                                    className="flex items-center gap-1.5 capitalize font-medium text-base" size="sm"
+                                >
+                                    <Plus/>
+                                    Tambahkan Rekap baru
+                                </Button>
                             </div>
                         </div>
                     </CardHeader>
                     <CardBody className="overflow-auto px-0">
-                    <table className="mt-4 w-full min-w-max table-auto text-left">
+                        <table className="mt-4 w-full min-w-max table-auto text-left">
                             <thead>
                             <tr>
                                 { TABLE_HEAD.map((head, index) => (
@@ -391,10 +224,7 @@ export default function ADMIN_RekapPegawaiIndexPage({ auth, unverifiedCount, mar
                                             color="blue-gray"
                                             className="flex items-center justify-between gap-2 font-normal leading-none opacity-70"
                                         >
-                                            { head }{ " " }
-                                            { index !== TABLE_HEAD.length - 1 && (
-                                                <ChevronDown strokeWidth={ 2 } className="h-4 w-4"/>
-                                            ) }
+                                            { head }
                                         </Typography>
                                     </th>
                                 )) }
@@ -483,8 +313,8 @@ export default function ADMIN_RekapPegawaiIndexPage({ auth, unverifiedCount, mar
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td className={ `${ classes } min-w-52` }>
-                                                    <div className="flex flex-col gap-1">
+                                                <td className={ `${ classes } min-w-40` }>
+                                                    <div className="flex items-center gap-3">
                                                         <Typography
                                                             variant="small"
                                                             color="blue-gray"
@@ -492,6 +322,10 @@ export default function ADMIN_RekapPegawaiIndexPage({ auth, unverifiedCount, mar
                                                         >
                                                             { golongan.nama }
                                                         </Typography>
+                                                    </div>
+                                                </td>
+                                                <td className={ `${ classes } min-w-40` }>
+                                                    <div className="flex items-center gap-3">
                                                         <Typography
                                                             variant="small"
                                                             color="blue-gray"
@@ -507,13 +341,13 @@ export default function ADMIN_RekapPegawaiIndexPage({ auth, unverifiedCount, mar
                                                             ? (
                                                                 <p className="flex gap-1 font-medium text-gray-600/90 italic">
                                                                     Sudah Terverifikasi
-                                                                    <CircleCheck className="text-green-500" />
+                                                                    <CircleCheck className="text-green-500"/>
                                                                 </p>
                                                             )
                                                             : (
                                                                 <p className="flex gap-1 font-medium text-gray-600/90 italic">
                                                                     Belum Terverifikasi
-                                                                    <CircleX className="text-red-600" />
+                                                                    <CircleX className="text-red-600"/>
                                                                 </p>
                                                             )
                                                         }
@@ -577,7 +411,7 @@ export default function ADMIN_RekapPegawaiIndexPage({ auth, unverifiedCount, mar
                     </CardFooter>
                 </Card>
 
-                <Dialog size="xl" open={ openFilterBy} handler={() => setOpenFilterBy(true)} className="p-4">
+                <Dialog size="xl" open={ openFilterBy } handler={ () => setOpenFilterBy(true) } className="p-4">
                     <DialogHeader className="relative m-0 block">
                         <Typography variant="h4" color="blue-gray">
                             Filter berdasarkan

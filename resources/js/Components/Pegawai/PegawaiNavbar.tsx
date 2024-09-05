@@ -10,7 +10,7 @@ import {
     Navbar,
     Typography
 } from "@material-tailwind/react";
-import { X, Menu as MenuIcon, Home, ChevronDown, LogOut, LogIn, UserRoundCog, LayoutDashboard } from "lucide-react";
+import { X, Menu as MenuIcon, ChevronDown, LogOut, LogIn, UserRoundCog, LayoutDashboard } from "lucide-react";
 import { Link, router } from "@inertiajs/react";
 import axios, { AxiosError } from "axios";
 import { notifyToast } from "@/Lib/Utils";
@@ -20,8 +20,8 @@ import { AdminNavbarLists } from "@/Fragments/AdminNavbarLists";
 import { PegawaiNavbarLists } from "@/Fragments/PegawaiNavbarList";
 
 export const PegawaiNavbar = ({ auth }: PageProps) => {
-    const [openNavbar, setOpenNavbar] = useState(false);
-    const [onFetchLogout, setFetchLogout] = useState(false);
+    const [ openNavbar, setOpenNavbar ] = useState(false);
+    const [ onFetchLogout, setFetchLogout ] = useState(false);
     const pathNames = window.location.pathname.split("/").filter((path) => Boolean(path));
     const handleLogout = () => {
         setFetchLogout(true);
@@ -52,7 +52,7 @@ export const PegawaiNavbar = ({ auth }: PageProps) => {
                 <div className="flex items-center justify-between text-blue-gray-900">
                     <div className="w-56">
                         <Breadcrumbs className="bg-transparent p-0 transition-all mt-1 capitalize">
-                            <IconButton variant="text" disabled={route().current() === 'admin.dashboard'} onClick={() => router.visit(route('admin.dashboard'))}>
+                            <IconButton variant="text" disabled={route().current() === 'pegawai.dashboard'} onClick={() => router.visit(route('pegawai.dashboard'))}>
                                 <LayoutDashboard width={18} />
                             </IconButton>
                             {pathNames.map((path, index) => {

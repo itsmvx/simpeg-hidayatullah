@@ -1,4 +1,4 @@
-import { Link, router } from '@inertiajs/react'
+import { router } from '@inertiajs/react'
 import { memo } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Button, IconButton } from "@material-tailwind/react";

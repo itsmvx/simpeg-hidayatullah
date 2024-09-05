@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
     },
 });
 
-const Dokumen_RekapPegawai = ({ data }: {
+const RekapPegawai = ({ data }: {
     data: PegawaiExportCV
 }) => {
     const tahunMasuk = new Date(data.pegawai.tanggal_masuk).getFullYear();
@@ -152,4 +152,4 @@ const renderRow = (label: string, value: string | null) => (
     </View>
 );
 
-export default memo(Dokumen_RekapPegawai);
+export default memo(RekapPegawai);

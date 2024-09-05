@@ -1,20 +1,6 @@
 import { Head, router } from "@inertiajs/react";
-import {
-    Card,
-    Collapse,
-    IconButton, List, ListItem,
-    Typography, Button, Tooltip, Select, Option, PopoverHandler, PopoverContent, Popover
-} from "@material-tailwind/react";
-import {
-    Award,
-    CircleAlert,
-    CircleUser,
-    GraduationCap, Medal,
-    Menu as MenuIcon, MoveLeft, Pencil, RotateCcw, Save, SquareArrowOutUpRight,
-    Star, TrendingUp, TriangleAlert,
-    Users,
-    X
-} from "lucide-react";
+import { Card, IconButton, Typography, Button, Tooltip, Select, Option, PopoverHandler, PopoverContent, Popover } from "@material-tailwind/react";
+import { Award, CircleAlert, CircleUser, GraduationCap, Medal, MoveLeft, Pencil, Save,  Users } from "lucide-react";
 import { ChangeEvent, FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import "react-day-picker/dist/style.css";
 import PegawaiFormDataKeluarga from "@/Components/FormDataKeluarga";
@@ -52,110 +38,18 @@ import { format } from "date-fns";
 import { Pegawai } from "@/types/models";
 import { Input } from "@/Components/Input";
 import { DayPicker } from "react-day-picker";
-import { AdminLayout } from "@/Layouts/AdminLayout";
 import { Checkbox } from "@/Components/Checkbox";
+import { PegawaiLayout } from "@/Layouts/PegawaiLayout";
 
-export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, marhalahs, statusPegawais, units, currDate }: PageProps<{
+export default function PEGAWAI_ProfilePage({ auth, pegawai, currDate }: PageProps<{
     pegawai: ModelWithColumns<Pegawai, {
         golongan: IDNamaColumn;
         marhalah: IDNamaColumn;
         status_pegawai: IDNamaColumn;
         unit: IDNamaColumn;
     }>;
-    golongans: {
-        id: string;
-        nama: string;
-    }[];
-    marhalahs: {
-        id: string;
-        nama: string;
-    }[];
-    statusPegawais: {
-        id: string;
-        nama: string;
-    }[];
-    units: {
-        id: string;
-        nama: string;
-    }[];
     currDate: string;
 }>) {
-
-    const formDataDiriRef = useRef<HTMLDivElement | null>(null);
-    const formDataKeluargaRef = useRef<HTMLDivElement | null>(null);
-    const formDataPendidikanRef = useRef<HTMLDivElement | null>(null);
-    const formDataPengalaman = useRef<HTMLDivElement | null>(null);
-
-    const scrollIntoView = (topOffset: number) => {
-        window.scrollTo({
-            top: topOffset,
-            behavior: 'smooth'
-        })
-    };
-    const NavLists = () => {
-        return (
-            <>
-                <List className="mt-2 mb-4 flex flex-col gap-2 lg:mb-0 lg:mt-0 lg:flex-row lg:items-center lg:gap-2.5 *:font-medium *:text-sm *:flex *:gap-1 *:w-auto">
-                    <ListItem className="!p-0">
-                        <a href="" onClick={(e) => {
-                            e.preventDefault();
-                            if (formDataDiriRef.current) {
-                                const offset = window.innerWidth >= 960 ? 140 : 100;
-                                const elementPosition = formDataDiriRef.current.getBoundingClientRect().top + window.scrollY;
-                                const offsetPosition = elementPosition - offset;
-                                scrollIntoView(offsetPosition);
-                            }
-                        }} className="p-3 w-full flex items-center justify-center gap-1">
-                            <CircleUser />
-                            Data diri
-                        </a>
-                    </ListItem>
-                    <ListItem className="!p-0">
-                        <a href="" onClick={(e) => {
-                            e.preventDefault();
-                            if (formDataKeluargaRef.current) {
-                                const offset = window.innerWidth >= 960 ? 140 : 120;
-                                const elementPosition = formDataKeluargaRef.current.getBoundingClientRect().top + window.scrollY;
-                                const offsetPosition = elementPosition - offset;
-                                scrollIntoView(offsetPosition);
-                            }
-                        }} className="p-3 w-full flex items-center justify-center gap-1">
-                            <Users/>
-                            Data keluarga
-                        </a>
-                    </ListItem>
-                    <ListItem className="!p-0">
-                        <a href="" onClick={(e) => {
-                            e.preventDefault();
-                            if (formDataPendidikanRef.current) {
-                                const offset = window.innerWidth >= 960 ? 140 : 100;
-                                const elementPosition = formDataPendidikanRef.current.getBoundingClientRect().top + window.scrollY;
-                                const offsetPosition = elementPosition - offset;
-                                scrollIntoView(offsetPosition);
-                            }
-                        }} className="p-3 w-full flex items-center justify-center gap-1">
-                            <GraduationCap />
-                            Pendidikan
-                        </a>
-                    </ListItem>
-                    <ListItem className="!p-0">
-                        <a href="" onClick={(e) => {
-                            e.preventDefault();
-                            if (formDataPengalaman.current) {
-                                const offset = window.innerWidth >= 960 ? 140 : 100;
-                                const elementPosition = formDataPengalaman.current.getBoundingClientRect().top + window.scrollY;
-                                const offsetPosition = elementPosition - offset;
-                                scrollIntoView(offsetPosition);
-                            }
-                        }} className="p-3 w-full flex items-center justify-center gap-1">
-                            <Star />
-                            Pengalaman
-                        </a>
-                    </ListItem>
-                </List>
-            </>
-        );
-    };
 
     const pegawaiStateInit: FormPegawai<{
         onSubmit: boolean;
@@ -219,13 +113,6 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
             [name]: value,
         }));
     };
-    const handleCheckboxChange = (event: ChangeEvent<HTMLInputElement>) => {
-        const { name, checked } = event.target;
-        setPegawaiState((prevState) => ({
-            ...prevState,
-            [name]: checked,
-        }));
-    }
     const handleSelectChange = (key: keyof FormPegawai, value: string) => {
         setPegawaiState((prevState) => ({
             ...prevState,
@@ -334,14 +221,6 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
                 });
         }
     };
-    const handleRollbackPromosi = () => {
-        setPegawaiState((prevState) => ({
-            ...prevState,
-            golongan_id: pegawai.golongan_id,
-            status_pegawai_id: pegawai.status_pegawai_id,
-            tanggal_promosi: pegawai.tanggal_promosi ? new Date(pegawai.tanggal_promosi) : undefined
-        }));
-    };
 
     useEffect(() => {
         if (pegawaiState.tanggal_lahir) {
@@ -413,51 +292,38 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
 
     return (
         <>
-            <Head title="Master - Detail Pegawai"/>
-            <AdminLayout auth={auth}>
-                <main className="w-full min-h-screen bg-gray-50 space-y-4">
-                    <header className="my-5 px-6 sticky top-16 z-10 py-2 bg-white rounded-md rounded-b-none border ">
-                        <div className="flex items-center justify-between text-blue-gray-900">
-                            <Typography
-                                className="cursor-pointer py-1.5 font-medium w-40"
-                            >
-                                Form Pegawai PPH Surabaya
-                            </Typography>
-                            <div className="flex-1 flex items-center justify-end gap-4">
-                                <IconButton
-                                    variant="text"
-                                    className="ml-auto h-6 w-6 text-inherit hover:bg-transparent focus:bg-transparent active:bg-transparent lg:hidden"
-                                    ripple={ false }
-                                    onClick={ () => setOpenNav(!openNav) }
-                                >
-                                    { openNav ? (<X/>) : (<MenuIcon/>) }
-                                </IconButton>
-                                <div className="mr-4 hidden lg:block">
-                                    <NavLists/>
-                                </div>
-                            </div>
-                        </div>
-                        <Collapse open={ openNav }>
-                            <NavLists/>
-                        </Collapse>
+            <Head title="Pegawai - Data Pegawai"/>
+            <PegawaiLayout auth={auth}>
+                <main className="w-full min-h-screen bg-gray-50">
+                    <header className="px-6 py-3 bg-white border-b-2 !shadow-none">
+                        <Typography className="flex justify-items-center gap-1.5 font-semibold text-lg">
+                            <span>
+                                <CircleAlert/>
+                            </span>
+                            Informasi
+                        </Typography>
+                        <ul className="list-disc list-inside px-2 font-medium text-sm">
+                            <li>Data dengan tanda (<span className="text-red-600">*</span>) tidak dapat anda perbarui</li>
+                            <li>Untuk mengubah data dengan tanda (<span className="text-red-600">*</span>) anda dapat menghubungi Admin TU Unit anda atau langsung ke Bag.Personalia</li>
+                        </ul>
                     </header>
-                    <Card className="w-full px-6 pt-5">
+                    <Card className="w-full px-6 pt-5 !shadow-none">
                         <Tooltip content="Kembali">
-                            <IconButton variant="text" onClick={() => router.visit(route('admin.pegawai.index'))}>
-                                <MoveLeft />
+                            <IconButton variant="text" onClick={ () => router.visit('/') }>
+                                <MoveLeft/>
                             </IconButton>
                         </Tooltip>
                         <div className="mx-auto relative">
-                            <div className="rounded-full flex items-center justify-center w-44 h-44 overflow-hidden border-4 border-pph-black/70">
+                            <div
+                                className="rounded-full flex items-center justify-center w-44 h-44 overflow-hidden border-4 border-pph-black/70">
                                 <img
-                                    src={ pegawai.foto ? `/storage/${ pegawai.foto }` : pegawai.jenis_kelamin === 'Laki-Laki'? MenAvatar : WomenAvatar }
+                                    src={ pegawai.foto ? `/storage/${ pegawai.foto }` : pegawai.jenis_kelamin === 'Laki-Laki' ? MenAvatar : WomenAvatar }
                                     alt={ pegawai.foto ? `${ pegawai.nama }-profil` : 'no-pict' }
                                     width={ pegawai.foto ? 200 : 200 }
                                     className="object-cover object-center mx-auto"
                                     onLoad={ () => setOnLoadImage(false) }
                                 />
-                                <div
-                                    className={ `${ onLoadImage ? 'absolute' : 'hidden' } absolute inset-0 flex items-center justify-center bg-gray-300/85 rounded-full` }>
+                                <div className={ `${ onLoadImage ? 'absolute' : 'hidden' } absolute inset-0 flex items-center justify-center bg-gray-300/85 rounded-full` }>
                                     <span className="animate-spin border-4 border-l-transparent border-gray-700/80 rounded-full w-10 h-10 inline-block align-middle m-auto"></span>
                                 </div>
                             </div>
@@ -477,14 +343,15 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
                             </div>
                         </div>
                         <Typography className="mt-5 flex flex-col text-sm text-center font-medium">
-                            Promosi terakhir : { pegawai.tanggal_promosi ? format(pegawai.tanggal_promosi, 'PPP', { locale: id }) : '-' }
+                            Promosi terakhir
+                            : { pegawai.tanggal_promosi ? format(pegawai.tanggal_promosi, 'PPP', { locale: id }) : '-' }
                             <span className="italic">
-                                &nbsp;( { pegawai.tanggal_promosi ? `${calculateDatePast(new Date(pegawai.tanggal_promosi), new Date())} hari lalu` : 'belum ada keterangan' } )
+                                &nbsp;( { pegawai.tanggal_promosi ? `${ calculateDatePast(new Date(pegawai.tanggal_promosi), new Date()) } hari lalu` : 'belum ada keterangan' } )
                             </span>
                         </Typography>
                         <form onSubmit={ handleFormSubmit }
                               className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-4 p-5">
-                            <div ref={ formDataDiriRef } className="col-span-1 lg:col-span-2">
+                            <div className="col-span-1 lg:col-span-2">
                                 <Typography variant="h4" className="flex items-center gap-2">
                                     <CircleUser/>
                                     Data Diri
@@ -495,18 +362,18 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
                                 color="teal"
                                 label="Nomor Induk Kewarganegaraan ( NIK )"
                                 name="nik"
-                                value={ pegawaiState.nik }
-                                onChange={ handleInputChange }
+                                value={ pegawai.nik }
                                 required
+                                readOnly
                             />
                             <Input
                                 type="text"
                                 color="teal"
                                 label="Nomor Induk Pegawai ( NIP )"
                                 name="nip"
-                                value={ pegawaiState.nip }
-                                onChange={ handleInputChange }
+                                value={ pegawai.nip }
                                 required
+                                readOnly
                             />
                             <Input
                                 type="text"
@@ -514,7 +381,7 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
                                 label="Nama lengkap"
                                 name="nama"
                                 value={ pegawaiState.nama }
-                                onChange={ handleInputChange }
+                                readOnly
                                 required
                             />
                             <Input
@@ -523,7 +390,6 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
                                 name="suku"
                                 value={ pegawaiState.suku }
                                 onChange={ handleInputChange }
-                                required
                             />
                             <Input
                                 type="text"
@@ -532,7 +398,6 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
                                 name="tempat_lahir"
                                 value={ pegawaiState.tempat_lahir }
                                 onChange={ handleInputChange }
-                                required
                             />
                             <Popover placement="bottom">
                                 <PopoverHandler>
@@ -541,14 +406,13 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
                                         label="Tanggal Lahir"
                                         value={ pegawaiState.tanggal_lahir ? format(pegawaiState.tanggal_lahir, "PPP", { locale: id }) : "" }
                                         readOnly
-                                        required
                                     />
                                 </PopoverHandler>
                                 <PopoverContent className="z-30">
                                     <DayPicker
                                         mode="single"
                                         selected={ pegawaiState.tanggal_lahir }
-                                        onSelect={(value: Date | undefined) => handleDateChange(value, 'tanggal_lahir') }
+                                        onSelect={ (value: Date | undefined) => handleDateChange(value, 'tanggal_lahir') }
                                         showOutsideDays
                                         className="border-0"
                                         captionLayout="dropdown-buttons"
@@ -567,7 +431,7 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
                                     disabled
                                     value={ pegawaiState.usia_tahun }
                                     icon={ <p className="-ml-4 text-xs font-semibold">Tahun</p> }
-                                    containerProps={ { className: 'min-w-20 w-[10px]' } }
+                                    containerProps={ { className: 'min-w-12 w-[10px]' } }
                                 />
                                 <Input
                                     type="text"
@@ -577,7 +441,7 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
                                     disabled
                                     value={ pegawaiState.usia_bulan }
                                     icon={ <p className="-ml-4 text-xs font-semibold">Bulan</p> }
-                                    containerProps={ { className: 'min-w-20 w-[10px]' } }
+                                    containerProps={ { className: 'min-w-12 w-[10px]' } }
                                 />
                             </div>
                             <Select
@@ -585,12 +449,12 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
                                 color="teal"
                                 name="jenis_kelamin"
                                 value={ pegawaiState.jenis_kelamin }
-                                aria-required={true}
+                                aria-required={ true }
                                 onChange={ (value: string | undefined) => handleSelectChange('jenis_kelamin', value ?? '') }
                             >
                                 {
                                     jenisKelamin.map((jenis, index) => ((
-                                        <Option key={index} value={jenis}>
+                                        <Option key={ index } value={ jenis }>
                                             { jenis }
                                         </Option>
                                     )))
@@ -602,7 +466,6 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
                                 name="alamat"
                                 value={ pegawaiState.alamat }
                                 onChange={ handleInputChange }
-                                required
                             />
                             <Input
                                 type="text"
@@ -611,7 +474,6 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
                                 name="agama"
                                 value={ pegawaiState.agama }
                                 onChange={ handleInputChange }
-                                required
                             />
                             <Select
                                 label="Status pernikahan"
@@ -622,215 +484,120 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
                             >
                                 {
                                     statusPernikahan.map((status, index) => ((
-                                        <Option key={index} value={status}>
+                                        <Option key={ index } value={ status }>
                                             { status }
                                         </Option>
                                     )))
                                 }
                             </Select>
-                            <Popover placement="bottom">
-                                <PopoverHandler>
-                                    <Input
-                                        color="teal"
-                                        label="Tahun Masuk"
-                                        value={ pegawaiState.tanggal_masuk ? format(pegawaiState.tanggal_masuk, "y", { locale: id }) : "" }
-                                        readOnly
-                                        required
-                                    />
-                                </PopoverHandler>
-                                <PopoverContent>
-                                    <DayPicker
-                                        mode="single"
-                                        selected={ pegawaiState.tanggal_masuk }
-                                        onSelect={ (value: Date | undefined) => handleDateChange(value, 'tanggal_masuk') }
-                                        showOutsideDays
-                                        className="border-0"
-                                        captionLayout="dropdown-buttons"
-                                        fromYear={ 1950 }
-                                        toYear={ new Date().getFullYear() }
-                                        disabled={ { after: new Date() } }
-                                    />
-                                </PopoverContent>
-                            </Popover>
-                            <Select
-                                label="Unit"
-                                color="teal"
-                                name="unit_id"
-                                value={ pegawaiState.unit_id ?? undefined }
-                                onChange={ (value: string | undefined) => handleSelectChange('unit_id', value ?? '') }
-                            >
-                                {
-                                    units.length > 0
-                                        ? units.sort((a, b) => a.nama.localeCompare(b.nama)).map(({ id, nama }) => ((
-                                            <Option key={id} value={id}>{nama}</Option>
-                                        )))
-                                        : (
-                                            <Option disabled value="null">
-                                                <p className="flex items-center gap-2">
-                                                    <TriangleAlert className="text-red-600" />
-                                                    <span className="text-gray-900 font-semibold">
-                                        Belum ada Unit terdaftar
-                                    </span>
-                                                </p>
-
-                                            </Option>
-                                        )
-                                }
-                            </Select>
                             <Input
-                                type="text" color="teal"
+                                color="teal"
+                                label="Tanggal Masuk"
+                                value={ pegawaiState.tanggal_masuk ? format(pegawaiState.tanggal_masuk, "PPP", { locale: id }) : "" }
+                                readOnly
+                                required
+                            />
+                            <Input
+                                type="text"
+                                color="teal"
+                                label="Unit"
+                                name="unit"
+                                value={ pegawai.unit.nama }
+                                readOnly
+                                required
+                            />
+                            <Input
+                                type="text"
+                                color="teal"
                                 label="Amanah"
                                 name="amanah"
-                                value={ pegawaiState.amanah }
-                                onChange={ handleInputChange }
+                                value={ pegawai.amanah }
+                                readOnly
                                 required
                             />
                             <Input
                                 type="text" color="teal"
                                 label="Amanah atasan langsung"
                                 name="amanah_atasan"
-                                value={ pegawaiState.amanah_atasan }
-                                onChange={ handleInputChange }
+                                value={ pegawai.amanah_atasan }
+                                readOnly
                                 required
                             />
                             <Input
-                                type="text" color="teal"
+                                type="text"
+                                color="teal"
                                 label="Nomor HP/WA"
                                 name="no_hp"
                                 value={ pegawaiState.no_hp }
                                 onChange={ handleInputChange }
-                                required
                             />
                             <Input
-                                type="text" color="teal"
+                                type="text"
+                                color="teal"
                                 label="Kompetensi Qur'an"
                                 name="kompetensi_quran"
                                 value={ pegawaiState.kompetensi_quran }
-                                onChange={ handleInputChange }
+                                readOnly
                                 required
                             />
-                            <Select
-                                label="Status Aktif"
+                            <Input
+                                type="text"
                                 color="teal"
+                                label="Status Aktif"
                                 name="status_aktif"
-                                value={ pegawaiState.status_aktif }
-                                onChange={ (value: string | undefined) => handleSelectChange('status_aktif', value ?? '') }
-                            >
-                                {
-                                    statusAktif.map((status, index) => ((
-                                        <Option key={index} value={status}>
-                                            { status }
-                                        </Option>
-                                    )))
-                                }
-                            </Select>
+                                value={ pegawai.status_aktif }
+                                readOnly
+                                required
+                            />
                             <div className="flex flex-row gap-1">
                                 <Checkbox
                                     name="bpjs_kesehatan"
-                                    label="BPJS Kesehatan"
+                                    label={<p>BPJS Kesehatan<span className="text-red-600">*</span></p>}
+                                    labelProps={{
+                                        className: 'font-semibold text-black'
+                                    }}
                                     checked={ pegawaiState.bpjs_kesehatan }
-                                    onChange={ handleCheckboxChange }
+                                    readOnly
+                                    disabled
                                 />
                                 <Checkbox
                                     name="bpjs_ketenagakerjaan"
-                                    label="BPJS Ketenagakerjaan"
+                                    label={<p>BPJS Ketenagakerjaan<span className="text-red-600">*</span></p>}
+                                    labelProps={{
+                                        className: 'font-semibold text-black'
+                                    }}
                                     checked={ pegawaiState.bpjs_ketenagakerjaan }
-                                    onChange={ handleCheckboxChange }
+                                    readOnly
+                                    disabled
                                 />
                             </div>
 
                             <div className="col-span-1 lg:col-span-2">
                                 <Typography variant="h4" className="flex items-center gap-2">
                                     <Award/>
-                                    Data Marhalah
+                                    Data Kepegawaian
                                 </Typography>
                             </div>
                             <div className="col-span-full grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-4">
-                                <Select
+                                <Input
+                                    type="text" color="teal"
                                     label="Marhalah"
+                                    name="marhalah"
+                                    value={ pegawai.marhalah.nama }
+                                    readOnly
+                                    required
+                                />
+                                <Input
                                     color="teal"
-                                    name="marhalah_id"
-                                    value={ pegawaiState.marhalah_id ?? undefined }
-                                    onChange={ (value: string | undefined) => handleSelectChange('marhalah_id', value ?? '') }
-                                >
-                                    {
-                                        marhalahs.length > 0
-                                            ? marhalahs
-                                                .sort((a, b) => a.nama.localeCompare(b.nama))
-                                                .map(({ id, nama }) => ((
-                                                    <Option key={ id } value={ id }>{ nama }</Option>
-                                                )))
-                                            : (
-                                                <Option disabled value="null">
-                                                    <p className="flex items-center gap-2">
-                                                        <TriangleAlert className="text-red-600"/>
-                                                        <span className="text-gray-900 font-semibold">
-                                                            Belum ada Marhalah terdaftar
-                                                        </span>
-                                                    </p>
-                                                </Option>
-                                            )
-                                    }
-                                </Select>
-                                <Popover placement="bottom">
-                                    <PopoverHandler>
-                                        <Input
-                                            color="teal"
-                                            label="Tanggal Marhalah"
-                                            value={ pegawaiState.tanggal_marhalah ? `${ format(pegawaiState.tanggal_marhalah, "PPP", { locale: id }) } ( ${ calculateDatePast(new Date(pegawaiState.tanggal_marhalah), new Date(currDate)) } lalu )` : "Belum diatur" }
-                                            readOnly
-                                            className="italic !font-semibold"
-                                        />
-                                    </PopoverHandler>
-                                    <PopoverContent className="z-30">
-                                        <DayPicker
-                                            mode="single"
-                                            // selected={ pegawaiState.tanggal_marhalah }
-                                            onSelect={ (value: Date | undefined) => handleDateChange(value, 'tanggal_marhalah') }
-                                            showOutsideDays
-                                            className="border-0"
-                                            captionLayout="dropdown-buttons"
-                                            fromYear={ 1970 }
-                                            toYear={ new Date().getFullYear() }
-                                            disabled={ { after: new Date() } }
-                                        />
-                                    </PopoverContent>
-                                </Popover>
-                            </div>
-
-                            <div className="mt-6 col-span-1 lg:col-span-2">
-                                <Typography variant="h4" className="flex items-center gap-2">
-                                    <TrendingUp/>
-                                    Promosi
-                                </Typography>
+                                    label="Tanggal Marhalah"
+                                    value={ pegawaiState.tanggal_marhalah ? `${ format(pegawaiState.tanggal_marhalah, "PPP", { locale: id }) } ( ${ calculateDatePast(new Date(pegawaiState.tanggal_marhalah), new Date(currDate)) } lalu )` : "Belum diatur" }
+                                    readOnly
+                                    required
+                                    className="italic !font-semibold"
+                                />
                             </div>
 
                             <div className="col-span-full grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-4">
-                                <div className="px-6 py-2 bg-yellow-100 rounded-md border col-span-full">
-                                    <Typography className="flex justify-items-center gap-1.5 font-semibold text-lg"
-                                                color="blue-gray">
-                                        <span>
-                                            <CircleAlert/>
-                                        </span>
-                                        Informasi
-                                    </Typography>
-                                    <ul className="list-disc list-inside px-2 font-medium text-sm text-blue-gray-900">
-                                        <li>Informasi Golongan dan Status Pegawai dapat diajukan untuk diubah melalui
-                                            pengajuan promosi
-                                        </li>
-                                        <li>Personalia akan meninjau pengajuan dan dapat memilih untuk menyetujui atau menolak pengajuan</li>
-                                    </ul>
-                                </div>
-                                <div className="col-span-full flex items-center justify-end">
-                                    <a
-                                        href={ route('admin.pengajuan-promosi.create') }
-                                        target="_blank"
-                                        className="!capitalize !font-medium text-base flex items-center justify-center cursor-pointer gap-2 bg-transparent hover:!bg-gray-200 py-3.5 px-5 rounded-md transition-all duration-200 ease-in-out"
-                                    >
-                                        Buat Pengajuan Promosi
-                                        <SquareArrowOutUpRight/>
-                                    </a>
-                                </div>
                                 <Input
                                     type="text"
                                     color="teal"
@@ -838,6 +605,7 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
                                     name="golongan"
                                     value={ pegawai.golongan.nama }
                                     readOnly
+                                    required
                                 />
                                 <Input
                                     type="text"
@@ -846,6 +614,7 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
                                     name="marhalah"
                                     value={ pegawai.marhalah.nama }
                                     readOnly
+                                    required
                                 />
                                 <Input
                                     type="text"
@@ -854,6 +623,7 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
                                     name="status_pegawai"
                                     value={ pegawai.status_pegawai.nama }
                                     readOnly
+                                    required
                                 />
                                 <Input
                                     type="text"
@@ -862,37 +632,19 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
                                     name="unit"
                                     value={ pegawai.unit.nama }
                                     readOnly
+                                    required
                                 />
                             </div>
-                            <div className="col-span-full grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-4">
-                                <Popover placement="bottom">
-                                    <PopoverHandler>
-                                        <Input
-                                            color="teal"
-                                            label="Tanggal Promosi"
-                                            value={ pegawaiState.tanggal_promosi ? `${ format(pegawaiState.tanggal_promosi, "PPP", { locale: id }) } ( ${ calculateDatePast(new Date(pegawaiState.tanggal_promosi), new Date(currDate)) } lalu )` : "Belum diatur" }
-                                            readOnly
-                                            className="italic !font-semibold"
-                                        />
-                                    </PopoverHandler>
-                                    <PopoverContent className="z-30">
-                                        <DayPicker
-                                            mode="single"
-                                            // selected={ pegawaiState.tanggal_promosi ?? undefined }
-                                            onSelect={ (value: Date | undefined) => handleDateChange(value, 'tanggal_promosi') }
-                                            showOutsideDays
-                                            className="border-0"
-                                            captionLayout="dropdown-buttons"
-                                            fromYear={ 1970 }
-                                            toYear={ new Date().getFullYear() }
-                                            disabled={ pegawai.tanggal_promosi ? [{ before: new Date(9999, 11, 31) }] : { after: new Date() }}
-                                            disableNavigation={!!pegawai.tanggal_promosi}
-                                        />
-                                    </PopoverContent>
-                                </Popover>
-                            </div>
+                            <Input
+                                color="teal"
+                                label="Tanggal Promosi"
+                                value={ pegawaiState.tanggal_promosi ? `${ format(pegawaiState.tanggal_promosi, "PPP", { locale: id }) } ( ${ calculateDatePast(new Date(pegawaiState.tanggal_promosi), new Date(currDate)) } lalu )` : "Belum diatur" }
+                                readOnly
+                                required
+                                className="italic !font-semibold"
+                            />
 
-                            <div ref={ formDataKeluargaRef } id="data-keluarga"
+                            <div id="data-keluarga"
                                  className="mt-6 col-span-1 lg:col-span-2">
                                 <Typography variant="h4" className="flex items-center gap-2">
                                     <Users/>
@@ -905,8 +657,7 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
                                 formDefault={ formDataKeluargaDefault }
                             />
 
-                            <div ref={ formDataPendidikanRef } id="data-pendidikan"
-                                 className="mt-6 col-span-1 lg:col-span-2">
+                            <div id="data-pendidikan" className="mt-6 col-span-1 lg:col-span-2">
                                 <Typography variant="h4" className="flex items-center gap-2">
                                     <GraduationCap/>
                                     Data Pendidikan Formal
@@ -930,8 +681,7 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
                                 formDefault={ formDataPendidikanNonFormalDefault }
                             />
 
-                            <div ref={ formDataPengalaman } id="data-pengalaman"
-                                 className="mt-6 col-span-1 lg:col-span-2">
+                            <div id="data-pengalaman" className="mt-6 col-span-1 lg:col-span-2">
                                 <Typography variant="h4" className="flex items-center gap-2">
                                     Pengalaman Organisasi
                                 </Typography>
@@ -983,7 +733,7 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
                         </form>
                     </Card>
                 </main>
-            </AdminLayout>
+            </PegawaiLayout>
         </>
     );
 }

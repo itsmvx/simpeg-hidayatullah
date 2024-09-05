@@ -1,5 +1,5 @@
 import { Button } from "@material-tailwind/react";
-import { generatePerjanjianKontrakKerja } from "@/Lib/SuratPerjanjianKontrakKerja";
+import { generatePerjanjianKontrakKerja } from "@/Lib/Generate_Dokumen/SuratPerjanjianKontrakKerja";
 
 export default function Test() {
     return (

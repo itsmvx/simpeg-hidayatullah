@@ -31,11 +31,6 @@ export default function ADMIN_PengajuanPromosiCreatePage({ auth, pengajuanPromos
         <>
             <Head title="Admin - Buat Pengajuan Promosi Create"/>
             <AdminLayout auth={auth}>
-                <Tooltip content="Kembali">
-                    <IconButton variant="text" onClick={() => router.visit(route('admin.pengajuan-promosi.index'))}>
-                        <MoveLeft />
-                    </IconButton>
-                </Tooltip>
                 <main className="w-full min-h-screen bg-gray-50 mt-2">
                     <header className="px-6 py-2 bg-white rounded-md rounded-b-none border ">
                         <Typography className="flex justify-items-center gap-1.5 font-semibold text-lg">
@@ -51,6 +46,11 @@ export default function ADMIN_PengajuanPromosiCreatePage({ auth, pengajuanPromos
                         </ul>
                     </header>
                     <Card className="w-full px-6 !shadow-none">
+                        <Tooltip content="Kembali">
+                            <IconButton variant="text" onClick={() => router.visit(route('admin.pengajuan-promosi.index'))}>
+                                <MoveLeft />
+                            </IconButton>
+                        </Tooltip>
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-4 p-5 pb-7">
                             <div className="col-span-full">
                                 <Typography
