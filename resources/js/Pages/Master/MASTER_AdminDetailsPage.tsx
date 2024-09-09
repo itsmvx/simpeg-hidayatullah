@@ -63,10 +63,10 @@ export default function AdminDetailsPage({ auth, admin, units }: PageProps<{
 
     return (
         <>
-            <Head title="Master - Detail Admin" />
+            <Head title={ `Master - Detail Admin ${admin.nama}` } />
             <MasterLayout auth={auth}>
                 <Tooltip content="Kembali">
-                    <IconButton variant="text" onClick={() => router.visit(route('master.admin.index'))}>
+                    <IconButton variant="text" onClick={() => window.history.back()}>
                         <MoveLeft />
                     </IconButton>
                 </Tooltip>

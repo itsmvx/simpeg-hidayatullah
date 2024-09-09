@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { MasterNavbar } from "@/Components/Admin/MasterNavbar";
+import { MasterNavbar } from "@/Components/Master/MasterNavbar";
 import { Footer } from "@/Components/Footer";
 import { Card } from "@material-tailwind/react";
 import { ToastContainer } from "react-toastify";

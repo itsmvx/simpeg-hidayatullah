@@ -1,15 +1,19 @@
 import { Head, router } from "@inertiajs/react";
-import { Card, Typography, Button } from "@material-tailwind/react";
-import { CircleAlert, Save } from "lucide-react";
-import { SyntheticEvent, useEffect, useState } from "react";
+import { Card, Typography, Button, Tooltip, IconButton, Select, Option } from "@material-tailwind/react";
+import { CircleAlert, MoveLeft, Save, TriangleAlert } from "lucide-react";
+import { ChangeEvent, SyntheticEvent, useEffect, useState } from "react";
 import "react-day-picker/dist/style.css";
 import { FormRekapPegawai, PageProps, PegawaiToRekap } from "@/types";
 import { z } from "zod";
 import { notifyToast } from "@/Lib/Utils";
 import axios, { AxiosError } from "axios";
-import RekapPegawaiForm from "@/Components/MASTER_RekapPegawaiForm";
 import { toast } from "react-toastify";
 import { MasterLayout } from "@/Layouts/MasterLayout";
+import { format } from "date-fns";
+import { id } from "date-fns/locale";
+import ReactSelect from "react-select";
+import { Input } from "@/Components/Input";
+import { TextArea } from "@/Components/TextArea";
 
 export default function MASTER_RekapPegawaiCreatePage({ auth, units, periodes }: PageProps<{
     units: {
@@ -26,7 +30,6 @@ export default function MASTER_RekapPegawaiCreatePage({ auth, units, periodes }:
 
     const formRekapPegawaiInit: FormRekapPegawai<{
         onSubmit: boolean;
-        onSuccess: boolean;
     }> = {
         amanah: '',
         organisasi: '',
@@ -46,13 +49,11 @@ export default function MASTER_RekapPegawaiCreatePage({ auth, units, periodes }:
         marhalah_id: '',
         periode_rekap_id: '',
         onSubmit: false,
-        onSuccess: false,
         terverifikasi: true
     };
 
-    const [ formInput, setFormInput ] = useState<FormRekapPegawai<{
+    const [ formInputs, setFormInputs ] = useState<FormRekapPegawai<{
         onSubmit: boolean;
-        onSuccess: boolean;
     }>>(formRekapPegawaiInit);
     const [ pegawais, setPegawais ] = useState<{
         data: PegawaiToRekap[];
@@ -67,10 +68,35 @@ export default function MASTER_RekapPegawaiCreatePage({ auth, units, periodes }:
         onLoad: false,
         selected: null
     });
-    const formSubmitDisabled = (): boolean => Object.keys(formInput).filter((filt) => !['skill_manajerial', 'skill_leadership', 'catatan_negatif', 'prestasi', 'organisasi', 'pembinaan', 'onSubmit', 'onSuccess'].includes(filt)).some((key) => !formInput[key]) || formInput.onSubmit;
+    const formSubmitDisabled = (): boolean => Object.keys(formInputs).filter((filt) => !['skill_manajerial', 'skill_leadership', 'catatan_negatif', 'prestasi', 'organisasi', 'pembinaan', 'onSubmit', 'onSuccess'].includes(filt)).some((key) => !formInputs[key]) || formInputs.onSubmit;
+    const handleInputChange = (event: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>) => {
+        const { name, value } = event.target;
+        setFormInputs((prevState) => ({
+            ...prevState,
+            [name]: value,
+        }));
+    };
+    const handleSelectChange = (key: keyof FormRekapPegawai, value: string | null) => {
+        setFormInputs((prevState) => {
+            if (key === 'pegawai_id' && value === null) {
+                return {
+                    ...prevState,
+                    pegawai_id: '',
+                    marhalah_id: '',
+                    golongan_id: '',
+                    status_pegawai_id: '',
+                    periode_rekap_id: '',
+                };
+            }
+            return {
+                ...prevState,
+                [key]: value ?? '',
+            };
+        });
+    };
     const handleFormSubmit = (event: SyntheticEvent<HTMLFormElement>) => {
         event.preventDefault();
-        setFormInput((prevState) => ({
+        setFormInputs((prevState) => ({
             ...prevState,
             onSubmit: true
         }));
@@ -133,8 +159,8 @@ export default function MASTER_RekapPegawaiCreatePage({ auth, units, periodes }:
             terverifikasi: z.boolean(),
         });
         const zodRekapResult = rekapSchema.safeParse({
-            ...formInput,
-            gaji: Number(formInput.gaji),
+            ...formInputs,
+            gaji: Number(formInputs.gaji),
         });
         if (!zodRekapResult.success) {
             const errorMessages = zodRekapResult.error.issues[0].message;
@@ -148,25 +174,24 @@ export default function MASTER_RekapPegawaiCreatePage({ auth, units, periodes }:
         })
             .then(() => {
                 notifyToast('success', 'Rekap Pegawai berhasil ditambahkan!');
-                setFormInput((prevState) => ({
-                    ...prevState,
-                    onSuccess: true
+                setFormInputs((prevState) => ({
+                    ...formRekapPegawaiInit,
+                    unit_id: prevState.unit_id,
                 }));
-                setTimeout(() => {
-                    router.visit(route('master.rekap-pegawai.index'));
-                }, 2000);
             })
             .catch((err: unknown) => {
                 const errMsg = err instanceof AxiosError
-                    ? err.response?.data.message as string ?? 'Error tidak diketahui terjadi!'
+                    ? [409,500].includes(err.response?.status ?? 0)
+                        ? err.response?.data.message as string ?? 'Error tidak diketahui terjadi!'
+                        : 'Server gagal memproses permintaan'
                     : 'Error tidak diketahui terjadi!'
                 notifyToast('error', errMsg);
-                setFormInput((prevState) => ({ ...prevState, onSubmit: false }))
+                setFormInputs((prevState) => ({ ...prevState, onSubmit: false }))
             });
     };
 
     useEffect(() => {
-        if (formInput.unit_id) {
+        if (formInputs.unit_id) {
             setPegawais((prevState) => ({
                 data: [],
                 input: '',
@@ -174,15 +199,15 @@ export default function MASTER_RekapPegawaiCreatePage({ auth, units, periodes }:
                 onLoad: false,
                 selected: null
             }));
-            setFormInput((prevState) => ({
+            setFormInputs((prevState) => ({
                 ...formRekapPegawaiInit,
                 unit_id: prevState.unit_id
             }));
         }
-    }, [ formInput.unit_id ]);
+    }, [ formInputs.unit_id ]);
 
     useEffect(() => {
-        if (formInput.periode_rekap_id) {
+        if (formInputs.periode_rekap_id) {
             setPegawais((prevState) => ({
                 ...prevState,
                 data: [],
@@ -190,7 +215,7 @@ export default function MASTER_RekapPegawaiCreatePage({ auth, units, periodes }:
                 onLoad: true,
                 selected: null
             }));
-            setFormInput((prevState) => ({
+            setFormInputs((prevState) => ({
                 ...formRekapPegawaiInit,
                 unit_id: prevState.unit_id,
                 periode_rekap_id: prevState.periode_rekap_id
@@ -198,8 +223,8 @@ export default function MASTER_RekapPegawaiCreatePage({ auth, units, periodes }:
             axios.post<{
                 data: PegawaiToRekap[]
             }>(route('pegawai.data-to-rekap'), {
-                periode_id: formInput.periode_rekap_id,
-                unit_id: formInput.unit_id
+                periode_id: formInputs.periode_rekap_id,
+                unit_id: formInputs.unit_id
             })
                 .then((res) => {
                     setPegawais((prevState) => ({
@@ -225,12 +250,12 @@ export default function MASTER_RekapPegawaiCreatePage({ auth, units, periodes }:
                     notifyToast('error', errMsg);
                 });
         }
-    }, [ formInput.periode_rekap_id ]);
+    }, [ formInputs.periode_rekap_id ]);
 
     useEffect(() => {
-        const selectedPegawai = pegawais.data.find((pegawai) => pegawai.id === formInput.pegawai_id) ?? null;
+        const selectedPegawai = pegawais.data.find((pegawai) => pegawai.id === formInputs.pegawai_id) ?? null;
         setPegawais((prevState) => {
-            if (formInput.pegawai_id) {
+            if (formInputs.pegawai_id) {
                 return {
                     ...prevState,
                     selected: selectedPegawai
@@ -241,8 +266,8 @@ export default function MASTER_RekapPegawaiCreatePage({ auth, units, periodes }:
                 selected: null
             }
         });
-        if (formInput.pegawai_id && selectedPegawai) {
-            setFormInput((prevState) => ({
+        if (formInputs.pegawai_id && selectedPegawai) {
+            setFormInputs((prevState) => ({
                 ...formRekapPegawaiInit,
                 periode_rekap_id: prevState.periode_rekap_id,
                 pegawai_id: selectedPegawai.id,
@@ -252,13 +277,13 @@ export default function MASTER_RekapPegawaiCreatePage({ auth, units, periodes }:
                 status_pegawai_id: selectedPegawai.status_pegawai.id,
             }));
         }
-    }, [ formInput.pegawai_id ]);
+    }, [ formInputs.pegawai_id ]);
 
     return (
         <>
-            <Head title="Buat Rekap Pegawai"/>
+            <Head title="Master - Buat Rekap Pegawai"/>
             <MasterLayout auth={auth}>
-                <main className="w-full min-h-screen bg-gray-50 space-y-4">
+                <main className="w-full min-h-screen bg-gray-50">
                     <header className="px-6 py-2 bg-white rounded-md rounded-b-none border ">
                         <Typography className="flex justify-items-center gap-1.5 font-semibold text-lg">
                             <span>
@@ -272,35 +297,218 @@ export default function MASTER_RekapPegawaiCreatePage({ auth, units, periodes }:
                             <li>Untuk mengubah informasi Marhalah, Golongan, atau Status Pegawai dapat diubah di manajemen Pegawai</li>
                         </ul>
                     </header>
-                    <Card className="w-full px-6">
-                    <form onSubmit={ handleFormSubmit } className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-4 p-5">
-                            <RekapPegawaiForm
-                                formState={ formInput }
-                                setFormState={setFormInput}
-                                units={units}
-                                pegawais={pegawais}
-                                periodes={periodes}
+                    <Card className="w-full px-6 !shadow-none">
+                        <Tooltip content="Kembali">
+                            <IconButton variant="text" onClick={() => router.visit(route('master.rekap-pegawai.index'))} className="mt-2">
+                                <MoveLeft />
+                            </IconButton>
+                        </Tooltip>
+                        <form onSubmit={ handleFormSubmit } className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-4 p-5">
+                            <Select
+                                label="Unit"
+                                color="teal"
+                                name="unit_id"
+                                onChange={ (value: string | undefined) => handleSelectChange('unit_id', value ?? '') }
+                            >
+                                {
+                                    units.length > 0
+                                        ? units.sort((a, b) => a.nama.localeCompare(b.nama)).map((unit) => ((
+                                            <Option
+                                                key={ unit.id }
+                                                value={ unit.id }
+                                            >
+                                                { unit.nama }
+                                            </Option>
+                                        )))
+                                        : (
+                                            <Option disabled value="null">
+                                                <p className="flex items-center gap-2">
+                                                    <TriangleAlert className="text-red-600"/>
+                                                    <span className="text-gray-900 font-semibold">
+                                        Belum ada Unit terdaftar
+                                    </span>
+                                                </p>
+                                            </Option>
+                                        )
+                                }
+                            </Select>
+                            <Select
+                                label="Periode Rekap"
+                                color="teal"
+                                name="periode_rekap_id"
+                                onChange={ (value: string | undefined) => handleSelectChange('periode_rekap_id', value ?? '') }
+                                disabled={ !formInputs.unit_id }
+                                value={ formInputs.periode_rekap_id }
+                            >
+                                {
+                                    periodes.length > 0
+                                        ? periodes.sort((a, b) => a.nama.localeCompare(b.nama)).map((periode) => ((
+                                            <Option
+                                                key={ periode.id }
+                                                value={ periode.id }
+                                            >
+                                                <div className="flex justify-items-center gap-1">
+                                                    <p className="flex justify-items-center gap-1.5 truncate">
+                                                        { periode.nama } &nbsp;
+                                                        ({ format(periode.awal, 'PPP', { locale: id }) } -&nbsp;
+                                                        { format(periode.akhir, 'PPP', { locale: id })})
+                                                    </p>
+                                                </div>
+                                            </Option>
+                                        )))
+                                        : (
+                                            <Option disabled value="null">
+                                                <p className="flex items-center gap-2">
+                                                    <TriangleAlert className="text-red-600"/>
+                                                    <span className="text-gray-900 font-semibold">
+                                        Belum ada Periode terdaftar atau dibuka
+                                    </span>
+                                                </p>
+                                            </Option>
+                                        )
+                                }
+                            </Select>
+                            <ReactSelect
+                                placeholder={pegawais.data.length > 0 && !pegawais.onLoad ? 'Ketik atau pilih Pegawai' : pegawais.onLoad ? 'Memuat daftar Pegawai..' : 'Pegawai'}
+                                isDisabled={(pegawais.data.length < 1 && pegawais.onError) || pegawais.onLoad || !formInputs.periode_rekap_id }
+                                isLoading={pegawais.onLoad}
+                                isClearable={true}
+                                isSearchable
+                                options={pegawais.data.map((pegawai) => ({ value: pegawai.id, label: pegawai.nama }))}
+                                noOptionsMessage={() => (<><p className="text-sm font-medium">Tidak ada pegawai untuk ditampilkan</p></>)}
+                                value={pegawais.data
+                                    .map((pegawai) => ({ value: pegawai.id, label: pegawai.nama }))
+                                    .find(option => option.value === formInputs.pegawai_id) || null
+                                }
+                                onChange={(selectedOption) => handleSelectChange('pegawai_id', selectedOption ? selectedOption.value : null)}
+                                isOptionDisabled={() => pegawais.data.length < 1}
+                                styles={{
+                                    option: (provided) => ({
+                                        ...provided,
+                                        cursor: 'pointer',
+                                    }),
+                                }}
+                            />
+                            <Input
+                                type="text"
+                                color="teal"
+                                label="Golongan"
+                                name="golongan"
+                                value={ pegawais?.selected?.golongan.nama ?? '' }
+                                disabled={ Boolean(!pegawais?.selected?.golongan.nama) }
+                                readOnly
+                            />
+                            <Input
+                                type="text"
+                                color="teal"
+                                label="Marhalah"
+                                name="marhalah"
+                                value={ pegawais?.selected?.marhalah.nama ?? '' }
+                                disabled={ Boolean(!pegawais?.selected?.marhalah.nama) }
+                                readOnly
+                            />
+                            <Input
+                                type="text"
+                                color="teal"
+                                label="Status Pegawai"
+                                name="status_pegawai"
+                                value={ pegawais?.selected?.status_pegawai.nama ?? '' }
+                                disabled={ Boolean(!pegawais?.selected?.status_pegawai.nama) }
+                                readOnly
+                            />
+                            <Input
+                                type="text"
+                                color="teal"
+                                label="Amanah"
+                                name="amanah"
+                                value={ formInputs.amanah }
+                                onChange={ handleInputChange }
+                                required
+                            />
+                            <Input
+                                type="text"
+                                color="teal"
+                                label="Amanah Organisasi (tidak wajib diisi)"
+                                name="organisasi"
+                                value={ formInputs.organisasi ?? '' }
+                                onChange={ handleInputChange }
+                            />
+                            <Input
+                                type="number"
+                                color="teal"
+                                label="Gaji"
+                                name="gaji"
+                                value={ formInputs.gaji }
+                                onChange={ handleInputChange }
+                                required
+                            />
+                            <Input
+                                type="text" color="teal"
+                                label="Ketuntasan Kerja"
+                                name="ketuntasan_kerja"
+                                value={ formInputs.ketuntasan_kerja }
+                                onChange={ handleInputChange }
+                                required
+                            />
+                            <TextArea
+                                color="teal"
+                                label="Kedisiplinan"
+                                name="kedisiplinan"
+                                value={ formInputs.kedisiplinan }
+                                onChange={ handleInputChange }
+                                required
+                            />
+                            <TextArea
+                                color="teal"
+                                label="Rapor Profesi"
+                                name="raport_profesi"
+                                value={ formInputs.raport_profesi }
+                                onChange={ handleInputChange }
+                                required
+                            />
+                            <TextArea
+                                label="Skill Manajerial (tidak wajib diisi)"
+                                color="teal"
+                                name="skill_manajerial"
+                                value={ formInputs.skill_manajerial ?? '' }
+                                onChange={ handleInputChange }
+                            />
+                            <TextArea
+                                label="Skill Leadership (tidak wajib diisi)"
+                                color="teal"
+                                name="skill_leadership"
+                                value={ formInputs.skill_leadership ?? '' }
+                                onChange={ handleInputChange }
+                            />
+                            <TextArea
+                                label="Catatan Negatif (tidak wajib diisi)"
+                                color="teal"
+                                name="catatan_negatif"
+                                value={ formInputs.catatan_negatif ?? '' }
+                                onChange={ handleInputChange }
+                            />
+                            <TextArea
+                                label="Prestasi (tidak wajib diisi)"
+                                color="teal"
+                                name="prestasi"
+                                value={ formInputs.prestasi ?? '' }
+                                onChange={ handleInputChange }
+                            />
+                            <TextArea
+                                label="Pembinaan (tidak wajib diisi)"
+                                color="teal"
+                                name="pembinaan"
+                                value={ formInputs.pembinaan ?? '' }
+                                onChange={ handleInputChange }
                             />
                             <Button
                                 type="submit"
+                                className="col-span-1 lg:col-span-2 w-52 ml-auto flex items-center justify-center gap-3"
                                 disabled={formSubmitDisabled()}
-                                className="col-span-1 lg:col-span-2 w-52 min-h-12 ml-auto flex items-center justify-center gap-3"
+                                loading={formInputs.onSubmit}
                             >
-                                {
-                                    formInput.onSubmit && !formInput.onSuccess
-                                        ? (
-                                            <div className="w-4 h-4 border-2 border-r-transparent border-gray-100 rounded-full animate-spin"></div>
-                                        ) : (
-                                            <Save/>
-                                        )
-                                }
-                                {
-                                    formInput.onSubmit && !formInput.onSuccess
-                                        ? 'Menyimpan...'
-                                        : formInput.onSubmit && formInput.onSuccess
-                                            ? 'Tersimpan'
-                                            : 'Simpan'
-                                }
+                                <Save/>
+                                Simpan
                             </Button>
                         </form>
                     </Card>

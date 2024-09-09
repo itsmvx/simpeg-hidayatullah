@@ -79,7 +79,6 @@ class RekapPegawaiController extends Controller
             'periode_rekap_id.exists' => 'Periode rekap tidak ditemukan',
             'amanah.required' => 'Amanah tidak boleh kosong',
             'amanah.max' => 'Amanah tidak boleh lebih dari 255 karakter',
-            'organisasi.required' => 'Organisasi tidak boleh kosong',
             'organisasi.max' => 'Organisasi tidak boleh lebih dari 255 karakter',
             'gaji.required' => 'Gaji tidak boleh kosong',
             'gaji.integer' => 'Gaji harus berupa angka',
@@ -111,9 +110,14 @@ class RekapPegawaiController extends Controller
                 'message' => 'Rekap Pegawai berhasil dibuat!',
             ], 201);
         } catch (QueryException $exception) {
+            if ($exception->getCode() == 23000) {
+                return Response::json([
+                    'message' => 'Data Rekap Pegawai untuk periode ini sudah ada. Silakan cek kembali data Anda.'
+                ], 409);
+            }
+
             return Response::json([
-//                'message' => 'Server gagal memproses permintaan',
-                'message' => $exception->getMessage()
+                'message' => 'Server gagal memproses permintaan'
             ], 500);
         }
     }

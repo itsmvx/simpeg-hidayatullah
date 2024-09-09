@@ -13,8 +13,9 @@ return new class extends Migration
     {
         Schema::create('pegawai', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('username');
+            $table->string('username')->unique()->nullable();
             $table->string('password');
+            $table->string('default_password');
             $table->string('nip')->unique();
             $table->string('nik')->unique();
             $table->string('foto')->nullable()->comment('URL Storage');

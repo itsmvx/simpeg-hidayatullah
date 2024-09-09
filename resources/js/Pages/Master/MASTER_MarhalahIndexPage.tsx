@@ -9,20 +9,16 @@ import {
     DialogFooter,
     DialogHeader,
     IconButton,
-    List,
-    ListItem,
-    ListItemPrefix,
     Tooltip,
     Typography
 } from "@material-tailwind/react";
-import { ChevronDown, FileSearch, Plus, Search, Trash2 } from "lucide-react";
+import { FileSearch, Plus, Trash2 } from "lucide-react";
 import { PageProps, PaginationData } from "@/types";
 import { MasterLayout } from "@/Layouts/MasterLayout";
 import { Head, Link, router } from "@inertiajs/react";
 import { Input } from "@/Components/Input";
 import { format } from "date-fns";
 import { id as localeID } from "date-fns/locale/id";
-import { Checkbox } from "@/Components/Checkbox";
 import { SyntheticEvent, useEffect, useState } from "react";
 import axios, { AxiosError } from "axios";
 import Pagination from "@/Components/Pagination";
@@ -215,7 +211,7 @@ export default function MASTER_MarhalahIndexPage({ auth, pagination }: PageProps
                                                             color="blue-gray"
                                                             className="font-normal text-center"
                                                         >
-                                                            { index + 1 }
+                                                            { pagination.from + index }
                                                         </Typography>
                                                     </td>
                                                     <td className={ `${ classes } min-w-52` }>
@@ -293,7 +289,7 @@ export default function MASTER_MarhalahIndexPage({ auth, pagination }: PageProps
                             </tbody>
                         </table>
                     </CardBody>
-                    <CardFooter className="flex items-center justify-between border-t border-blue-gray-50 p-4">
+                    <CardFooter className="flex items-center justify-center border-t border-blue-gray-50 p-4">
                         <Pagination paginateItems={ pagination }/>
                     </CardFooter>
                 </Card>

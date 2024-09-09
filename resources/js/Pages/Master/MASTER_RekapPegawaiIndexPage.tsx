@@ -9,23 +9,14 @@ import {
     DialogFooter,
     DialogHeader,
     IconButton,
-    List,
-    ListItem,
-    ListItemPrefix,
     Tooltip,
     Typography
 } from "@material-tailwind/react";
 import {
-    Building2,
     Check,
-    ChevronDown,
     FileSearch,
-    FileUp,
-    Pencil,
     Plus,
-    Search,
     Trash2,
-    User2,
     X
 } from "lucide-react";
 import { IDNamaColumn, PageProps, PaginationData } from "@/types";
@@ -239,7 +230,7 @@ export default function MASTER_RekapPegawaiIndexPage({ auth, marhalahs, golongan
                                                         color="blue-gray"
                                                         className="font-normal text-center"
                                                     >
-                                                        { index + 1 }
+                                                        { pagination.from + index }
                                                     </Typography>
                                                 </td>
                                                 <td className={ `${ classes } min-w-52` }>
@@ -396,7 +387,7 @@ export default function MASTER_RekapPegawaiIndexPage({ auth, marhalahs, golongan
                         </tbody>
                     </table>
                     </CardBody>
-                    <CardFooter className="flex items-center justify-between border-t border-blue-gray-50 p-4">
+                    <CardFooter className="flex items-center justify-center border-t border-blue-gray-50 p-4">
                         <Pagination paginateItems={ pagination }/>
                     </CardFooter>
                 </Card>

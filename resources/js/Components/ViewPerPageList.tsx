@@ -12,14 +12,16 @@ export const ViewPerPageList = ({ className }: {
         return viewParam ? parseInt(viewParam, 10) : 25;
     });
     const handleSetViewPerPage = (value: number) => {
-        const viewPerPageParam = new URLSearchParams(window.location.search);
+        const searchParams = new URLSearchParams(window.location.search);
+        const pageParam = searchParams.get('page');
         if (value === 25) {
-            viewPerPageParam.delete('view');
+            searchParams.delete('view');
         } else {
-            viewPerPageParam.set('view', String(value));
+            searchParams.set('view', String(value));
         }
         setViewPerPage(value);
-        router.visit(window.location.pathname + '?' + viewPerPageParam.toString(), {
+        searchParams.delete('page');
+        router.visit(window.location.pathname + '?' + searchParams.toString(), {
             preserveState: true,
             preserveScroll: true,
         });

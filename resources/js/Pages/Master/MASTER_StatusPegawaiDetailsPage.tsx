@@ -65,7 +65,7 @@ export default function MASTER_StatusPegawaiDetailsPage({ auth, statusPegawai }:
 
     return (
         <>
-            <Head title="Master - Detail Status Pegawai" />
+            <Head title={ `Master - Details Status Pegawai ${statusPegawai.nama}` } />
             <MasterLayout auth={auth}>
                 <Tooltip content="Kembali">
                     <IconButton variant="text" onClick={() => router.visit(route('master.status-pegawai.index'))}>

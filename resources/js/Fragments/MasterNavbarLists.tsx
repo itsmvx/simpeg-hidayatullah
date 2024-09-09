@@ -2,8 +2,7 @@ import { Fragment, useState } from "react";
 import {
     Award,
     Building2, CalendarDays,
-    ChevronDown, CircleUserRound,
-    Dock, FileDown,
+    ChevronDown, CircleUserRound, FileDown,
     Newspaper, ShieldCheck,
     UserRound,
     UsersRound
@@ -80,7 +79,7 @@ const navListMenuItems = [
         title: "Sumber daya dokumen",
         description: "Menu sumber daya dokumen",
         icon: <FileDown width={25} />,
-        link: route('master.pengajuan-promosi.index')
+        link: route('master.sumber-daya.index')
     }
 ];
 

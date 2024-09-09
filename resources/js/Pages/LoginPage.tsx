@@ -43,7 +43,6 @@ export default function LoginPage() {
 
     const [ loginAs, setLoginAs ] = useState<LoginAs>(() => {
         const loginAsCookie: string | undefined = Cookies.get('auth_login_as');
-        console.log(loginAsCookie);
         if (loginAsCookie && ['admin', 'pegawai'].includes(loginAsCookie ?? '')) {
             return loginAsCookie as LoginAs;
         }
@@ -63,6 +62,13 @@ export default function LoginPage() {
     const handleToggleLoginAs = (val: LoginAs) => {
         Cookies.set('auth_login_as', val, { expires: 365 });
         setLoginAs(val);
+        if (formState.onError) {
+            setFormState((prevState) => ({
+                ...prevState,
+                onError: false,
+                errMsg: ''
+            }));
+        }
     };
     const handleFormChange = (event: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = event.target;
