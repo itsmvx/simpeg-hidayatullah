@@ -342,7 +342,7 @@ export default function MASTER_RekapPegawaiCreatePage({ auth, units, periodes }:
                             >
                                 {
                                     periodes.length > 0
-                                        ? periodes.sort((a, b) => a.nama.localeCompare(b.nama)).map((periode) => ((
+                                        ? periodes.map((periode) => ((
                                             <Option
                                                 key={ periode.id }
                                                 value={ periode.id }

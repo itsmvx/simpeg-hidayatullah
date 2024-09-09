@@ -508,7 +508,7 @@ class AdminMasterPagesController extends Controller
         try {
             return Inertia::render('Master/MASTER_RekapPegawaiCreatePage', [
                 'units' => Unit::select('id', 'nama')->get(),
-                'periodes' => fn() => PeriodeRekap::select('id', 'nama', 'awal', 'akhir')->get(),
+                'periodes' => fn() => PeriodeRekap::select('id', 'nama', 'awal', 'akhir')->where('status', true)->orderBy('awal', 'asc')->orderBy('akhir', 'desc')->get(),
                 'golongans' => fn() => Golongan::select('id', 'nama')->get(),
                 'marhalahs' => fn() => Marhalah::select('id', 'nama')->get(),
                 'statusPegawais' => fn() => StatusPegawai::select('id', 'nama')->get()
@@ -715,14 +715,12 @@ class AdminMasterPagesController extends Controller
     {
         try {
             return Inertia::render('Master/MASTER_SuratKontrakKerjaPage', [
-                'pegawais' => fn() => Pegawai::select('id', 'nama', 'golongan_id', 'marhalah_id', 'status_pegawai_id')
-                    ->with(['golongan:id,nama', 'marhalah:id,nama', 'status_pegawai:id,nama'])
-                    ->where('unit_id', '=', $this->unitId)
-                    ->get()
-                    ->makeHidden(['golongan_id', 'marhalah_id', 'status_pegawai_id']),
-                'golongans' => fn() => Golongan::select('id', 'nama')->get(),
-                'marhalahs' => fn() => Marhalah::select('id', 'nama')->get(),
-                'statusPegawais' => fn() => StatusPegawai::select('id', 'nama')->get(),
+                'units' => Unit::select('id', 'nama')->get(),
+                'periodes' => fn() => PeriodeRekap::select('id', 'nama', 'awal', 'akhir')->where('status', true)->orderBy('awal', 'asc')->orderBy('akhir', 'desc')->get(),
+                'suratProps' => [
+                    'kepalaSDI' => config('information.sdi_personalia') ?? null,
+                    'currDate' => Carbon::now('Asia/Jakarta')->toDateString()
+                ]
             ]);
         } catch (QueryException $exception) {
             abort(500);

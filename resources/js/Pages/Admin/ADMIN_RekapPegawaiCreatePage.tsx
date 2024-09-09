@@ -267,7 +267,7 @@ export default function ADMIN_RekapPegawaiCreatePage({ auth, periodes }: PagePro
                             >
                                 {
                                     periodes.length > 0
-                                        ? periodes.sort((a, b) => a.nama.localeCompare(b.nama)).map((periode) => ((
+                                        ? periodes.map((periode) => ((
                                             <Option
                                                 key={ periode.id }
                                                 value={ periode.id }
