@@ -27,7 +27,7 @@ export default function MASTER_SumberDayaIndexPage({ auth }: PageProps) {
                             </div>
 
                             <div className="flex gap-3 -mb-8 py-4 border-t border-gray-200">
-                                <Link href="#" className="group rounded-xl disabled:border *:select-none [&>*:not(.sr-only)]:relative *:disabled:opacity-20 disabled:text-gray-950 disabled:border-gray-200 disabled:bg-gray-100 bg-gray-100 hover:bg-gray-200/75 active:bg-gray-100 flex gap-1.5 items-center text-sm h-8 px-3.5 justify-center">
+                                <Link href={route('master.sumber-daya.surat-kontrak-kerja')} className="group rounded-xl disabled:border *:select-none [&>*:not(.sr-only)]:relative *:disabled:opacity-20 disabled:text-gray-950 disabled:border-gray-200 disabled:bg-gray-100 bg-gray-100 hover:bg-gray-200/75 active:bg-gray-100 flex gap-1.5 items-center text-sm h-8 px-3.5 justify-center">
                                     <span className="font-medium">Buat</span>
                                     <Plus width={18} />
                                 </Link>

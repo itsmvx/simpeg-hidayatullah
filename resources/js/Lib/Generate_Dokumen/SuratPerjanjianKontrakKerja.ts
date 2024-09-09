@@ -13,14 +13,30 @@ import { saveAs } from "file-saver";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 
-export const generatePerjanjianKontrakKerja = () => {
+type PihakPertama = {
+    nama: string;
+    amanah?: string;
+};
+type PihakKedua = {
+    nama: string;
+    amanah: string;
+};
+type Periode = {
+    awal: string;
+    akhir: string;
+};
+export const generatePerjanjianKontrakKerja = (pihakPertama: PihakPertama, pihakKedua: PihakKedua, tanggal: string, periode: Periode, lokasi = 'Surabaya') => {
     const data = {
-        nama_pihak_pertama: "Faishal Abdullah M.Pd.I",
-        amanah_pihak_pertama: "Kepala SDI Pondok Pesantren Hidayatullah (PPH) Surabaya",
-        nama_pihak_kedua: "Adelya Yuli Widyasari",
-        amanah_pihak_kedua: "Guru SMP Pi Luqman al Hakim Surabaya",
-        tanggal: format(new Date(), 'PPP', { locale: id }),
-        lokasi: "Surabaya"
+        nama_pihak_pertama: pihakPertama.nama,
+        amanah_pihak_pertama: pihakPertama.amanah ?? "Kepala SDI Pondok Pesantren Hidayatullah (PPH) Surabaya",
+        nama_pihak_kedua: pihakKedua.nama,
+        amanah_pihak_kedua: pihakKedua.amanah,
+        tanggal: format(new Date(tanggal), 'PPP', { locale: id }),
+        lokasi: lokasi,
+        periode: {
+            awal: periode.awal,
+            akhir: periode.akhir
+        }
     };
     const numbering = {
         config: [
@@ -228,7 +244,7 @@ export const generatePerjanjianKontrakKerja = () => {
                     new Paragraph({
                         children: [
                             new TextRun({
-                                text: "Sepakat untuk melakukan Kontrak Sebagai Guru SMP Pi Luqman al Hakim PPH Surabaya selama tahun pelajaran 2023-2024 (terhitung mulai 1 Juli 2023 s.d 30 Juni 2024) dengan ketentuan sebagai berikut: ",
+                                text: `Sepakat untuk melakukan Kontrak Sebagai ${data.amanah_pihak_kedua} PPH Surabaya selama tahun pelajaran ${format(new Date(data.periode.awal), 'y')}-${format(new Date(data.periode.akhir), 'y')} (terhitung mulai ${format(new Date(data.periode.awal), 'PPP', { locale: id })} s.d ${format(new Date(data.periode.akhir), 'PPP', { locale: id })}) dengan ketentuan sebagai berikut: `,
                                 ...textDefaultProps
                             }),
                         ],

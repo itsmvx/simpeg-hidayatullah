@@ -103,14 +103,6 @@ class PeriodeRekapController extends Controller
      */
     public function update(Request $request)
     {
-        //
-//            id: String(periodeState.id),
-//            nama: periodeState.nama,
-//            keterangan: periodeState.keterangan || "",
-//            awal: periodeState.awal,
-//            akhir: periodeState.akhir,
-//            jenis: periodeState.jenis,
-//            status: periodeState.status,
         $validation = Validator::make($request->only(['id', 'nama', 'keterangan', 'awal', 'akhir', 'jenis', 'status']), [
             'id' => 'required',
             'nama' => 'required|string',
