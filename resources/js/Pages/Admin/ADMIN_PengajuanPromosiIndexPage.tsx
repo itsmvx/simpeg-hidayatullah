@@ -9,24 +9,18 @@ import {
     DialogFooter,
     DialogHeader,
     IconButton,
-    List,
-    ListItem,
-    ListItemPrefix,
     Tooltip,
     Typography
 } from "@material-tailwind/react";
-import { ChevronDown, CircleCheck, CircleX, FileSearch, Pencil, Plus, Search, Trash2, X } from "lucide-react";
+import { CircleCheck, CircleX, FileSearch, Plus, Trash2 } from "lucide-react";
 import { IDNamaColumn, JenisPengajuanPromosi, PageProps, PaginationData, StatusPengajuanPromosi } from "@/types";
 import { Head, Link, router } from "@inertiajs/react";
-import { Input } from "@/Components/Input";
 import { format } from "date-fns";
 import { id as localeID } from "date-fns/locale/id";
-import { Checkbox } from "@/Components/Checkbox";
-import { ChangeEvent, useState } from "react";
+import { useState } from "react";
 import axios, { AxiosError } from "axios";
 import Pagination from "@/Components/Pagination";
 import { AdminLayout } from "@/Layouts/AdminLayout";
-import { jenisPengajuanPromosi } from "@/Lib/StaticData";
 import { notifyToast } from "@/Lib/Utils";
 import { ViewPerPageList } from "@/Components/ViewPerPageList";
 import { SearchInput } from "@/Components/SearchInput";

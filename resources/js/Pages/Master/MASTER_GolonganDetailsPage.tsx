@@ -63,10 +63,10 @@ export default function GolonganDetailsPage({ auth, golongan }: PageProps<{
 
     return (
         <>
-            <Head title="Master - Detail Golongan" />
+            <Head title={ `Master - Detail Golongan ${golongan.nama}` } />
             <MasterLayout auth={auth}>
                 <Tooltip content="Kembali">
-                    <IconButton variant="text" onClick={() => router.visit(route('master.golongan.index'))}>
+                    <IconButton variant="text" onClick={() => window.history.back()}>
                         <MoveLeft />
                     </IconButton>
                 </Tooltip>

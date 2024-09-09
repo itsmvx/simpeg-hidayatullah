@@ -66,7 +66,7 @@ export default function UnitDetailsPage({ auth, unit }: PageProps<{
             <Head title="Master - Detail Unit" />
             <MasterLayout auth={auth}>
                 <Tooltip content="Kembali">
-                    <IconButton variant="text" onClick={() => router.visit(route('master.unit.index'))}>
+                    <IconButton variant="text" onClick={() => window.history.back()}>
                         <MoveLeft />
                     </IconButton>
                 </Tooltip>

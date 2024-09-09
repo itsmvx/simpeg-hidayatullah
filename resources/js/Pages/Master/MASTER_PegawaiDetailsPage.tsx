@@ -37,18 +37,23 @@ import { z } from "zod";
 import { calculateAge, calculateDatePast, notifyToast } from "@/Lib/Utils";
 import axios, { AxiosError, AxiosProgressEvent } from "axios";
 import {
-    formDataKeluargaDefault, formDataOrganisasiDefault,
+    formDataKeluargaDefault,
+    formDataOrganisasiDefault,
     formDataPendidikanFormalDefault,
-    formDataPendidikanNonFormalDefault, formDataPengalamanNonPPHDefault, formDataPengalamanPPHDefault
+    formDataPendidikanNonFormalDefault,
+    formDataPengalamanNonPPHDefault,
+    formDataPengalamanPPHDefault,
+    jenisKelamin, statusAktif,
+    statusPernikahan
 } from "@/Lib/StaticData";
 import { toast } from "react-toastify";
 import { MenAvatar, WomenAvatar } from "@/Lib/StaticImages";
 import { id } from "date-fns/locale";
 import { format } from "date-fns";
 import { Pegawai } from "@/types/models";
-import MASTER_PegawaiDetailsForm from "@/Components/MASTER_PegawaiDetailsForm";
 import { Input } from "@/Components/Input";
 import { DayPicker } from "react-day-picker";
+import { Checkbox } from "@/Components/Checkbox";
 
 export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, marhalahs, statusPegawais, units, currDate }: PageProps<{
     pegawai: Pegawai;
@@ -202,16 +207,30 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
     const [ dataPengalamanPPH, setDataPengalamanPPH ] = useState<FormPegawaiDataPengalamanPPH[]>( JSON.parse(pegawai.data_pengalaman_kerja_pph) );
     const [ dataPengalamanNonPPH, setDataPengalamanNonPPH ] = useState<FormPegawaiDataPengalamanNonPPH[]>( JSON.parse(pegawai.data_pengalaman_kerja_non_pph) );
 
-    const handleDateChange = (date: Date | undefined, key: keyof FormPegawai) => {
+    const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = event.target;
         setPegawaiState((prevState) => ({
             ...prevState,
-            [key]: date,
+            [name]: value,
         }));
     };
+    const handleCheckboxChange = (event: ChangeEvent<HTMLInputElement>) => {
+        const { name, checked } = event.target;
+        setPegawaiState((prevState) => ({
+            ...prevState,
+            [name]: checked,
+        }));
+    }
     const handleSelectChange = (key: keyof FormPegawai, value: string) => {
         setPegawaiState((prevState) => ({
             ...prevState,
             [key]: value,
+        }));
+    };
+    const handleDateChange = (date: Date | undefined, key: keyof FormPegawai) => {
+        setPegawaiState((prevState) => ({
+            ...prevState,
+            [key]: date,
         }));
     };
 
@@ -389,7 +408,7 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
 
     return (
         <>
-            <Head title="Master - Detail Pegawai"/>
+            <Head title={ `Master - Detail Pegawai ${pegawai.nama}` } />
             <MasterLayout auth={auth}>
                 <main className="w-full min-h-screen bg-gray-50 space-y-4">
                     <header className="my-5 px-6 sticky top-16 z-10 py-2 bg-white rounded-md rounded-b-none border ">
@@ -417,9 +436,9 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
                             <NavLists/>
                         </Collapse>
                     </header>
-                    <Card className="w-full px-6 pt-5">
+                    <Card className="w-full px-6 pt-5 !shadow-none">
                         <Tooltip content="Kembali">
-                            <IconButton variant="text" onClick={() => router.visit(route('master.pegawai.index'))}>
+                            <IconButton variant="text" onClick={() => window.history.back()}>
                                 <MoveLeft />
                             </IconButton>
                         </Tooltip>
@@ -466,11 +485,254 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
                                     Data Diri
                                 </Typography>
                             </div>
-                            <MASTER_PegawaiDetailsForm
-                                state={ pegawaiState }
-                                setState={ setPegawaiState }
-                                units={ units }
+                            <Input
+                                type="text"
+                                color="teal"
+                                label="Nomor Induk Kewarganegaraan ( NIK )"
+                                name="nik"
+                                value={ pegawaiState.nik }
+                                onChange={ handleInputChange }
+                                required
                             />
+                            <Input
+                                type="text"
+                                color="teal"
+                                label="Nomor Induk Pegawai ( NIP )"
+                                name="nip"
+                                value={ pegawaiState.nip }
+                                onChange={ handleInputChange }
+                                required
+                            />
+                            <Input
+                                type="text"
+                                color="teal"
+                                label="Nama lengkap"
+                                name="nama"
+                                value={ pegawaiState.nama }
+                                onChange={ handleInputChange }
+                                required
+                            />
+                            <Input
+                                type="text" color="teal"
+                                label="Suku bangsa"
+                                name="suku"
+                                value={ pegawaiState.suku }
+                                onChange={ handleInputChange }
+                                required
+                            />
+                            <Input
+                                type="text"
+                                color="teal"
+                                label="Tempat Lahir"
+                                name="tempat_lahir"
+                                value={ pegawaiState.tempat_lahir }
+                                onChange={ handleInputChange }
+                                required
+                            />
+                            <Popover placement="bottom">
+                                <PopoverHandler>
+                                    <Input
+                                        color="teal"
+                                        label="Tanggal Lahir"
+                                        value={ pegawaiState.tanggal_lahir ? format(pegawaiState.tanggal_lahir, "PPP", { locale: id }) : "" }
+                                        readOnly
+                                        required
+                                    />
+                                </PopoverHandler>
+                                <PopoverContent className="z-30">
+                                    <DayPicker
+                                        mode="single"
+                                        selected={ pegawaiState.tanggal_lahir }
+                                        onSelect={(value: Date | undefined) => handleDateChange(value, 'tanggal_lahir') }
+                                        showOutsideDays
+                                        className="border-0"
+                                        captionLayout="dropdown-buttons"
+                                        fromYear={ 1950 }
+                                        toYear={ new Date().getFullYear() }
+                                        disabled={ { after: new Date() } }
+                                    />
+                                </PopoverContent>
+                            </Popover>
+                            <div className="flex flex-row gap-4">
+                                <Input
+                                    type="text"
+                                    color="teal"
+                                    label="Usia (Tahun)"
+                                    name="usia_tahun"
+                                    disabled
+                                    value={ pegawaiState.usia_tahun }
+                                    icon={ <p className="-ml-4 text-xs font-semibold">Tahun</p> }
+                                    containerProps={ { className: 'min-w-20 w-[10px]' } }
+                                />
+                                <Input
+                                    type="text"
+                                    color="teal"
+                                    label="Usia (Bulan)"
+                                    name="usia_bulan"
+                                    disabled
+                                    value={ pegawaiState.usia_bulan }
+                                    icon={ <p className="-ml-4 text-xs font-semibold">Bulan</p> }
+                                    containerProps={ { className: 'min-w-20 w-[10px]' } }
+                                />
+                            </div>
+                            <Select
+                                label="Jenis kelamin"
+                                color="teal"
+                                name="jenis_kelamin"
+                                value={ pegawaiState.jenis_kelamin }
+                                aria-required={true}
+                                onChange={ (value: string | undefined) => handleSelectChange('jenis_kelamin', value ?? '') }
+                            >
+                                {
+                                    jenisKelamin.map((jenis, index) => ((
+                                        <Option key={index} value={jenis}>
+                                            { jenis }
+                                        </Option>
+                                    )))
+                                }
+                            </Select>
+                            <Input
+                                type="text" color="teal"
+                                label="Alamat"
+                                name="alamat"
+                                value={ pegawaiState.alamat }
+                                onChange={ handleInputChange }
+                                required
+                            />
+                            <Input
+                                type="text"
+                                color="teal"
+                                label="Agama"
+                                name="agama"
+                                value={ pegawaiState.agama }
+                                onChange={ handleInputChange }
+                                required
+                            />
+                            <Select
+                                label="Status pernikahan"
+                                color="teal"
+                                name="status_pernikahan"
+                                value={ pegawaiState.status_pernikahan }
+                                onChange={ (value: string | undefined) => handleSelectChange('status_pernikahan', value ?? '') }
+                            >
+                                {
+                                    statusPernikahan.map((status, index) => ((
+                                        <Option key={index} value={status}>
+                                            { status }
+                                        </Option>
+                                    )))
+                                }
+                            </Select>
+                            <Popover placement="bottom">
+                                <PopoverHandler>
+                                    <Input
+                                        color="teal"
+                                        label="Tahun Masuk"
+                                        value={ pegawaiState.tanggal_masuk ? format(pegawaiState.tanggal_masuk, "y", { locale: id }) : "" }
+                                        readOnly
+                                        required
+                                    />
+                                </PopoverHandler>
+                                <PopoverContent>
+                                    <DayPicker
+                                        mode="single"
+                                        selected={ pegawaiState.tanggal_masuk }
+                                        onSelect={ (value: Date | undefined) => handleDateChange(value, 'tanggal_masuk') }
+                                        showOutsideDays
+                                        className="border-0"
+                                        captionLayout="dropdown-buttons"
+                                        fromYear={ 1950 }
+                                        toYear={ new Date().getFullYear() }
+                                        disabled={ { after: new Date() } }
+                                    />
+                                </PopoverContent>
+                            </Popover>
+                            <Select
+                                label="Unit"
+                                color="teal"
+                                name="unit_id"
+                                value={ pegawaiState.unit_id ?? undefined }
+                                onChange={ (value: string | undefined) => handleSelectChange('unit_id', value ?? '') }
+                            >
+                                {
+                                    units.length > 0
+                                        ? units.sort((a, b) => a.nama.localeCompare(b.nama)).map(({ id, nama }) => ((
+                                            <Option key={id} value={id}>{nama}</Option>
+                                        )))
+                                        : (
+                                            <Option disabled value="null">
+                                                <p className="flex items-center gap-2">
+                                                    <TriangleAlert className="text-red-600" />
+                                                    <span className="text-gray-900 font-semibold">
+                                        Belum ada Unit terdaftar
+                                    </span>
+                                                </p>
+
+                                            </Option>
+                                        )
+                                }
+                            </Select>
+                            <Input
+                                type="text" color="teal"
+                                label="Amanah"
+                                name="amanah"
+                                value={ pegawaiState.amanah }
+                                onChange={ handleInputChange }
+                                required
+                            />
+                            <Input
+                                type="text" color="teal"
+                                label="Amanah atasan langsung"
+                                name="amanah_atasan"
+                                value={ pegawaiState.amanah }
+                                onChange={ handleInputChange }
+                                required
+                            />
+                            <Input
+                                type="text" color="teal"
+                                label="Nomor HP/WA"
+                                name="no_hp"
+                                value={ pegawaiState.no_hp }
+                                onChange={ handleInputChange }
+                                required
+                            />
+                            <Input
+                                type="text" color="teal"
+                                label="Kompetensi Qur'an"
+                                name="kompetensi_quran"
+                                value={ pegawaiState.kompetensi_quran }
+                                onChange={ handleInputChange }
+                                required
+                            />
+                            <Select
+                                label="Status Aktif"
+                                color="teal"
+                                name="status_aktif"
+                                value={ pegawaiState.status_aktif }
+                                onChange={ (value: string | undefined) => handleSelectChange('status_aktif', value ?? '') }
+                            >
+                                {
+                                    statusAktif.map((status, index) => ((
+                                        <Option key={index} value={status}>
+                                            { status }
+                                        </Option>
+                                    )))
+                                }
+                            </Select>
+                            <div className="flex flex-row gap-1">
+                                <Checkbox
+                                    name="bpjs_kesehatan"
+                                    label="BPJS Kesehatan"
+                                    checked={ pegawaiState.bpjs_kesehatan }
+                                    onChange={ handleCheckboxChange }
+                                />
+                                <Checkbox
+                                    name="bpjs_ketenagakerjaan"
+                                    label="BPJS Ketenagakerjaan"
+                                    checked={ pegawaiState.bpjs_ketenagakerjaan }
+                                    onChange={ handleCheckboxChange }
+                                />
+                            </div>
 
                             <div className="col-span-1 lg:col-span-2">
                                 <Typography variant="h4" className="flex items-center gap-2">
@@ -518,7 +780,6 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
                                     <PopoverContent className="z-30">
                                         <DayPicker
                                             mode="single"
-                                            // selected={ pegawaiState.tanggal_marhalah }
                                             onSelect={ (value: Date | undefined) => handleDateChange(value, 'tanggal_marhalah') }
                                             showOutsideDays
                                             className="border-0"

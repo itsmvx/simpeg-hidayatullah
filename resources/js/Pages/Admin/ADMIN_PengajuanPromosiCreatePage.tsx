@@ -44,12 +44,16 @@ export default function ADMIN_PengajuanPromosiCreatePage({ auth, admin, pegawais
     marhalahs: IDNamaColumn[];
     statusPegawais: IDNamaColumn[];
 }>) {
+    const searchParams = new URLSearchParams(window.location.search);
+    const pegawaiParam = searchParams.get('p');
 
     const formPengajuanPromosiInit: PengajuanPromosiByAdmin = {
         nama: '',
         unit_id: admin.unit_id,
         admin_id: admin.id,
-        pegawai_id: '',
+        pegawai_id: pegawaiParam
+            ? pegawais.find((pegawai) => pegawai.id === pegawaiParam)?.id ?? ''
+            : '',
         asal_type: '',
         asal_id: '',
         akhir_type: '',
@@ -135,10 +139,9 @@ export default function ADMIN_PengajuanPromosiCreatePage({ auth, admin, pegawais
                     ...prevState,
                     onSuccess: true
                 }));
-                setFormInput(formPengajuanPromosiInit);
-                // setTimeout(() => {
-                //     router.visit(route('admin.pengajuan-promosi.index'));
-                // }, 2000);
+                setTimeout(() => {
+                    router.visit(route('admin.pengajuan-promosi.index'));
+                }, 2000);
             })
             .catch((err: unknown) => {
                 const errMsg = err instanceof AxiosError
@@ -256,18 +259,20 @@ export default function ADMIN_PengajuanPromosiCreatePage({ auth, admin, pegawais
                             Informasi
                         </Typography>
                         <ul className="list-disc list-inside px-2 font-medium text-sm">
-                            <li>Opsi Pegawai disediakan berdasarkan unit yang dipilih</li>
-                            <li>Marhalah, Golongan dan Status Pegawai otomatis menyinkron dengan data pegawai terpilih</li>
-                            <li>Untuk mengubah informasi Marhalah, Golongan, atau Status Pegawai dapat diubah di manajemen Pegawai</li>
+                            <li>Personalia dapat menyetujui atau menolak pengajuan Promosi yang diajukan</li>
+                            <li>Data yang sudah dikirim tidak dapat lagi diubah untuk keperluan peninjauan dari Personalia</li>
+                            <li>Apabila ada kesalahan dalam pemilihan pengajuan anda dapat menghapus pengajuan lalu membuat pengajuan lagi
+                            </li>
                         </ul>
                     </header>
-                    <Card className="w-full px-6">
+                    <Card className="w-full px-6 !shadow-none">
                         <Tooltip content="Kembali">
-                            <IconButton variant="text" onClick={() => router.visit(route('admin.pengajuan-promosi.index'))}>
-                                <MoveLeft />
+                            <IconButton variant="text"
+                                        onClick={ () => router.visit(route('admin.pengajuan-promosi.index')) }>
+                                <MoveLeft/>
                             </IconButton>
                         </Tooltip>
-                        <form onSubmit={ handleFormSubmit } className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-4 p-5">
+                        <form onSubmit={ handleFormSubmit } className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-4 px-5">
                            <HeadingInfo
                                asal_id={formInput.asal_id}
                                asal_type={formInput.asal_type}

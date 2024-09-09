@@ -10,7 +10,7 @@ import {
     CircleAlert,
     CircleUser,
     GraduationCap, Medal,
-    Menu as MenuIcon, MoveLeft, Pencil, RotateCcw, Save, SquareArrowOutUpRight,
+    Menu as MenuIcon, MoveLeft, Pencil, Save, SquareArrowOutUpRight,
     Star, TrendingUp, TriangleAlert,
     Users,
     X
@@ -239,7 +239,6 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
         }));
     };
 
-    const [ onChangeDataPromosi, setOnChangeDataPromosi ] = useState(false);
     const [ onSubmit, setOnSubmit ] = useState(false);
     const [ onLoadImage, setOnLoadImage ] = useState(false);
 
@@ -291,7 +290,7 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
             return;
         }
 
-        axios.post(route('pegawai.update'), {
+        axios.post(route('pegawai.update-by-admin'), {
             ...pegawaiParse.data,
             id: pegawai.id,
         })
@@ -398,18 +397,6 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
 
         return () => window.removeEventListener('resize', handleResize);
     }, []);
-
-    useEffect(() => {
-        setOnChangeDataPromosi(pegawaiState.golongan_id !== pegawai.golongan_id ||  pegawaiState.status_pegawai_id !== pegawai.status_pegawai_id);
-    }, [ pegawaiState ]);
-    useEffect(() => {
-        if (onChangeDataPromosi && pegawai.tanggal_promosi) {
-            setPegawaiState((prevState) => ({
-                ...prevState,
-                tanggal_promosi: new Date(currDate)
-            }));
-        }
-    }, [ onChangeDataPromosi ]);
 
     return (
         <>
@@ -628,30 +615,13 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
                                     )))
                                 }
                             </Select>
-                            <Popover placement="bottom">
-                                <PopoverHandler>
-                                    <Input
-                                        color="teal"
-                                        label="Tahun Masuk"
-                                        value={ pegawaiState.tanggal_masuk ? format(pegawaiState.tanggal_masuk, "y", { locale: id }) : "" }
-                                        readOnly
-                                        required
-                                    />
-                                </PopoverHandler>
-                                <PopoverContent>
-                                    <DayPicker
-                                        mode="single"
-                                        selected={ pegawaiState.tanggal_masuk }
-                                        onSelect={ (value: Date | undefined) => handleDateChange(value, 'tanggal_masuk') }
-                                        showOutsideDays
-                                        className="border-0"
-                                        captionLayout="dropdown-buttons"
-                                        fromYear={ 1950 }
-                                        toYear={ new Date().getFullYear() }
-                                        disabled={ { after: new Date() } }
-                                    />
-                                </PopoverContent>
-                            </Popover>
+                            <Input
+                                color="teal"
+                                label="Tahun Masuk"
+                                value={ pegawaiState.tanggal_masuk ? format(pegawaiState.tanggal_masuk, "y", { locale: id }) : "" }
+                                readOnly
+                                required
+                            />
                             <Select
                                 label="Unit"
                                 color="teal"
@@ -823,7 +793,7 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
                                 </div>
                                 <div className="col-span-full flex items-center justify-end">
                                     <a
-                                        href={ route('admin.pengajuan-promosi.create') }
+                                        href={ route('admin.pengajuan-promosi.create', { p: pegawai.id }) }
                                         target="_blank"
                                         className="!capitalize !font-medium text-base flex items-center justify-center cursor-pointer gap-2 bg-transparent hover:!bg-gray-200 py-3.5 px-5 rounded-md transition-all duration-200 ease-in-out"
                                     >
@@ -865,33 +835,14 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
                                 />
                             </div>
                             <div className="col-span-full grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-4">
-                                <Popover placement="bottom">
-                                    <PopoverHandler>
-                                        <Input
-                                            color="teal"
-                                            label="Tanggal Promosi"
-                                            value={ pegawaiState.tanggal_promosi ? `${ format(pegawaiState.tanggal_promosi, "PPP", { locale: id }) } ( ${ calculateDatePast(new Date(pegawaiState.tanggal_promosi), new Date(currDate)) } lalu )` : "Belum diatur" }
-                                            readOnly
-                                            className="italic !font-semibold"
-                                        />
-                                    </PopoverHandler>
-                                    <PopoverContent className="z-30">
-                                        <DayPicker
-                                            mode="single"
-                                            // selected={ pegawaiState.tanggal_promosi ?? undefined }
-                                            onSelect={ (value: Date | undefined) => handleDateChange(value, 'tanggal_promosi') }
-                                            showOutsideDays
-                                            className="border-0"
-                                            captionLayout="dropdown-buttons"
-                                            fromYear={ 1970 }
-                                            toYear={ new Date().getFullYear() }
-                                            disabled={ pegawai.tanggal_promosi ? [{ before: new Date(9999, 11, 31) }] : { after: new Date() }}
-                                            disableNavigation={!!pegawai.tanggal_promosi}
-                                        />
-                                    </PopoverContent>
-                                </Popover>
+                                <Input
+                                    color="teal"
+                                    label="Tanggal Promosi"
+                                    value={ pegawaiState.tanggal_promosi ? `${ format(pegawaiState.tanggal_promosi, "PPP", { locale: id }) } ( ${ calculateDatePast(new Date(pegawaiState.tanggal_promosi), new Date(currDate)) } lalu )` : "Belum diatur" }
+                                    readOnly
+                                    className="italic !font-semibold"
+                                />
                             </div>
-
                             <div ref={ formDataKeluargaRef } id="data-keluarga"
                                  className="mt-6 col-span-1 lg:col-span-2">
                                 <Typography variant="h4" className="flex items-center gap-2">

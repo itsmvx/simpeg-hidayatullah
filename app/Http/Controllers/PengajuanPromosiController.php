@@ -4,11 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Golongan;
 use App\Models\Marhalah;
+use App\Models\Pegawai;
 use App\Models\PengajuanPromosi;
 use App\Models\StatusPegawai;
 use App\Models\Unit;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Validator;
@@ -216,6 +219,116 @@ class PengajuanPromosiController extends Controller
                 ], 500);
             }
         } catch (QueryException $exception) {
+            return Response::json([
+                'message' => 'Server gagal memproses permintaan',
+            ], 500);
+        }
+    }
+
+    public function review(Request $request)
+    {
+        try {
+            $validation = Validator::make($request->only([
+                'id', 'asal_id', 'asal_type', 'akhir_id', 'akhir_type', 'admin_penyetuju_id', 'pegawai_id', 'diterima'
+            ]), [
+                'id' => 'required|string',
+                'asal_id' => 'required|string',
+                'asal_type' => 'required|string',
+                'akhir_type' => 'required|string',
+                'akhir_id' => 'required|string',
+                'admin_penyetuju_id' => 'required|string',
+                'diterima' => 'required|boolean',
+                'pegawai_id' => 'required|string',
+            ], [
+                'id.required' => 'Format Pengajuan tidak boleh kosong!',
+                'asal_id.required' => 'Asal pengajuan tidak boleh kosong!',
+                'asal_type.required' => 'Tipe pengajuan tidak boleh kosong!',
+                'akhir_type.required' => 'Tipe pengajuan tidak boleh kosong!',
+                'akhir_id.required' => 'Tujuan pengajuan tidak boleh kosong!',
+                'admin_penyetuju_id.required' => 'Admin penyetujuan tidak boleh kosong!',
+                'diterima.required' => 'Status pengajuan tidak boleh kosong!',
+                'pegawai_id.required' => 'Pegawai tidak boleh kosong!',
+            ]);
+
+            if ($validation->fails()) {
+                return Response::json([
+                    'message' => $validation->errors()->first()
+                ], 422);
+            }
+
+            $validated = $validation->validated();
+
+            $pengajuanPromosi = PengajuanPromosi::find($validated['id']);
+            $pegawai = Pegawai::find($validated['pegawai_id']);
+
+            if (!$pengajuanPromosi) {
+                return Response::json([
+                    'message' => 'Pengajuan Promosi tidak ditemukan!'
+                ], 404);
+            }
+
+            if (!$pegawai) {
+                return Response::json([
+                    'message' => 'Pegawai tidak ditemukan!'
+                ], 404);
+            }
+
+            $asalModelClass = $validated['asal_type'];
+            $akhirModelClass = $validated['akhir_type'];
+
+            if (!class_exists($asalModelClass) || !class_exists($akhirModelClass)) {
+                return Response::json([
+                    'message' => 'Tipe pengajuan tidak valid!'
+                ], 422);
+            }
+
+            $asalModel = $asalModelClass::find($validated['asal_id']);
+            $akhirModel = $akhirModelClass::find($validated['akhir_id']);
+
+            if (!$asalModel || !$akhirModel) {
+                return Response::json([
+                    'message' => 'Data asal atau tujuan tidak ditemukan!'
+                ], 404);
+            }
+
+            if ($validated['diterima']) {
+                if ($validated['asal_type'] === 'App\Models\Golongan') {
+                    $pegawai->update([
+                        'golongan_id' => $validated['akhir_id'],
+                        'tanggal_promosi' => Carbon::now('Asia/Jakarta')
+                    ]);
+                } elseif ($validated['asal_type'] === 'App\Models\StatusPegawai') {
+                    $pegawai->update([
+                        'status_pegawai_id' => $validated['akhir_id'],
+                        'tanggal_promosi' => Carbon::now('Asia/Jakarta')
+                    ]);
+                } elseif ($validated['asal_type'] === 'App\Models\Marhalah') {
+                    $pegawai->update([
+                        'marhalah_id' => $validated['akhir_id'],
+                    ]);
+                }
+            }
+
+            $pengajuanPromosi->update([
+                'asal_type' => $validated['asal_type'],
+                'akhir_type' => $validated['akhir_type'],
+                'admin_penyetuju_id' => $validated['admin_penyetuju_id'],
+                'status_pengajuan' => $validated['diterima'] ? 'disetujui' : 'ditolak',
+            ]);
+
+            return Response::json([
+                'message' => 'Pengajuan berhasil diperbarui!',
+                'pengajuan' => $pengajuanPromosi
+            ], 200);
+        } catch (ModelNotFoundException $e) {
+            return Response::json([
+                'message' => 'Data yang diminta tidak ditemukan!',
+            ], 404);
+        } catch (QueryException $e) {
+            return Response::json([
+                'message' => 'Server gagal memproses permintaan',
+            ], 500);
+        } catch (\Exception $e) {
             return Response::json([
                 'message' => 'Server gagal memproses permintaan',
             ], 500);

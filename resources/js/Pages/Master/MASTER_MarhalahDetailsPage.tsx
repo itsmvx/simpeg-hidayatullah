@@ -63,10 +63,10 @@ export default function MarhalahDetailsPage({ auth, marhalah }: PageProps<{
 
     return (
         <>
-            <Head title="Master - Detail Marhalah" />
+            <Head title={ `Master - Detail Marhalah ${marhalah.nama}` } />
             <MasterLayout auth={auth}>
                 <Tooltip content="Kembali">
-                    <IconButton variant="text" onClick={() => router.visit(route('master.marhalah.index'))}>
+                    <IconButton variant="text" onClick={() => window.history.back()}>
                         <MoveLeft />
                     </IconButton>
                 </Tooltip>

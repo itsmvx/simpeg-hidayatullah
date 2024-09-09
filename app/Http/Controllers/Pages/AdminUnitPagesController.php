@@ -62,7 +62,7 @@ class AdminUnitPagesController extends Controller
         $viewList = ["25", "50", "100", "150"];
         $viewPerPage = $request->query('view');
 
-        if (!Arr::has($viewList, $viewPerPage)) {
+        if (!in_array($viewPerPage, $viewList)) {
             $viewPerPage = 25;
         } else {
             $viewPerPage = intval($viewPerPage);
@@ -83,7 +83,9 @@ class AdminUnitPagesController extends Controller
             'status_pegawai:id,nama',
             'marhalah:id,nama',
             'golongan:id,nama',
-        ])->where('unit_id', '=', $this->unitId);
+        ])->where(
+            'unit_id', '=', $this->unitId
+        )->orderBy('created_at', 'desc');
 
         if ($request->has('filter')) {
             $filters = json_decode(base64_decode($request->query('filter')), true);
@@ -301,7 +303,9 @@ class AdminUnitPagesController extends Controller
             'admin_penyetuju:id,nama',
             'asal:id,nama',
             'akhir:id,nama',
-        ])->where('unit_id', '=', $this->unitId);
+        ])->where(
+            'unit_id', '=', $this->unitId
+        )->orderByRaw("FIELD(status_pengajuan, 'menunggu', 'disetujui', 'ditolak')")->orderBy('created_at', 'asc');;
 
         $search = $request->query('search');
         if ($search) {

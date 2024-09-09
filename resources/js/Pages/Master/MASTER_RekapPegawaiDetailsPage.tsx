@@ -102,7 +102,7 @@ export default function MASTER_RekapPegawaiDetailsPage({ auth, rekap }: PageProp
 
     return (
         <>
-            <Head title="Details Rekap Pegawai"/>
+            <Head title={ `Master - Details Rekap Pegawai ${rekap.pegawai.nama}` }/>
             <MasterLayout auth={auth}>
                 <main className="w-full min-h-screen bg-gray-50 space-y-4">
                     <header className="px-6 py-2 bg-white rounded-md rounded-b-none border ">
@@ -122,7 +122,7 @@ export default function MASTER_RekapPegawaiDetailsPage({ auth, rekap }: PageProp
                     </header>
                     <Card className="w-full px-6">
                         <Tooltip content="Kembali">
-                            <IconButton variant="text" onClick={() => router.visit(route('master.rekap-pegawai.index'))}>
+                            <IconButton variant="text" onClick={() => window.history.back()}>
                                 <MoveLeft />
                             </IconButton>
                         </Tooltip>

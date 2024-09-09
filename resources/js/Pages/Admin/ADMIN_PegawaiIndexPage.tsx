@@ -1,29 +1,22 @@
 import {
-    Button,
     Card,
     CardBody,
     CardFooter,
     CardHeader,
-    Dialog,
-    DialogBody,
-    DialogFooter,
-    DialogHeader,
     IconButton,
     Tooltip,
     Typography
 } from "@material-tailwind/react";
-import { Download, FileSearch, FileUp, Plus, Trash2 } from "lucide-react";
+import { Download, FileSearch } from "lucide-react";
 import { IDNamaColumn, JenisKelamin,  PageProps, PaginationData } from "@/types";
-import { MasterLayout } from "@/Layouts/MasterLayout";
-import { Head, Link, router } from "@inertiajs/react";
+import { Head, Link } from "@inertiajs/react";
 import { format } from "date-fns";
 import { id as localeID } from "date-fns/locale/id";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import axios, { AxiosError, AxiosProgressEvent } from "axios";
 import Pagination from "@/Components/Pagination";
-import { calculateDatePast, notifyToast } from "@/Lib/Utils";
-import { z } from "zod";
+import { calculateDatePast } from "@/Lib/Utils";
 import CV_PDFGenerator, { PegawaiExportCV } from "@/Lib/Generate_Dokumen/RekapPegawai";
 import { pdf } from "@react-pdf/renderer";
 import { saveAs } from "file-saver";
@@ -162,7 +155,7 @@ export default function ADMIN_PegawaiIndexPage({ auth, marhalahs, golongans, sta
                                                             color="blue-gray"
                                                             className="font-normal text-center"
                                                         >
-                                                            { index + 1 }
+                                                            { pagination.from + index }
                                                         </Typography>
                                                     </td>
                                                     <td className={ `${ classes } min-w-52` }>
@@ -303,7 +296,7 @@ export default function ADMIN_PegawaiIndexPage({ auth, marhalahs, golongans, sta
                         </tbody>
                     </table>
                     </CardBody>
-                    <CardFooter className="flex items-center justify-between border-t border-blue-gray-50 p-4">
+                    <CardFooter className="flex items-center justify-center border-t border-blue-gray-50 p-4">
                         <Pagination paginateItems={ pagination }/>
                     </CardFooter>
                 </Card>

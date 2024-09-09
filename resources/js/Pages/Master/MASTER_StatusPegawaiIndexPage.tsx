@@ -211,7 +211,7 @@ export default function MASTER_StatusPegawaiIndexPage({ auth, pagination }: Page
                                                             color="blue-gray"
                                                             className="font-normal text-center"
                                                         >
-                                                            { index + 1 }
+                                                            { pagination.from + index }
                                                         </Typography>
                                                     </td>
                                                     <td className={ `${ classes } min-w-52` }>
@@ -289,7 +289,7 @@ export default function MASTER_StatusPegawaiIndexPage({ auth, pagination }: Page
                             </tbody>
                         </table>
                     </CardBody>
-                    <CardFooter className="flex items-center justify-between border-t border-blue-gray-50 p-4">
+                    <CardFooter className="flex items-center justify-center border-t border-blue-gray-50 p-4">
                         <Pagination paginateItems={ pagination }/>
                     </CardFooter>
                 </Card>

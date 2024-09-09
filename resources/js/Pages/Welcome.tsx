@@ -11,7 +11,7 @@ import {  PPHBackground, PPHLogo } from "@/Lib/StaticImages";
 import { Building2, Handshake, LogIn, UserRound } from "lucide-react";
 import { Head, router } from "@inertiajs/react";
 import { ReactElement } from "react";
-import { MasterNavbar } from "@/Components/Admin/MasterNavbar";
+import { MasterNavbar } from "@/Components/Master/MasterNavbar";
 import { AdminNavbar } from "@/Components/Admin/AdminNavbar";
 import { Footer } from "@/Components/Footer";
 import { PegawaiNavbar } from "@/Components/Pegawai/PegawaiNavbar";

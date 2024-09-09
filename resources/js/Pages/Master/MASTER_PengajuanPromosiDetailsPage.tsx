@@ -1,7 +1,6 @@
 import { Head, router } from "@inertiajs/react";
-import { Card, Typography, Tooltip, IconButton, Button, Chip } from "@material-tailwind/react";
-import { CircleAlert, CircleCheck, CircleX, MoveLeft, SquareArrowOutUpRight } from "lucide-react";
-import { useState } from "react";
+import { Card, Typography, Tooltip, IconButton, Button, Chip, CardBody } from "@material-tailwind/react";
+import { CircleAlert, CircleCheck, CircleX, MoveLeft, SquareArrowOutUpRight, X } from "lucide-react";
 import "react-day-picker/dist/style.css";
 import { PageProps } from "@/types";
 import { format } from "date-fns";
@@ -9,19 +8,72 @@ import { id } from "date-fns/locale";
 import { Input } from "@/Components/Input";
 import { TextArea } from "@/Components/TextArea";
 import { MasterLayout } from "@/Layouts/MasterLayout";
+import { useState } from "react";
+import Dialog from "@material-tailwind/react/components/Dialog";
+import { notifyToast } from "@/Lib/Utils";
+import axios, { AxiosError } from "axios";
 
 export default function MASTER_PengajuanPromosiCreatePage({ auth, pengajuanPromosi }: PageProps<{
     pengajuanPromosi: any
 }>) {
+    type ReviewPengajuan = {
+        openDialog: boolean;
+        isAccepted: boolean | null;
+        validationInput: string;
+    };
+    const reviewPengajuanInit: ReviewPengajuan = {
+        openDialog: false,
+        isAccepted: null,
+        validationInput: '',
+    };
+    const [ reviewPengajuan, setReviewPengajuan ] = useState<ReviewPengajuan>(reviewPengajuanInit);
+    const handleOpenReviewDialog = (type: 'disetujui' | 'ditolak') => {
+        setReviewPengajuan((prevState) => ({
+            ...prevState,
+            openDialog: true,
+            isAccepted: type === 'disetujui'
+        }));
+    };
+    const handleActionReviewPengajuan = () => {
+        const authUserPenyetuju = auth.user;
+        if (!authUserPenyetuju) {
+            notifyToast('error', 'Admin Penyetuju tidak diketahui');
+            return;
+        }
 
-    const [ pengajuanPromosiState, setPengajuanPromosiState ] = useState(pengajuanPromosi);
+        const payload = {
+            id: pengajuanPromosi.id,
+            asal_id: pengajuanPromosi.asal_id,
+            asal_type: pengajuanPromosi.asal_type,
+            akhir_id: pengajuanPromosi.akhir_id,
+            akhir_type: pengajuanPromosi.akhir_type,
+            admin_penyetuju_id: authUserPenyetuju.id,
+            diterima: !!reviewPengajuan.isAccepted,
+            pegawai_id: pengajuanPromosi.pegawai_id
+        };
+
+        axios.post(route('pengajuan-promosi.review'), {
+            ...payload
+        })
+            .then(() => {
+                notifyToast('success', 'Pengajuan promosi berhasil ditanggapi!');
+                router.reload({ only: [ 'pengajuanPromosi '] });
+            })
+            .catch((err: unknown) => {
+                const errMsg = err instanceof AxiosError
+                    ? err?.response?.data.message ?? 'Server gagal memproses permintaan'
+                    : 'Error tidak diketahui terjadi';
+                notifyToast('error', errMsg);
+            })
+            .finally(() => setReviewPengajuan(reviewPengajuanInit));
+    };
 
     return (
         <>
-            <Head title={ `Master - Pengajuan Promosi : ${ pengajuanPromosi.nama }` }/>
+            <Head title={ `Master - Pengajuan Promosi : ${ pengajuanPromosi.pegawai?.nama ?? '' }` }/>
             <MasterLayout auth={auth}>
                 <Tooltip content="Kembali">
-                    <IconButton variant="text" onClick={() => router.visit(route('admin.pengajuan-promosi.index'))}>
+                    <IconButton variant="text" onClick={() => router.visit(route('master.pengajuan-promosi.index'))}>
                         <MoveLeft />
                     </IconButton>
                 </Tooltip>
@@ -83,7 +135,7 @@ export default function MASTER_PengajuanPromosiCreatePage({ auth, pengajuanPromo
                                 color="teal"
                                 label="Judul"
                                 name="nama"
-                                value={ pengajuanPromosiState.nama }
+                                value={ pengajuanPromosi.nama }
                                 readOnly
                                 containerProps={ {
                                     className: 'col-span-full'
@@ -94,7 +146,7 @@ export default function MASTER_PengajuanPromosiCreatePage({ auth, pengajuanPromo
                                 color="teal"
                                 label="Pegawai"
                                 name="pegawai"
-                                value={ pengajuanPromosiState.pegawai.nama }
+                                value={ pengajuanPromosi.pegawai.nama }
                                 readOnly
                             />
                             <Input
@@ -102,7 +154,7 @@ export default function MASTER_PengajuanPromosiCreatePage({ auth, pengajuanPromo
                                 color="teal"
                                 label="Jenis Pengajuan"
                                 name="nama"
-                                value={ pengajuanPromosiState.jenis }
+                                value={ pengajuanPromosi.jenis }
                                 readOnly
                             />
                             <div>
@@ -129,7 +181,7 @@ export default function MASTER_PengajuanPromosiCreatePage({ auth, pengajuanPromo
                                     type="text"
                                     color="teal"
                                     name="Asal"
-                                    value={ pengajuanPromosiState.asal.nama }
+                                    value={ pengajuanPromosi.asal.nama }
                                     readOnly
                                 />
                             </div>
@@ -157,7 +209,7 @@ export default function MASTER_PengajuanPromosiCreatePage({ auth, pengajuanPromo
                                     type="text"
                                     color="teal"
                                     name="Menjadi"
-                                    value={ pengajuanPromosiState.akhir.nama }
+                                    value={ pengajuanPromosi.akhir.nama }
                                     readOnly
                                 />
                             </div>
@@ -165,7 +217,7 @@ export default function MASTER_PengajuanPromosiCreatePage({ auth, pengajuanPromo
                                 color="teal"
                                 label="Keterangan"
                                 name="keterangan"
-                                value={ pengajuanPromosiState.keterangan ?? 'Tidak ada keterangan' }
+                                value={ pengajuanPromosi.keterangan ?? 'Tidak ada keterangan' }
                                 readOnly
                                 className={ `${ pengajuanPromosi.keterangan ? 'not-italic' : 'italic font-semibold text-gray-700' }` }
                             />
@@ -173,7 +225,7 @@ export default function MASTER_PengajuanPromosiCreatePage({ auth, pengajuanPromo
                                 color="teal"
                                 label="Komentar dari Personalia"
                                 name="komentar"
-                                value={ pengajuanPromosiState.komentar ?? 'Belum ada komentar' }
+                                value={ pengajuanPromosi.komentar ?? 'Belum ada komentar' }
                                 readOnly
                                 className={ `${ pengajuanPromosi.komentar ? 'not-italic' : 'italic font-semibold text-gray-700' }` }
                             />
@@ -218,10 +270,10 @@ export default function MASTER_PengajuanPromosiCreatePage({ auth, pengajuanPromo
                             {
                                 pengajuanPromosi.status_pengajuan === 'menunggu' ? (
                                     <>
-                                        <Button color="red">
+                                        <Button color="red" onClick={() => handleOpenReviewDialog('ditolak')}>
                                             Tolak
                                         </Button>
-                                        <Button color="green">
+                                        <Button color="green" onClick={() => handleOpenReviewDialog('disetujui')}>
                                             Setujui
                                         </Button>
                                     </>
@@ -239,6 +291,71 @@ export default function MASTER_PengajuanPromosiCreatePage({ auth, pengajuanPromo
                         </div>
                     </Card>
                 </main>
+                <Dialog
+                    size="md"
+                    open={reviewPengajuan.openDialog}
+                    handler={() => setReviewPengajuan((prevState) => ({ ...prevState, openDialog: true }))}
+                    className="bg-transparent shadow-none"
+                >
+                    <Card className="mx-auto w-full">
+                        <CardBody className="flex flex-col gap-3 text-gray-900">
+                            <div className="flex items-center justify-between gap-2">
+                                <Typography variant="h4" color={ reviewPengajuan.isAccepted ? 'green' : 'red' }>
+                                    { `Anda akan ${ reviewPengajuan.isAccepted ? 'menyetujui' : 'menolak' }` }
+                                </Typography>
+                                <Button className="rounded-full !w-11 !h-11 !p-0 flex items-center justify-center" variant="text" color="red" onClick={() => setReviewPengajuan(reviewPengajuanInit)}>
+                                    <X />
+                                </Button>
+                            </div>
+                            <Typography
+                                className="text-sm font-medium"
+                                variant="paragraph"
+                            >
+                                Pengajuan promosi { pengajuanPromosi.jenis } { pengajuanPromosi.pegawai.nama }
+                            </Typography>
+                            <Typography
+                                className="text-sm font-medium"
+                                variant="paragraph"
+                            >
+                                dari { pengajuanPromosi.jenis } <span
+                                className="font-bold">{ pengajuanPromosi.asal.nama }</span>
+                            </Typography>
+                            <Typography
+                                className="text-sm font-medium"
+                                variant="paragraph"
+                            >
+                                menjadi { pengajuanPromosi.jenis } <span
+                                className="font-bold">{ pengajuanPromosi.akhir.nama }</span>
+                            </Typography>
+                            <Typography variant="h6">
+                                Konfirmasi Aksi anda
+                            </Typography>
+                            <p className="text-sm font-medium -my-1.5">
+                                Ketik "<span className="font-bold">Ponpes Hidayatullah Surabaya</span>"
+                            </p>
+                            <div className="flex justify-end mt-auto">
+                                <input
+                                    className="mr-2.5 w-full rounded-md border bg-white px-4 py-1 text-sm font-medium text-gray-900 placeholder:text-gray-700 focus:outline-0"
+                                    placeholder="Ponpes Hidayatullah Surabaya"
+                                    value={ reviewPengajuan.validationInput }
+                                    onChange={(event) => {
+                                        setReviewPengajuan((prevState) => ({
+                                            ...prevState,
+                                            validationInput: event.target.value,
+                                        }));
+                                    }}
+                                />
+                                <Button
+                                    color="green"
+                                    disabled={ reviewPengajuan.validationInput !== "Ponpes Hidayatullah Surabaya"}
+                                    onClick={handleActionReviewPengajuan}
+                                >
+                                    Proses
+                                </Button>
+                            </div>
+                        </CardBody>
+                    </Card>
+                </Dialog>
             </MasterLayout>
         </>
     );

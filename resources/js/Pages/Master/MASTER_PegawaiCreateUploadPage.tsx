@@ -340,7 +340,7 @@ export default function MASTER_PegawaiCreateUploadPage({ auth, golongans, marhal
 
     return (
         <>
-            <Head title="Form Pegawai"/>
+            <Head title={ `Master - Upload Pegawai` }/>
             <MasterLayout auth={auth}>
                 {
                     uploadFile.file && formInputs.data.length > 0 && formInputs.currIndex > -1 ? (
