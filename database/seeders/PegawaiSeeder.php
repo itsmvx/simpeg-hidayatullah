@@ -19,11 +19,24 @@ class PegawaiSeeder extends Seeder
         $statusPegawaiIds = DB::table('status_pegawai')->pluck('id')->toArray();
         $unitIds = DB::table('unit')->pluck('id')->toArray();
 
-        for ($i = 0; $i < 500; $i++) {
+        $hewan = [
+            'kucing', 'gajah', 'harimau', 'kumbang', 'kuda', 'burung', 'sapi',
+            'kambing', 'macan', 'rusa', 'kancil', 'domba', 'beruang', 'kelinci',
+            'hiu', 'lumba', 'penyu', 'gurita','paus',
+            'pinguin', 'bangau', 'rajawali', 'elang', 'pelikan', 'camar',
+            'merpati', 'garuda', 'angsa', 'kakaktua',
+            'tupai', 'koala', 'bebek', 'cumi', 'kerang', 'lele',
+            'naga', 'komodo', 'panda', 'tapir', 'capung', 'semut',
+            'lebah', 'belalang', 'rubah'
+        ];
+
+
+        for ($i = 0; $i < 1100; $i++) {
+            $defaultPassword = $faker->randomElement($hewan).$faker->numberBetween(1000, 9999);
             Pegawai::create([
                 'id' => Str::uuid(),
-                'username' => $faker->userName,
-                'password' => Hash::make('123', ['rounds' => 12]),
+                'password' => Hash::make($defaultPassword, ['rounds' => 12]),
+                'default_password' => $defaultPassword,
                 'nip' => $faker->unique()->numerify('###############'),
                 'nik' => $faker->unique()->nik(),
                 'foto' => null,
@@ -35,7 +48,7 @@ class PegawaiSeeder extends Seeder
                 'suku' => $faker->randomElement(['Jawa', 'Sunda', 'Batak', 'Minangkabau']),
                 'alamat' => $faker->address,
                 'agama' => 'Islam',
-                'status_pernikahan' => $faker->randomElement(['Belum Menikah', 'Menikah', 'Cerai']),
+                'status_pernikahan' => $faker->randomElement(['Belum Menikah', 'Menikah', 'Cerai Hidup', 'Cerai Mati']),
                 'amanah' => $faker->jobTitle,
                 'amanah_atasan' => $faker->jobTitle,
                 'kompetensi_quran' => $faker->randomElement(['Jilid 1', 'Jilid 2', 'Jilid 3', 'Jilid 4', null]),

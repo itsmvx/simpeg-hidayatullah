@@ -8,11 +8,11 @@ import {
     DialogBody,
     DialogFooter,
     DialogHeader,
-    IconButton,
+    IconButton, Menu, MenuHandler, MenuItem, MenuList,
     Tooltip,
     Typography
 } from "@material-tailwind/react";
-import { Download, FileSearch, FileUp, Plus, Trash2 } from "lucide-react";
+import { BookOpen, Download, FileSearch, FileUp, Handshake, NotebookText, Plus, Trash2 } from "lucide-react";
 import { IDNamaColumn, JenisKelamin,  PageProps, PaginationData } from "@/types";
 import { MasterLayout } from "@/Layouts/MasterLayout";
 import { Head, Link, router } from "@inertiajs/react";
@@ -237,7 +237,7 @@ export default function MASTER_PegawaiIndexPage({ auth, marhalahs, golongans, st
                                                             color="blue-gray"
                                                             className="font-normal text-center"
                                                         >
-                                                            { index + 1 }
+                                                            { pagination.from + index }
                                                         </Typography>
                                                     </td>
                                                     <td className={ `${ classes } min-w-52` }>
@@ -355,7 +355,7 @@ export default function MASTER_PegawaiIndexPage({ auth, marhalahs, golongans, st
                                                 <td className={ classes }>
                                                     <div className="w-32 flex gap-2.5 items-center justify-start">
                                                         <Tooltip content="Detail" className="bg-blue-600">
-                                                            <Link href={ route('master.pegawai.details', { q: id }) }>
+                                                            <Link href={ route('master.pegawai.details', { q: id }) } preserveState>
                                                                 <IconButton variant="text">
                                                                     <FileSearch className="h-5 w-5 text-blue-800"/>
                                                                 </IconButton>
@@ -375,15 +375,31 @@ export default function MASTER_PegawaiIndexPage({ auth, marhalahs, golongans, st
                                                                 <Trash2 className="h-5 w-5 text-red-600"/>
                                                             </IconButton>
                                                         </Tooltip>
-                                                        <Tooltip content="Unduh Data" className="bg-black">
-                                                            <IconButton
-                                                                variant="text"
-                                                                onClick={ (() => downloadPDF(index)) }
-                                                                disabled={ onDownloadPDF }
-                                                            >
-                                                                <Download className="h-5 w-5"/>
-                                                            </IconButton>
-                                                        </Tooltip>
+                                                        <Menu placement="left-start" allowHover={true}>
+                                                            <MenuHandler>
+                                                                <IconButton
+                                                                    variant="text"
+                                                                    disabled={ onDownloadPDF }
+                                                                >
+                                                                    <Download className="h-5 w-5"/>
+                                                                </IconButton>
+                                                            </MenuHandler>
+                                                            <MenuList>
+                                                                <MenuItem className="flex flex-row items-center gap-1.5 font-medium text-sm" onClick={ (() => downloadPDF(index)) }>
+                                                                    <NotebookText />
+                                                                    <span>Rekap Pegawai</span>
+                                                                </MenuItem>
+                                                                <MenuItem className="flex flex-row items-center gap-1.5 font-medium text-sm" onClick={ (() => downloadPDF(index)) }>
+                                                                    <Handshake />
+                                                                    <span>Kontrak Kerja</span>
+                                                                </MenuItem>
+                                                                <MenuItem className="flex flex-row items-center gap-1.5 font-medium text-sm" onClick={ (() => downloadPDF(index)) } disabled={true}>
+                                                                    <BookOpen />
+                                                                    <span>Buku Panduan</span>
+                                                                </MenuItem>
+                                                            </MenuList>
+                                                        </Menu>
+
                                                     </div>
                                                 </td>
                                             </tr>
@@ -402,7 +418,7 @@ export default function MASTER_PegawaiIndexPage({ auth, marhalahs, golongans, st
                         </tbody>
                     </table>
                     </CardBody>
-                    <CardFooter className="flex items-center justify-between border-t border-blue-gray-50 p-4">
+                    <CardFooter className="flex items-center justify-center border-t border-blue-gray-50 py-3.5 px-2">
                         <Pagination paginateItems={ pagination }/>
                     </CardFooter>
                 </Card>

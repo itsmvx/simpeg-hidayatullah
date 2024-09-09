@@ -1,14 +1,18 @@
 import { Head, router } from "@inertiajs/react";
-import { Card, Typography, Button, Tooltip, IconButton } from "@material-tailwind/react";
-import { CircleAlert, MoveLeft, Save } from "lucide-react";
-import { SyntheticEvent, useEffect, useState } from "react";
+import { Card, Typography, Button, Tooltip, IconButton, Select, Option } from "@material-tailwind/react";
+import { CircleAlert, MoveLeft, Save, TriangleAlert } from "lucide-react";
+import { ChangeEvent, SyntheticEvent, useEffect, useState } from "react";
 import "react-day-picker/dist/style.css";
 import { AdminLayout } from "@/Layouts/AdminLayout";
 import { IDNamaColumn, PageProps } from "@/types";
 import { z } from "zod";
 import { notifyToast } from "@/Lib/Utils";
 import axios, { AxiosError } from "axios";
-import RekapPegawaiForm from "@/Components/ADMIN_RekapPegawaiForm";
+import { format } from "date-fns";
+import { id } from "date-fns/locale";
+import ReactSelect from "react-select";
+import { Input } from "@/Components/Input";
+import { TextArea } from "@/Components/TextArea";
 
 export type FormRekapPegawaiByAdmin = {
     amanah: string;
@@ -69,7 +73,7 @@ export default function ADMIN_RekapPegawaiCreatePage({ auth, periodes }: PagePro
         onSuccess: false
     };
 
-    const [ formInput, setFormInput ] = useState<FormRekapPegawaiByAdmin>(formRekapPegawaiInit);
+    const [ formInputs, setFormInputs ] = useState<FormRekapPegawaiByAdmin>(formRekapPegawaiInit);
     const [ pegawais, setPegawais ] = useState<{
         data: PegawaiToRekapByAdmin[];
         onError: boolean;
@@ -81,10 +85,35 @@ export default function ADMIN_RekapPegawaiCreatePage({ auth, periodes }: PagePro
         onLoad: false,
         selected: null
     });
-    const formSubmitDisabled = (): boolean => Object.keys(formInput).filter((filt) => !['skill_manajerial', 'skill_leadership', 'catatan_negatif', 'prestasi', 'organisasi', 'onSubmit', 'onSuccess'].includes(filt)).some((key) => !formInput[key]) || formInput.onSubmit;
+    const formSubmitDisabled = (): boolean => Object.keys(formInputs).filter((filt) => !['skill_manajerial', 'skill_leadership', 'catatan_negatif', 'prestasi', 'organisasi', 'onSubmit', 'onSuccess'].includes(filt)).some((key) => !formInputs[key]) || formInputs.onSubmit;
+    const handleInputChange = (event: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>) => {
+        const { name, value } = event.target;
+        setFormInputs((prevState) => ({
+            ...prevState,
+            [name]: value,
+        }));
+    };
+    const handleSelectChange = (key: keyof FormRekapPegawaiByAdmin, value: string | null) => {
+        setFormInputs((prevState) => {
+            if (key === 'pegawai_id' && value === null) {
+                return {
+                    ...prevState,
+                    pegawai_id: '',
+                    marhalah_id: '',
+                    golongan_id: '',
+                    status_pegawai_id: '',
+                    periode_rekap_id: '',
+                };
+            }
+            return {
+                ...prevState,
+                [key]: value ?? '',
+            };
+        });
+    };
     const handleFormSubmit = (event: SyntheticEvent<HTMLFormElement>) => {
         event.preventDefault();
-        setFormInput((prevState) => ({
+        setFormInputs((prevState) => ({
             ...prevState,
             onSubmit: true
         }));
@@ -107,8 +136,8 @@ export default function ADMIN_RekapPegawaiCreatePage({ auth, periodes }: PagePro
             prestasi: z.string({ message: 'Prestasi tidak boleh kosong' }).nullable(),
         });
         const zodRekapResult = rekapSchema.safeParse({
-            ...formInput,
-            gaji: Number(formInput.gaji),
+            ...formInputs,
+            gaji: Number(formInputs.gaji),
         });
         if (!zodRekapResult.success) {
             const errorMessages = zodRekapResult.error.issues[0].message;
@@ -121,23 +150,23 @@ export default function ADMIN_RekapPegawaiCreatePage({ auth, periodes }: PagePro
         })
             .then(() => {
                 notifyToast('success', 'Rekap Pegawai berhasil ditambahkan!');
-                setFormInput((prevState) => ({
+                setFormInputs((prevState) => ({
                     ...prevState,
                     onSuccess: true
                 }));
-                setFormInput(formRekapPegawaiInit);
+                setFormInputs(formRekapPegawaiInit);
             })
             .catch((err: unknown) => {
                 const errMsg = err instanceof AxiosError
                     ? err.response?.data.message as string ?? 'Error tidak diketahui terjadi!'
                     : 'Error tidak diketahui terjadi!'
                 notifyToast('error', errMsg);
-                setFormInput((prevState) => ({ ...prevState, onSubmit: false }))
+                setFormInputs((prevState) => ({ ...prevState, onSubmit: false }))
             });
     };
 
     useEffect(() => {
-        if (formInput.periode_rekap_id) {
+        if (formInputs.periode_rekap_id) {
             setPegawais((prevState) => ({
                 ...prevState,
                 data: [],
@@ -145,14 +174,14 @@ export default function ADMIN_RekapPegawaiCreatePage({ auth, periodes }: PagePro
                 onLoad: true,
                 selected: null
             }));
-            setFormInput((prevState) => ({
+            setFormInputs((prevState) => ({
                 ...formRekapPegawaiInit,
                 periode_rekap_id: prevState.periode_rekap_id
             }));
             axios.post<{
                 data: PegawaiToRekapByAdmin[]
             }>(route('pegawai.data-to-rekap-by-admin'), {
-                periode_id: formInput.periode_rekap_id,
+                periode_id: formInputs.periode_rekap_id,
                 unit_id: auth.user?.unit_id ?? '0'
             })
                 .then((res) => {
@@ -175,12 +204,12 @@ export default function ADMIN_RekapPegawaiCreatePage({ auth, periodes }: PagePro
                     notifyToast('error', errMsg);
                 });
         }
-    }, [ formInput.periode_rekap_id ]);
+    }, [ formInputs.periode_rekap_id ]);
 
     useEffect(() => {
-        const selectedPegawai = pegawais.data.find((pegawai) => pegawai.id === formInput.pegawai_id) ?? null;
+        const selectedPegawai = pegawais.data.find((pegawai) => pegawai.id === formInputs.pegawai_id) ?? null;
         setPegawais((prevState) => {
-            if (formInput.pegawai_id) {
+            if (formInputs.pegawai_id) {
                 return {
                     ...prevState,
                     selected: selectedPegawai
@@ -191,8 +220,8 @@ export default function ADMIN_RekapPegawaiCreatePage({ auth, periodes }: PagePro
                 selected: null
             }
         });
-        if (formInput.pegawai_id && selectedPegawai) {
-            setFormInput((prevState) => ({
+        if (formInputs.pegawai_id && selectedPegawai) {
+            setFormInputs((prevState) => ({
                 ...formRekapPegawaiInit,
                 periode_rekap_id: prevState.periode_rekap_id,
                 pegawai_id: selectedPegawai.id,
@@ -202,7 +231,7 @@ export default function ADMIN_RekapPegawaiCreatePage({ auth, periodes }: PagePro
                 status_pegawai_id: selectedPegawai.status_pegawai.id,
             }));
         }
-    }, [ formInput.pegawai_id ]);
+    }, [ formInputs.pegawai_id ]);
 
     return (
         <>
@@ -229,11 +258,175 @@ export default function ADMIN_RekapPegawaiCreatePage({ auth, periodes }: PagePro
                             </IconButton>
                         </Tooltip>
                         <form onSubmit={ handleFormSubmit } className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-4 p-5">
-                            <RekapPegawaiForm
-                                formState={ formInput }
-                                setFormState={setFormInput}
-                                pegawais={pegawais}
-                                periodes={periodes}
+                            <Select
+                                label="Periode Rekap"
+                                color="teal"
+                                name="periode_rekap_id"
+                                onChange={ (value: string | undefined) => handleSelectChange('periode_rekap_id', value ?? '') }
+                                value={formInputs.periode_rekap_id}
+                            >
+                                {
+                                    periodes.length > 0
+                                        ? periodes.sort((a, b) => a.nama.localeCompare(b.nama)).map((periode) => ((
+                                            <Option
+                                                key={ periode.id }
+                                                value={ periode.id }
+                                            >
+                                                <div className="flex justify-items-center gap-1">
+                                                    <p className="flex justify-items-center gap-1.5 truncate">
+                                                        { periode.nama } &nbsp;
+                                                        ({ format(periode.awal, 'PPP', { locale: id }) } -&nbsp;
+                                                        { format(periode.akhir, 'PPP', { locale: id })})
+                                                    </p>
+                                                </div>
+                                            </Option>
+                                        )))
+                                        : (
+                                            <Option disabled value="null">
+                                                <p className="flex items-center gap-2">
+                                                    <TriangleAlert className="text-red-600"/>
+                                                    <span className="text-gray-900 font-semibold">
+                                        Belum ada Periode terdaftar atau dibuka
+                                    </span>
+                                                </p>
+                                            </Option>
+                                        )
+                                }
+                            </Select>
+                            <ReactSelect
+                                placeholder={pegawais.data.length > 0 && !pegawais.onLoad ? 'Ketik atau pilih Pegawai' : pegawais.onLoad ? 'Memuat daftar Pegawai..' : 'Pegawai'}
+                                isDisabled={(pegawais.data.length < 1 && pegawais.onError) || pegawais.onLoad}
+                                isLoading={pegawais.onLoad}
+                                isClearable={true}
+                                isSearchable
+                                options={pegawais.data.map((pegawai) => ({ value: pegawai.id, label: pegawai.nama }))}
+                                noOptionsMessage={() => (<><p className="text-sm font-medium">Tidak ada pegawai untuk ditampilkan</p></>)}
+                                value={pegawais.data
+                                    .map((pegawai) => ({ value: pegawai.id, label: pegawai.nama }))
+                                    .find(option => option.value === formInputs.pegawai_id) || null
+                                }
+                                onChange={(selectedOption) => handleSelectChange('pegawai_id', selectedOption ? selectedOption.value : null)}
+                                isOptionDisabled={() => pegawais.data.length < 1}
+                                styles={{
+                                    option: (provided) => ({
+                                        ...provided,
+                                        cursor: 'pointer',
+                                    }),
+                                }}
+                            />
+                            <Input
+                                type="text"
+                                color="teal"
+                                label="Unit"
+                                name="unit"
+                                value={ pegawais?.selected?.unit.nama ?? '' }
+                                disabled={ Boolean(!pegawais?.selected?.unit.nama) }
+                                readOnly
+                            />
+                            <Input
+                                type="text"
+                                color="teal"
+                                label="Golongan"
+                                name="golongan"
+                                value={ pegawais?.selected?.golongan.nama ?? '' }
+                                disabled={ Boolean(!pegawais?.selected?.golongan.nama) }
+                                readOnly
+                            />
+                            <Input
+                                type="text"
+                                color="teal"
+                                label="Marhalah"
+                                name="marhalah"
+                                value={ pegawais?.selected?.marhalah.nama ?? '' }
+                                disabled={ Boolean(!pegawais?.selected?.marhalah.nama) }
+                                readOnly
+                            />
+                            <Input
+                                type="text"
+                                color="teal"
+                                label="Status Pegawai"
+                                name="status_pegawai"
+                                value={ pegawais?.selected?.status_pegawai.nama ?? '' }
+                                disabled={ Boolean(!pegawais?.selected?.status_pegawai.nama) }
+                                readOnly
+                            />
+                            <Input
+                                type="text"
+                                color="teal"
+                                label="Amanah"
+                                name="amanah"
+                                value={ formInputs.amanah }
+                                onChange={ handleInputChange }
+                                required
+                            />
+                            <Input
+                                type="text"
+                                color="teal"
+                                label="Amanah Organisasi (tidak wajib diisi)"
+                                name="organisasi"
+                                value={ formInputs.organisasi }
+                                onChange={ handleInputChange }
+                            />
+                            <Input
+                                type="number"
+                                color="teal"
+                                label="Gaji"
+                                name="gaji"
+                                value={ formInputs.gaji }
+                                onChange={ handleInputChange }
+                                required
+                            />
+                            <Input
+                                type="text" color="teal"
+                                label="Ketuntasan Kerja"
+                                name="ketuntasan_kerja"
+                                value={ formInputs.ketuntasan_kerja }
+                                onChange={ handleInputChange }
+                                required
+                            />
+                            <TextArea
+                                color="teal"
+                                label="Kedisiplinan"
+                                name="kedisiplinan"
+                                value={ formInputs.kedisiplinan }
+                                onChange={ handleInputChange }
+                                required
+                            />
+                            <TextArea
+                                color="teal"
+                                label="Rapor Profesi"
+                                name="raport_profesi"
+                                value={ formInputs.raport_profesi }
+                                onChange={ handleInputChange }
+                                required
+                            />
+                            <TextArea
+                                label="Skill Manajerial (tidak wajib diisi)"
+                                color="teal"
+                                name="skill_manajerial"
+                                value={ formInputs.skill_manajerial }
+                                onChange={ handleInputChange }
+                            />
+                            <TextArea
+                                label="Skill Leadership (tidak wajib diisi)"
+                                color="teal"
+                                name="skill_leadership"
+                                value={ formInputs.skill_leadership }
+                                onChange={ handleInputChange }
+                            />
+                            <TextArea
+                                label="Catatan Negatif (tidak wajib diisi)"
+                                color="teal"
+                                name="catatan_negatif"
+                                value={ formInputs.catatan_negatif }
+                                onChange={ handleInputChange }
+                            />
+                            <TextArea
+                                label="Prestasi (tidak wajib diisi)"
+                                color="teal"
+                                name="prestasi"
+                                value={ formInputs.prestasi }
+                                onChange={ handleInputChange }
                             />
                             <Button
                                 type="submit"
@@ -241,7 +434,7 @@ export default function ADMIN_RekapPegawaiCreatePage({ auth, periodes }: PagePro
                                 className="col-span-1 lg:col-span-2 w-52 min-h-12 ml-auto flex items-center justify-center gap-3"
                             >
                                 {
-                                    formInput.onSubmit && !formInput.onSuccess
+                                    formInputs.onSubmit && !formInputs.onSuccess
                                         ? (
                                             <div className="w-4 h-4 border-2 border-r-transparent border-gray-100 rounded-full animate-spin"></div>
                                         ) : (
@@ -249,9 +442,9 @@ export default function ADMIN_RekapPegawaiCreatePage({ auth, periodes }: PagePro
                                         )
                                 }
                                 {
-                                    formInput.onSubmit && !formInput.onSuccess
+                                    formInputs.onSubmit && !formInputs.onSuccess
                                         ? 'Menyimpan...'
-                                        : formInput.onSubmit && formInput.onSuccess
+                                        : formInputs.onSubmit && formInputs.onSuccess
                                             ? 'Tersimpan'
                                             : 'Simpan'
                                 }

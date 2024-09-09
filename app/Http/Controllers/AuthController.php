@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Admin;
+use App\Models\Pegawai;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -75,13 +76,14 @@ class AuthController extends Controller
 
     public function authPegawai(Request $request): JsonResponse
     {
+        // Validasi input
         $validation = Validator::make($request->only(['username', 'password']), [
             'username' => 'required|string',
             'password' => 'required|string'
         ], [
-            'username.required' => 'Username tidak boleh kosong',
+            'username.required' => 'Username atau NIP tidak boleh kosong',
             'password.required' => 'Password tidak boleh kosong',
-            'username.string' => 'Format username tidak valid',
+            'username.string' => 'Format username atau NIP tidak valid',
             'password.string' => 'Format password tidak valid'
         ]);
 
@@ -91,8 +93,14 @@ class AuthController extends Controller
             ], 422);
         }
 
-        if (Auth::guard('pegawai')->attempt($request->only('username', 'password'))) {
-            $pegawai = Auth::guard('pegawai')->user();
+        $reqPassword = $request->get('password') ?? '';
+
+        $pegawai = Pegawai::where('username', $request->username)
+            ->orWhere('nip', $request->username)
+            ->first();
+
+        if ($pegawai && Hash::check($reqPassword, $pegawai->password)) {
+            Auth::guard('pegawai')->login($pegawai);
 
             $unit = $pegawai->unit;
 
@@ -108,13 +116,14 @@ class AuthController extends Controller
                     ] : null,
                     'role' => 'pegawai'
                 ]
-            ]);
+            ], 200);
         } else {
             return Response::json([
-                'message' => 'Username atau password salah'
+                'message' => 'Username/NIP atau password salah'
             ], 401);
         }
     }
+
     public function getUser()
     {
         return Response::json([

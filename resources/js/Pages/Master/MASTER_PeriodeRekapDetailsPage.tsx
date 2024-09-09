@@ -68,10 +68,10 @@ export default function MASTER_PeriodeRekapDetailsPage({ auth, periode }: PagePr
 
     return (
         <>
-            <Head title="Master - Periode Rekap Details" />
+            <Head title={ `Master - Details Periode Rekap ${periode.nama}` } />
             <MasterLayout auth={auth}>
                 <Tooltip content="Kembali">
-                    <IconButton variant="text" onClick={() => router.visit(route('master.periode-rekap.index'))}>
+                    <IconButton variant="text" onClick={() => window.history.back()}>
                         <MoveLeft />
                     </IconButton>
                 </Tooltip>

@@ -45,6 +45,10 @@ Route::prefix('master')->name('master.')->middleware('admin')->group(function ()
         Route::get('/create', [AdminMasterPagesController::class, 'pengajuanPromosiCreatePage'])->name('create');
         Route::get('/details', [AdminMasterPagesController::class, 'pengajuanPromosiDetailsPage'])->name('details');
     });
+    Route::prefix('sumber-daya')->name('sumber-daya.')->group(function () {
+        Route::get('/', [AdminMasterPagesController::class, 'sumberDayaIndex'])->name('index');
+        Route::get('/surat-kontrak-kerja', [AdminMasterPagesController::class, 'SD_suratKontrakKerja'])->name('surat-kontrak-kerja');
+    });
     Route::prefix('/inventaris')->name('inventaris.')->group(function () {
         Route::get('/', [AdminMasterPagesController::class, 'unitIndexPage'])->name('index');
     });

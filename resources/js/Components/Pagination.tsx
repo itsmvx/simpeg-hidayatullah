@@ -27,49 +27,69 @@ const Pagination = ({ paginateItems, className }: {
     const handleNavigate = (url: string | null) => {
         router.visit(url ?? '', {
             preserveScroll: true,
-            preserveState: true
+            preserveState: true,
         });
     };
-    const getItemProps = (isActive: boolean) =>
+    const getItemProps = (isActive: boolean, url: string | null) =>
         ({
             variant: isActive ? "filled" : "text",
             color: "gray",
-            className: "rounded-full",
+            className: `rounded-full ${url ? 'cursor-pointer' : 'cursor-auto'}`,
+            disabled: !url
         } as any);
 
     return (
         <nav className={className} >
-            <ul className="flex flex-row items-center gap-1">
+            <ul className="mx-auto flex flex-col md:flex-row items-center justify-center gap-1">
                 <Button
                     variant="text"
-                    className="flex items-center gap-2 rounded-full"
+                    className="hidden md:flex items-center gap-2 rounded-full"
                     onClick={ () => handleNavigate(paginateItems.prev_page_url) }
                     disabled={ !paginateItems.prev_page_url }
                 >
                     <ArrowLeft strokeWidth={ 2 } className="h-4 w-4"/> Prev
                 </Button>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-1.5">
                     {
                         paginateItems.links.slice(1, -1).map((link, index) => (
                             <IconButton
                                 key={ index }
-                                { ...getItemProps(link.active) }
+                                { ...getItemProps(link.active, link.url) }
                                 onClick={ () => handleNavigate(link.url) }
                             >
-                                { index + 1 }
+                                { link.label }
                             </IconButton>
                         ))
                     }
                 </div>
                 <Button
                     variant="text"
-                    className="flex items-center gap-2 rounded-full"
+                    className="hidden md:flex items-center gap-2 rounded-full"
                     onClick={ () => handleNavigate(paginateItems.next_page_url) }
                     disabled={ !paginateItems.next_page_url }
                 >
                     Next
                     <ArrowRight strokeWidth={ 2 } className="h-4 w-4"/>
                 </Button>
+                <div className="mt-2 w-full flex md:hidden flex-row justify-between">
+                    <Button
+                        variant="text"
+                        className="flex items-center gap-2 rounded-full"
+                        onClick={ () => handleNavigate(paginateItems.prev_page_url) }
+                        disabled={ !paginateItems.prev_page_url }
+                    >
+                        <ArrowLeft strokeWidth={ 2 } className="h-4 w-4"/> Prev
+                    </Button>
+                    <Button
+                        variant="text"
+                        className="flex items-center gap-2 rounded-full"
+                        onClick={ () => handleNavigate(paginateItems.next_page_url) }
+                        disabled={ !paginateItems.next_page_url }
+                    >
+                        Next
+                        <ArrowRight strokeWidth={ 2 } className="h-4 w-4"/>
+                    </Button>
+                </div>
             </ul>
         </nav>
     )

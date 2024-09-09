@@ -217,12 +217,11 @@ export default function MASTER_UnitIndexPage({ auth, pagination }: PageProps<{
                                                             color="blue-gray"
                                                             className="font-normal text-center"
                                                         >
-                                                            { index + 1 }
+                                                            { pagination.from + index }
                                                         </Typography>
                                                     </td>
                                                     <td className={ `${ classes } min-w-52` }>
                                                         <div className="flex items-center gap-3">
-                                                            {/*<Avatar src={img} alt={name} size="sm" />*/ }
                                                             <div className="flex flex-col">
                                                                 <Typography
                                                                     variant="small"
@@ -311,7 +310,7 @@ export default function MASTER_UnitIndexPage({ auth, pagination }: PageProps<{
                             </tbody>
                         </table>
                     </CardBody>
-                    <CardFooter className="flex items-center justify-between border-t border-blue-gray-50 p-4">
+                    <CardFooter className="flex items-center justify-center border-t border-blue-gray-50 p-4">
                         <Pagination paginateItems={ pagination }/>
                     </CardFooter>
                 </Card>

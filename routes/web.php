@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\Pages\UniversalController;
 use App\Http\Controllers\PengajuanPromosiController;
 use App\Http\Controllers\RekapPegawaiController;
 use App\Http\Controllers\AuthController;
@@ -12,7 +13,6 @@ use App\Http\Controllers\StatusPegawaiController;
 use App\Http\Controllers\UnitController;
 use App\Models\Pegawai;
 use App\Models\Unit;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -33,6 +33,7 @@ Route::get('/', function () {
         ]
     ]);
 });
+Route::get('/download', [UniversalController::class, 'downloadService'])->name('download');
 Route::get('/test', function () {
     return Inertia::render('Test');
 });
@@ -95,6 +96,7 @@ Route::prefix('pengajuan-promosi')->name('pengajuan-promosi.')->group(function (
     Route::post('/create', [PengajuanPromosiController::class, 'create'])->name('create');
     Route::post('/update', [PengajuanPromosiController::class, 'update'])->name('update');
     Route::post('/delete', [PengajuanPromosiController::class, 'destroy'])->name('delete');
+    Route::post('/review', [PengajuanPromosiController::class, 'review'])->name('review');
 });
 
 require __DIR__ . '/admin.php';

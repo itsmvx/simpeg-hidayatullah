@@ -12,7 +12,7 @@ import {
     Tooltip,
     Typography
 } from "@material-tailwind/react";
-import { CircleCheck, CircleX, FileSearch, Plus, Trash2 } from "lucide-react";
+import { CircleCheck, CircleX, FileSearch, Trash2 } from "lucide-react";
 import { IDNamaColumn, JenisPengajuanPromosi, PageProps, PaginationData, StatusPengajuanPromosi } from "@/types";
 import { Head, Link, router } from "@inertiajs/react";
 import { format } from "date-fns";
@@ -30,6 +30,7 @@ import { MasterLayout } from "@/Layouts/MasterLayout";
 type PengajuanPromosis = {
     id: string;
     nama: string;
+    jenis: string | null;
     asal: IDNamaColumn | null;
     akhir: IDNamaColumn | null;
     asal_type: JenisPengajuanPromosi;
@@ -142,7 +143,7 @@ export default function MASTER_PengajuanPromosiIndexPage({ auth, marhalahs, golo
                                          id,
                                          asal,
                                          akhir,
-                                         asal_type,
+                                         jenis,
                                          pegawai,
                                          unit,
                                          admin,
@@ -154,7 +155,6 @@ export default function MASTER_PengajuanPromosiIndexPage({ auth, marhalahs, golo
                                         const classes = isLast
                                             ? "p-4"
                                             : "p-4 border-b border-blue-gray-50";
-                                        const jenisPromosi = jenisPengajuanPromosi.find((jenisPromosi) => jenisPromosi.value === asal_type)?.label ?? '';
 
                                         return (
                                             <tr key={ id }>
@@ -164,7 +164,7 @@ export default function MASTER_PengajuanPromosiIndexPage({ auth, marhalahs, golo
                                                         color="blue-gray"
                                                         className="font-normal text-center"
                                                     >
-                                                        { index + 1 }
+                                                        { pagination.from + index }
                                                     </Typography>
                                                 </td>
                                                 <td className={ `${ classes } min-w-40` }>
@@ -198,9 +198,9 @@ export default function MASTER_PengajuanPromosiIndexPage({ auth, marhalahs, golo
                                                             color="blue-gray"
                                                             className="font-normal"
                                                         >
-                                                            Promosi { jenisPromosi } dari&nbsp;
-                                                            { asal?.nama ?? `${jenisPromosi} dihapus` } ke&nbsp;
-                                                            { akhir?.nama ?? `${jenisPromosi} dihapus` }
+                                                            Promosi { jenis } dari&nbsp;
+                                                            { asal?.nama ?? `${jenis} dihapus` } ke&nbsp;
+                                                            { akhir?.nama ?? `${jenis} dihapus` }
                                                         </Typography>
                                                     </div>
                                                 </td>
@@ -304,7 +304,7 @@ export default function MASTER_PengajuanPromosiIndexPage({ auth, marhalahs, golo
                         </tbody>
                     </table>
                     </CardBody>
-                    <CardFooter className="flex items-center justify-between border-t border-blue-gray-50 p-4">
+                    <CardFooter className="flex items-center justify-center border-t border-blue-gray-50 p-4">
                         <Pagination paginateItems={ pagination }/>
                     </CardFooter>
                 </Card>

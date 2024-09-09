@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Pegawai;
 use App\Models\RekapPegawai;
+use Faker\Factory as Faker;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -98,19 +99,20 @@ class PegawaiController extends Controller
             ], 422);
         }
 
+        $faker = Faker::create('id_ID');
+
         $tanggal_lahir = date('Y-m-d', strtotime($request->tanggal_lahir));
         $tanggal_masuk = date('Y-m-d', strtotime($request->tanggal_masuk));
 
-        $password = date('Ymd', strtotime($tanggal_lahir));
-
+        $defaultPasswordList = config('information.hewan');
+        $password = $faker->randomNumber($defaultPasswordList).$faker->numberBetween(1000, 9999);
         $validated = $validation->validated();
-
 
         try {
             Pegawai::create(array_merge($validated, [
                 'id' => Str::uuid(),
-                'username' => $validated['nip'],
                 'password' => Hash::make($password, ['rounds' => 12]),
+                'default_password' => $password,
                 'tanggal_lahir' => $tanggal_lahir,
                 'tanggal_masuk' => $tanggal_masuk
             ]));

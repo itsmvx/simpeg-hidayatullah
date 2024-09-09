@@ -6,11 +6,17 @@ import { TextArea } from "@/Components/TextArea";
 import ReactSelect from 'react-select';
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
-import { FormRekapPegawaiByAdmin, PegawaiToRekapByAdmin } from "@/Pages/Admin/ADMIN_RekapPegawaiCreatePage";
+import { FormRekapPegawai, PegawaiToRekap } from "@/types";
 
-const ADMIN_RekapPegawaiForm = ({ formState, setFormState, periodes, pegawais }: {
-    formState: FormRekapPegawaiByAdmin;
-    setFormState: Dispatch<SetStateAction<FormRekapPegawaiByAdmin>>
+const RekapPegawaiForm = ({ formState, setFormState, units, periodes, pegawais }: {
+    formState: FormRekapPegawai;
+    setFormState: Dispatch<SetStateAction<FormRekapPegawai<{
+        onSubmit: boolean;
+    }>>>;
+    units: {
+        id: string;
+        nama: string;
+    }[];
     periodes: {
         id: string;
         nama: string;
@@ -18,46 +24,51 @@ const ADMIN_RekapPegawaiForm = ({ formState, setFormState, periodes, pegawais }:
         akhir: string;
     }[];
     pegawais: {
-        data: PegawaiToRekapByAdmin[];
+        data: PegawaiToRekap[];
         onError: boolean;
         onLoad: boolean;
-        selected: PegawaiToRekapByAdmin | null;
+        selected: PegawaiToRekap | null;
     };
 }) => {
-    const handleInputChange = (event: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>) => {
-        const { name, value } = event.target;
-        setFormState((prevState) => ({
-            ...prevState,
-            [name]: value,
-        }));
-    };
-    const handleSelectChange = (key: keyof FormRekapPegawaiByAdmin, value: string | null) => {
-        setFormState((prevState) => {
-            if (key === 'pegawai_id' && value === null) {
-                return {
-                    ...prevState,
-                    pegawai_id: '',
-                    marhalah_id: '',
-                    golongan_id: '',
-                    status_pegawai_id: '',
-                    periode_rekap_id: '',
-                };
-            }
-            return {
-                ...prevState,
-                [key]: value ?? '',
-            };
-        });
-    };
+
 
     return (
         <>
+            <Select
+                label="Unit"
+                color="teal"
+                name="unit_id"
+                onChange={ (value: string | undefined) => handleSelectChange('unit_id', value ?? '') }
+            >
+                {
+                    units.length > 0
+                        ? units.sort((a, b) => a.nama.localeCompare(b.nama)).map((unit) => ((
+                            <Option
+                                key={ unit.id }
+                                value={ unit.id }
+                            >
+                                { unit.nama }
+                            </Option>
+                        )))
+                        : (
+                            <Option disabled value="null">
+                                <p className="flex items-center gap-2">
+                                    <TriangleAlert className="text-red-600"/>
+                                    <span className="text-gray-900 font-semibold">
+                                        Belum ada Unit terdaftar
+                                    </span>
+                                </p>
+                            </Option>
+                        )
+                }
+            </Select>
             <Select
                 label="Periode Rekap"
                 color="teal"
                 name="periode_rekap_id"
                 onChange={ (value: string | undefined) => handleSelectChange('periode_rekap_id', value ?? '') }
-                value={formState.periode_rekap_id}
+                disabled={ !formState.unit_id }
+                value={ formState.periode_rekap_id }
             >
                 {
                     periodes.length > 0
@@ -89,7 +100,7 @@ const ADMIN_RekapPegawaiForm = ({ formState, setFormState, periodes, pegawais }:
             </Select>
             <ReactSelect
                 placeholder={pegawais.data.length > 0 && !pegawais.onLoad ? 'Ketik atau pilih Pegawai' : pegawais.onLoad ? 'Memuat daftar Pegawai..' : 'Pegawai'}
-                isDisabled={(pegawais.data.length < 1 && pegawais.onError) || pegawais.onLoad}
+                isDisabled={(pegawais.data.length < 1 && pegawais.onError) || pegawais.onLoad || !formState.periode_rekap_id }
                 isLoading={pegawais.onLoad}
                 isClearable={true}
                 isSearchable
@@ -107,15 +118,6 @@ const ADMIN_RekapPegawaiForm = ({ formState, setFormState, periodes, pegawais }:
                         cursor: 'pointer',
                     }),
                 }}
-            />
-            <Input
-                type="text"
-                color="teal"
-                label="Unit"
-                name="unit"
-                value={ pegawais?.selected?.unit.nama ?? '' }
-                disabled={ Boolean(!pegawais?.selected?.unit.nama) }
-                readOnly
             />
             <Input
                 type="text"
@@ -158,7 +160,7 @@ const ADMIN_RekapPegawaiForm = ({ formState, setFormState, periodes, pegawais }:
                 color="teal"
                 label="Amanah Organisasi (tidak wajib diisi)"
                 name="organisasi"
-                value={ formState.organisasi }
+                value={ formState.organisasi ?? '' }
                 onChange={ handleInputChange }
             />
             <Input
@@ -198,32 +200,39 @@ const ADMIN_RekapPegawaiForm = ({ formState, setFormState, periodes, pegawais }:
                 label="Skill Manajerial (tidak wajib diisi)"
                 color="teal"
                 name="skill_manajerial"
-                value={ formState.skill_manajerial }
+                value={ formState.skill_manajerial ?? '' }
                 onChange={ handleInputChange }
             />
             <TextArea
                 label="Skill Leadership (tidak wajib diisi)"
                 color="teal"
                 name="skill_leadership"
-                value={ formState.skill_leadership }
+                value={ formState.skill_leadership ?? '' }
                 onChange={ handleInputChange }
             />
             <TextArea
                 label="Catatan Negatif (tidak wajib diisi)"
                 color="teal"
                 name="catatan_negatif"
-                value={ formState.catatan_negatif }
+                value={ formState.catatan_negatif ?? '' }
                 onChange={ handleInputChange }
             />
             <TextArea
                 label="Prestasi (tidak wajib diisi)"
                 color="teal"
                 name="prestasi"
-                value={ formState.prestasi }
+                value={ formState.prestasi ?? '' }
+                onChange={ handleInputChange }
+            />
+            <TextArea
+                label="Pembinaan (tidak wajib diisi)"
+                color="teal"
+                name="pembinaan"
+                value={ formState.pembinaan ?? '' }
                 onChange={ handleInputChange }
             />
         </>
     )
 };
 
-export default memo(ADMIN_RekapPegawaiForm);
+export default memo(RekapPegawaiForm);
