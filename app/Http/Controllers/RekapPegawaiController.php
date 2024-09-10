@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Pegawai;
 use App\Models\PeriodeRekap;
 use App\Models\RekapPegawai;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -104,12 +106,21 @@ class RekapPegawaiController extends Controller
         $validated = $validation->validated();
 
         try {
+            DB::beginTransaction();
+
             RekapPegawai::create($validated);
+            Pegawai::where('id', '=', $validated['pegawai_id'])->update([
+                'amanah' => $validated['amanah']
+            ]);
+
+            DB::commit();
 
             return Response::json([
                 'message' => 'Rekap Pegawai berhasil dibuat!',
             ], 201);
         } catch (QueryException $exception) {
+            DB::rollBack();
+
             if ($exception->getCode() == 23000) {
                 return Response::json([
                     'message' => 'Data Rekap Pegawai untuk periode ini sudah ada. Silakan cek kembali data Anda.'

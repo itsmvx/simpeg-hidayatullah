@@ -510,7 +510,7 @@ class PegawaiController extends Controller
             ], 500);
         }
     }
-    public function pegawaiToRekap(Request $request)
+    public function dataToRekap(Request $request)
     {
         $validation = Validator::make($request->only(['unit_id', 'periode_id']), [
             'unit_id' => 'required|uuid|exists:unit,id',
@@ -581,6 +581,45 @@ class PegawaiController extends Controller
                 })
                 ->with(['unit:id,nama', 'golongan:id,nama', 'status_pegawai:id,nama', 'marhalah:id,nama'])
                 ->select('id', 'nama', 'unit_id', 'golongan_id', 'status_pegawai_id', 'marhalah_id')
+                ->get()
+                ->makeHidden(['golongan_id', 'status_pegawai_id', 'marhalah_id', 'unit_id']);
+
+            return Response::json([
+                'data' => $pegawais
+            ]);
+        } catch (QueryException $exception) {
+            return Response::json([
+                'message' => 'Server gagal memproses permintaan'
+            ], 500);
+        }
+    }
+    public function dataToKontrak(Request $request)
+    {
+        $validation = Validator::make($request->only(['unit_id', 'periode_id']), [
+            'unit_id' => 'required|uuid|exists:unit,id',
+            'periode_id' => 'required|uuid|exists:periode_rekap,id',
+        ], [
+            'unit_id.required' => 'Unit tidak boleh kosong',
+            'unit_id.uuid' => 'Format Unit tidak valid',
+            'periode_id.required' => 'Periode tidak boleh kosong',
+            'periode_id.uuid' => 'Format Periode tidak valid',
+        ]);
+
+        if ($validation->fails()) {
+            return response()->json([
+                'message' => $validation->errors()->first()
+            ], 422);
+        }
+
+        $validated = $validation->validated();
+
+        try {
+            $pegawais = Pegawai::where('unit_id', $validated['unit_id'])
+                ->whereDoesntHave('rekap_pegawai', function ($query) use ($validated) {
+                    $query->where('periode_rekap_id', $validated['periode_id']);
+                })
+                ->with(['unit:id,nama', 'golongan:id,nama', 'status_pegawai:id,nama', 'marhalah:id,nama'])
+                ->select('id', 'nama', 'amanah', 'unit_id', 'golongan_id', 'status_pegawai_id', 'marhalah_id')
                 ->get()
                 ->makeHidden(['golongan_id', 'status_pegawai_id', 'marhalah_id', 'unit_id']);
 

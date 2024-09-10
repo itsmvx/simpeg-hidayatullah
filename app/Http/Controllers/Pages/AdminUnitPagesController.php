@@ -238,7 +238,7 @@ class AdminUnitPagesController extends Controller
     {
         try {
             return Inertia::render('Admin/ADMIN_RekapPegawaiCreatePage', [
-                'periodes' => fn() => PeriodeRekap::select('id', 'nama', 'awal', 'akhir')->where('status', '=', true)->get()
+                'periodes' => fn() => PeriodeRekap::select('id', 'nama', 'awal', 'akhir')->where('status', true)->orderBy('awal', 'asc')->orderBy('akhir', 'desc')->get()
             ]);
         } catch (QueryException $exception) {
             abort(500);
