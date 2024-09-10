@@ -313,6 +313,7 @@ class AdminMasterPagesController extends Controller
             'nip',
             'nama',
             'jenis_kelamin',
+            'amanah',
             'tanggal_promosi',
             'tanggal_marhalah',
             'unit_id',
@@ -352,6 +353,9 @@ class AdminMasterPagesController extends Controller
                 $query->whereHas('unit', function ($q) use ($filters) {
                     $q->whereIn('nama', $filters['unit']);
                 });
+            }
+            if (!empty($filters['amanah'])) {
+                $query->whereIn('amanah', $filters['amanah']);
             }
         }
 

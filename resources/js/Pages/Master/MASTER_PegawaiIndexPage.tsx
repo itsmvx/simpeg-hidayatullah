@@ -36,6 +36,7 @@ type Pegawais = {
     nip: string;
     nama: string;
     jenis_kelamin: JenisKelamin;
+    amanah: string;
     tanggal_promosi: string | null;
     tanggal_marhalah: string | null;
     unit: IDNamaColumn | null;
@@ -53,7 +54,7 @@ export default function MASTER_PegawaiIndexPage({ auth, marhalahs, golongans, st
     units: IDNamaColumn[];
     currDate: string;
 }>) {
-    const TABLE_HEAD = ['No','NIP', 'Nama', 'Jenis Kelamin', 'Unit', 'Status Pegawai', 'Golongan', 'Marhalah', 'Promosi Terakhir', 'Tanggal daftar', 'Aksi'];
+    const TABLE_HEAD = ['No','NIP', 'Nama', 'Jenis Kelamin', 'Unit', 'Amanah', 'Status Pegawai', 'Golongan', 'Marhalah', 'Promosi Terakhir', 'Tanggal daftar', 'Aksi'];
 
     const deleteDialogInit = {
         open: false,
@@ -216,6 +217,7 @@ export default function MASTER_PegawaiIndexPage({ auth, marhalahs, golongans, st
                                              nip,
                                              nama,
                                              jenis_kelamin,
+                                             amanah,
                                              tanggal_promosi,
                                              tanggal_marhalah,
                                              unit,
@@ -246,177 +248,197 @@ export default function MASTER_PegawaiIndexPage({ auth, marhalahs, golongans, st
                                                                 variant="small"
                                                                 color="blue-gray"
                                                                 className="font-normal"
-                                                        >
-                                                            { nip }
-                                                        </Typography>
-                                                    </div>
-                                                </td>
-                                                <td className={ `${ classes } min-w-52` }>
-                                                    <div className="flex flex-col items-start gap-3">
-                                                        <Typography
-                                                            variant="small"
-                                                            color="blue-gray"
-                                                            className="font-normal"
-                                                        >
-                                                            { nama }
-                                                        </Typography>
-                                                    </div>
-                                                </td>
-                                                <td className={ `${ classes } min-w-44` }>
-                                                    <div className="flex flex-col items-start gap-3">
-                                                        <Typography
-                                                            variant="small"
-                                                            color="blue-gray"
-                                                            className="font-normal"
-                                                        >
-                                                            { jenis_kelamin }
-                                                        </Typography>
-                                                    </div>
-                                                </td>
-                                                <td className={ `${ classes } min-w-52` }>
-                                                    <div className="flex items-center gap-3">
-                                                        <Link as="button" href={ route('master.unit.details') }
-                                                              data={ { q: unit?.id ?? '' } }
-                                                              className="text-sm font-normal hover:text-blue-600 disabled:italic"
-                                                              disabled={ !unit }>
-                                                            { unit ? unit.nama : 'Tidak terdaftar' }
-                                                        </Link>
-                                                    </div>
-                                                </td>
-                                                <td className={ `${ classes } min-w-52` }>
-                                                    <div className="flex flex-col items-start gap-3">
-                                                        <Typography
-                                                            variant="small"
-                                                            color="blue-gray"
-                                                            className={ `font-normal ${ !status_pegawai ? 'italic' : '' }` }
-                                                        >
-                                                            { status_pegawai?.nama ?? 'Tidak terdaftar' }
-                                                        </Typography>
-                                                    </div>
-                                                </td>
-                                                <td className={ `${ classes } min-w-44` }>
-                                                    <div className="flex items-start gap-3">
-                                                        <Typography
-                                                            variant="small"
-                                                            color="blue-gray"
-                                                            className="font-normal"
-                                                        >
-                                                            { golongan?.nama ?? '-' }
-                                                        </Typography>
-                                                    </div>
-                                                </td>
-                                                <td className={ `${ classes } min-w-44` }>
-                                                    <div className="flex flex-col gap-1">
-                                                        <Typography
-                                                            variant="small"
-                                                            color="blue-gray"
-                                                            className="font-normal"
-                                                        >
-                                                            { marhalah?.nama ?? '-' }
-                                                        </Typography>
-                                                        <Typography
-                                                            variant="small"
-                                                            color="blue-gray"
-                                                            className="font-medium text-xs italic tracking-wider"
-                                                        >
-                                                            ({ tanggal_marhalah ? calculateDatePast(new Date(tanggal_marhalah), new Date(currDate)) : '-' })
-                                                        </Typography>
-                                                    </div>
-                                                </td>
-                                                <td className={ `${ classes } min-w-52` }>
-                                                    <div className="flex flex-col gap-1">
-                                                        <Typography
-                                                            variant="small"
-                                                            color="blue-gray"
-                                                            className="font-normal"
-                                                        >
-                                                            { tanggal_promosi ? format(tanggal_promosi, 'PPPP', { locale: localeID }) : '-' }
-                                                        </Typography>
-                                                        <Typography
-                                                            variant="small"
-                                                            color="blue-gray"
-                                                            className="font-medium text-xs italic tracking-wider"
-                                                        >
-                                                            ({ tanggal_promosi ? calculateDatePast(new Date(tanggal_promosi), new Date(currDate)) : 'belum ada keterangan'})
-                                                        </Typography>
-                                                    </div>
-                                                </td>
-                                                <td className={ `${ classes } min-w-40` }>
-                                                    <Typography
-                                                        variant="small"
-                                                        color="blue-gray"
-                                                        className="font-normal"
-                                                    >
-                                                        { format(created_at, 'PPPp', {
-                                                            locale: localeID
-                                                        }) }
-                                                    </Typography>
-                                                </td>
-                                                <td className={ classes }>
-                                                    <div className="w-32 flex gap-2.5 items-center justify-start">
-                                                        <Tooltip content="Detail" className="bg-blue-600">
-                                                            <Link href={ route('master.pegawai.details', { q: id }) } preserveState>
-                                                                <IconButton variant="text">
-                                                                    <FileSearch className="h-5 w-5 text-blue-800"/>
-                                                                </IconButton>
-                                                            </Link>
-                                                        </Tooltip>
-                                                        <Tooltip content="Hapus" className="bg-red-400">
-                                                            <IconButton
-                                                                variant="text"
-                                                                onClick={ () => {
-                                                                    setDeleteDialog((prevState) => ({
-                                                                        ...prevState,
-                                                                        open: true,
-                                                                        pegawaiId: id,
-                                                                    }))
-                                                                } }
                                                             >
-                                                                <Trash2 className="h-5 w-5 text-red-600"/>
-                                                            </IconButton>
-                                                        </Tooltip>
-                                                        <Menu placement="left-start" allowHover={true}>
-                                                            <MenuHandler>
+                                                                { nip }
+                                                            </Typography>
+                                                        </div>
+                                                    </td>
+                                                    <td className={ `${ classes } min-w-52` }>
+                                                        <div className="flex flex-col items-start gap-3">
+                                                            <Typography
+                                                                variant="small"
+                                                                color="blue-gray"
+                                                                className="font-normal"
+                                                            >
+                                                                { nama }
+                                                            </Typography>
+                                                        </div>
+                                                    </td>
+                                                    <td className={ `${ classes } min-w-44` }>
+                                                        <div className="flex flex-col items-start gap-3">
+                                                            <Typography
+                                                                variant="small"
+                                                                color="blue-gray"
+                                                                className="font-normal"
+                                                            >
+                                                                { jenis_kelamin }
+                                                            </Typography>
+                                                        </div>
+                                                    </td>
+                                                    <td className={ `${ classes } min-w-52` }>
+                                                        <div className="flex items-center gap-3">
+                                                            <Link as="button" href={ route('master.unit.details') }
+                                                                  data={ { q: unit?.id ?? '' } }
+                                                                  className="text-sm font-normal hover:text-blue-600 disabled:italic"
+                                                                  disabled={ !unit }>
+                                                                { unit ? unit.nama : 'Tidak terdaftar' }
+                                                            </Link>
+                                                        </div>
+                                                    </td>
+                                                    <td className={ `${ classes } min-w-52` }>
+                                                        <div className="flex flex-col items-start gap-3">
+                                                            <Typography
+                                                                variant="small"
+                                                                color="blue-gray"
+                                                                className={ `font-normal` }
+                                                            >
+                                                                { amanah }
+                                                            </Typography>
+                                                        </div>
+                                                    </td>
+                                                    <td className={ `${ classes } min-w-52` }>
+                                                        <div className="flex flex-col items-start gap-3">
+                                                            <Typography
+                                                                variant="small"
+                                                                color="blue-gray"
+                                                                className={ `font-normal ${ !status_pegawai ? 'italic' : '' }` }
+                                                            >
+                                                                { status_pegawai?.nama ?? 'Tidak terdaftar' }
+                                                            </Typography>
+                                                        </div>
+                                                    </td>
+                                                    <td className={ `${ classes } min-w-44` }>
+                                                        <div className="flex items-start gap-3">
+                                                            <Typography
+                                                                variant="small"
+                                                                color="blue-gray"
+                                                                className="font-normal"
+                                                            >
+                                                                { golongan?.nama ?? '-' }
+                                                            </Typography>
+                                                        </div>
+                                                    </td>
+                                                    <td className={ `${ classes } min-w-44` }>
+                                                        <div className="flex flex-col gap-1">
+                                                            <Typography
+                                                                variant="small"
+                                                                color="blue-gray"
+                                                                className="font-normal"
+                                                            >
+                                                                { marhalah?.nama ?? '-' }
+                                                            </Typography>
+                                                            <Typography
+                                                                variant="small"
+                                                                color="blue-gray"
+                                                                className="font-medium text-xs italic tracking-wider"
+                                                            >
+                                                                ({ tanggal_marhalah ? calculateDatePast(new Date(tanggal_marhalah), new Date(currDate)) : '-' })
+                                                            </Typography>
+                                                        </div>
+                                                    </td>
+                                                    <td className={ `${ classes } min-w-52` }>
+                                                        <div className="flex flex-col gap-1">
+                                                            <Typography
+                                                                variant="small"
+                                                                color="blue-gray"
+                                                                className="font-normal"
+                                                            >
+                                                                { tanggal_promosi ? format(tanggal_promosi, 'PPPP', { locale: localeID }) : '-' }
+                                                            </Typography>
+                                                            <Typography
+                                                                variant="small"
+                                                                color="blue-gray"
+                                                                className="font-medium text-xs italic tracking-wider"
+                                                            >
+                                                                ({ tanggal_promosi ? calculateDatePast(new Date(tanggal_promosi), new Date(currDate)) : 'belum ada keterangan' })
+                                                            </Typography>
+                                                        </div>
+                                                    </td>
+                                                    <td className={ `${ classes } min-w-40` }>
+                                                        <Typography
+                                                            variant="small"
+                                                            color="blue-gray"
+                                                            className="font-normal"
+                                                        >
+                                                            { format(created_at, 'PPPp', {
+                                                                locale: localeID
+                                                            }) }
+                                                        </Typography>
+                                                    </td>
+                                                    <td className={ classes }>
+                                                        <div className="w-32 flex gap-2.5 items-center justify-start">
+                                                            <Tooltip content="Detail" className="bg-blue-600">
+                                                                <Link
+                                                                    href={ route('master.pegawai.details', { q: id }) }
+                                                                    preserveState>
+                                                                    <IconButton variant="text">
+                                                                        <FileSearch className="h-5 w-5 text-blue-800"/>
+                                                                    </IconButton>
+                                                                </Link>
+                                                            </Tooltip>
+                                                            <Tooltip content="Hapus" className="bg-red-400">
                                                                 <IconButton
                                                                     variant="text"
-                                                                    disabled={ onDownloadPDF }
+                                                                    onClick={ () => {
+                                                                        setDeleteDialog((prevState) => ({
+                                                                            ...prevState,
+                                                                            open: true,
+                                                                            pegawaiId: id,
+                                                                        }))
+                                                                    } }
                                                                 >
-                                                                    <Download className="h-5 w-5"/>
+                                                                    <Trash2 className="h-5 w-5 text-red-600"/>
                                                                 </IconButton>
-                                                            </MenuHandler>
-                                                            <MenuList>
-                                                                <MenuItem className="flex flex-row items-center gap-1.5 font-medium text-sm" onClick={ (() => downloadPDF(index)) }>
-                                                                    <NotebookText />
-                                                                    <span>Rekap Pegawai</span>
-                                                                </MenuItem>
-                                                                <MenuItem className="flex flex-row items-center gap-1.5 font-medium text-sm" onClick={ (() => downloadPDF(index)) }>
-                                                                    <Handshake />
-                                                                    <span>Kontrak Kerja</span>
-                                                                </MenuItem>
-                                                                <MenuItem className="flex flex-row items-center gap-1.5 font-medium text-sm" onClick={ (() => downloadPDF(index)) } disabled={true}>
-                                                                    <BookOpen />
-                                                                    <span>Buku Panduan</span>
-                                                                </MenuItem>
-                                                            </MenuList>
-                                                        </Menu>
+                                                            </Tooltip>
+                                                            <Menu placement="left-start" allowHover={ true }>
+                                                                <MenuHandler>
+                                                                    <IconButton
+                                                                        variant="text"
+                                                                        disabled={ onDownloadPDF }
+                                                                    >
+                                                                        <Download className="h-5 w-5"/>
+                                                                    </IconButton>
+                                                                </MenuHandler>
+                                                                <MenuList>
+                                                                    <MenuItem
+                                                                        className="flex flex-row items-center gap-1.5 font-medium text-sm"
+                                                                        onClick={ (() => downloadPDF(index)) }>
+                                                                        <NotebookText/>
+                                                                        <span>Rekap Pegawai</span>
+                                                                    </MenuItem>
+                                                                    <MenuItem
+                                                                        className="flex flex-row items-center gap-1.5 font-medium text-sm"
+                                                                        onClick={ (() => downloadPDF(index)) }>
+                                                                        <Handshake/>
+                                                                        <span>Kontrak Kerja</span>
+                                                                    </MenuItem>
+                                                                    <MenuItem
+                                                                        className="flex flex-row items-center gap-1.5 font-medium text-sm"
+                                                                        onClick={ (() => downloadPDF(index)) }
+                                                                        disabled={ true }>
+                                                                        <BookOpen/>
+                                                                        <span>Buku Panduan</span>
+                                                                    </MenuItem>
+                                                                </MenuList>
+                                                            </Menu>
 
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        );
-                                    },
-                                ) : (
-                                    <tr>
-                                        <td colSpan={ TABLE_HEAD.length }>
-                                            <div className="h-16 flex items-center justify-center text-gray-600">
-                                                Tidak ada data Pegawai untuk ditampilkan
-                                            </div>
-                                        </td>
-                                    </tr>
-                                )
-                        }
-                        </tbody>
-                    </table>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        },
+                                    ) : (
+                                        <tr>
+                                            <td colSpan={ TABLE_HEAD.length }>
+                                                <div className="h-16 flex items-center justify-center text-gray-600">
+                                                    Tidak ada data Pegawai untuk ditampilkan
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )
+                            }
+                            </tbody>
+                        </table>
                     </CardBody>
                     <CardFooter className="flex items-center justify-center border-t border-blue-gray-50 py-3.5 px-2">
                         <Pagination paginateItems={ pagination }/>
