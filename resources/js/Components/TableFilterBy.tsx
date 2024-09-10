@@ -13,8 +13,16 @@ import { jenisKelamin } from "@/Lib/StaticData";
 import { ChangeEvent, useState } from "react";
 import { router } from "@inertiajs/react";
 import { Checkbox } from "@/Components/Checkbox";
-import { FilterBy, IDNamaColumn } from "@/types";
+import { IDNamaColumn } from "@/types";
 
+type FilterBy = {
+    golongan: string[];
+    jenisKelamin: string[];
+    marhalah: string[];
+    statusPegawai: string[];
+    unit: string[];
+    amanah: string[];
+}
 export const TableFilterBy = ({ golongans, marhalahs, statusPegawais, units }: {
     golongans: IDNamaColumn[];
     marhalahs: IDNamaColumn[];
@@ -26,8 +34,19 @@ export const TableFilterBy = ({ golongans, marhalahs, statusPegawais, units }: {
         golongan: [],
         statusPegawai: [],
         jenisKelamin: [],
-        unit: []
+        unit: [],
+        amanah: []
     };
+    const filterAmanah = [
+        'Kepala Sekolah',
+        'Waka Akademik',
+        'Waka Kesiswaaan',
+        'Waka Humas',
+        'Ka TU',
+        `Guru Qur'an`,
+        'Kebersihan',
+        'Security'
+    ];
 
     const [ filterBy, setFilterBy ] = useState<FilterBy>(() => {
         const searchParams = new URLSearchParams(window.location.search);
@@ -152,6 +171,20 @@ export const TableFilterBy = ({ golongans, marhalahs, statusPegawais, units }: {
                     }
                 </p>
             </div>
+            <div className="flex flex-row gap-1.5 text-sm">
+                <p className="min-w-28">
+                    Amanah
+                </p>
+                <p>:&nbsp;
+                    { filterBy.amanah.length < 1
+                        ? 'Semua'
+                        : filterBy.amanah.length === filterAmanah.length
+                            ? 'Semua'
+                            : filterBy.amanah.flat().join(', ')
+                    }
+                </p>
+            </div>
+
             <Dialog size="xl" open={ openFilterBy } handler={ () => setOpenFilterBy(true) } className="p-4">
                 <DialogHeader className="relative m-0 block">
                     <Typography variant="h4" color="blue-gray">
@@ -181,7 +214,7 @@ export const TableFilterBy = ({ golongans, marhalahs, statusPegawais, units }: {
                                         <List>
                                             {
                                                 units.sort((a, b) => a.nama.localeCompare(b.nama)).map((unit, index) => ((
-                                                    <ListItem className="p-0" key={unit.id}>
+                                                    <ListItem className="p-0" key={ unit.id }>
                                                         <label
                                                             htmlFor={ unit.id }
                                                             className="flex w-full cursor-pointer items-center px-3 py-2"
@@ -216,7 +249,7 @@ export const TableFilterBy = ({ golongans, marhalahs, statusPegawais, units }: {
                             <List>
                                 {
                                     statusPegawais.sort((a, b) => a.nama.localeCompare(b.nama)).map((status, index) => ((
-                                        <ListItem className="p-0" key={status.id}>
+                                        <ListItem className="p-0" key={ status.id }>
                                             <label
                                                 htmlFor={ status.id }
                                                 className="flex w-full cursor-pointer items-center px-3 py-2"
@@ -249,7 +282,7 @@ export const TableFilterBy = ({ golongans, marhalahs, statusPegawais, units }: {
                             <List>
                                 {
                                     jenisKelamin.map((jenis, index) => ((
-                                        <ListItem className="p-0" key={jenis}>
+                                        <ListItem className="p-0" key={ jenis }>
                                             <label
                                                 htmlFor={ jenis }
                                                 className="flex w-full cursor-pointer items-center px-3 py-2"
@@ -275,6 +308,39 @@ export const TableFilterBy = ({ golongans, marhalahs, statusPegawais, units }: {
                                     )))
                                 }
                             </List>
+
+                            <Typography variant="h6">
+                                Amanah
+                            </Typography>
+                            <List>
+                                {
+                                    filterAmanah.sort((a, b) => a.localeCompare(b)).map((amanah, index) => ((
+                                        <ListItem className="p-0" key={ index }>
+                                            <label
+                                                htmlFor={ String(index) }
+                                                className="flex w-full cursor-pointer items-center px-3 py-2"
+                                            >
+                                                <ListItemPrefix className="mr-3">
+                                                    <Checkbox
+                                                        id={ amanah }
+                                                        ripple={ false }
+                                                        className="hover:before:opacity-0"
+                                                        containerProps={ {
+                                                            className: "p-0",
+                                                        } }
+                                                        value={ amanah }
+                                                        checked={ filterBy.amanah.includes(amanah) }
+                                                        onChange={ (event) => handleChangeFilterBy('amanah', event) }
+                                                    />
+                                                </ListItemPrefix>
+                                                <Typography color="blue-gray" className="text-sm font-medium">
+                                                    { amanah }
+                                                </Typography>
+                                            </label>
+                                        </ListItem>
+                                    )))
+                                }
+                            </List>
                         </div>
                         <div>
                             <Typography variant="h6">
@@ -283,7 +349,7 @@ export const TableFilterBy = ({ golongans, marhalahs, statusPegawais, units }: {
                             <List>
                                 {
                                     marhalahs.sort((a, b) => a.nama.localeCompare(b.nama)).map((marhalah, index) => ((
-                                        <ListItem className="p-0" key={marhalah.id}>
+                                        <ListItem className="p-0" key={ marhalah.id }>
                                             <label
                                                 htmlFor={ marhalah.id }
                                                 className="flex w-full cursor-pointer items-center px-3 py-2"
@@ -315,7 +381,7 @@ export const TableFilterBy = ({ golongans, marhalahs, statusPegawais, units }: {
                             <List>
                                 {
                                     golongans.sort((a, b) => a.nama.localeCompare(b.nama)).map((golongan, index) => ((
-                                        <ListItem className="p-0" key={golongan.id}>
+                                        <ListItem className="p-0" key={ golongan.id }>
                                             <label
                                                 htmlFor={ golongan.id }
                                                 className="flex w-full cursor-pointer items-center px-3 py-2"
