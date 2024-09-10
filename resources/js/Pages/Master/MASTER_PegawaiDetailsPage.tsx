@@ -684,7 +684,7 @@ export default function MASTER_PegawaiDetailsPage({ auth, pegawai, golongans, ma
                                 type="text" color="teal"
                                 label="Amanah atasan langsung"
                                 name="amanah_atasan"
-                                value={ pegawaiState.amanah }
+                                value={ pegawaiState.amanah_atasan }
                                 onChange={ handleInputChange }
                                 required
                             />

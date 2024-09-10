@@ -104,8 +104,17 @@ class PegawaiController extends Controller
         $tanggal_lahir = date('Y-m-d', strtotime($request->tanggal_lahir));
         $tanggal_masuk = date('Y-m-d', strtotime($request->tanggal_masuk));
 
-        $defaultPasswordList = config('information.hewan');
-        $password = $faker->randomNumber($defaultPasswordList).$faker->numberBetween(1000, 9999);
+        $defaultPasswordList = [
+            'kucing', 'gajah', 'harimau', 'kumbang', 'kuda', 'burung', 'sapi',
+            'kambing', 'macan', 'rusa', 'kancil', 'domba', 'beruang', 'kelinci',
+            'hiu', 'lumba', 'penyu', 'gurita','paus',
+            'pinguin', 'bangau', 'rajawali', 'elang', 'pelikan', 'camar',
+            'merpati', 'garuda', 'angsa', 'kakaktua',
+            'tupai', 'koala', 'bebek', 'cumi', 'kerang', 'lele',
+            'naga', 'komodo', 'panda', 'tapir', 'capung', 'semut',
+            'lebah', 'belalang', 'rubah'
+        ];
+        $password = $faker->randomElement($defaultPasswordList).$faker->numberBetween(1000, 9999);
         $validated = $validation->validated();
 
         try {
