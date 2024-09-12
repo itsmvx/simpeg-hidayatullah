@@ -32,7 +32,7 @@ class AdminController extends Controller
             'nama' => 'required|string',
             'username' => 'required|string',
             'password' => 'required|string',
-            'unit_id' => 'required|exists:unit,id'
+            'unit_id' => 'nullable|exists:unit,id'
         ], [
             'nama.required' => 'Nama tidak boleh kosong',
             'username.required' => 'Username tidak boleh kosong',
@@ -93,7 +93,42 @@ class AdminController extends Controller
      */
     public function update(Request $request)
     {
-        //
+        try {
+            $validation = Validator::make($request->only('id', 'nama', 'username', 'unit_id'), [
+                'id' => 'required|exists:admin,id',
+                'nama' => 'required|string',
+                'username' => 'required|string',
+                'unit_id' => 'nullable|exists:unit,id',
+            ], [
+                'id.required' => 'Id Admin tidak boleh kosong',
+                'id.exists' => 'Admin tidak ditemukan',
+                'nama.required' => 'Nama tidak boleh kosong',
+                'username.required' => 'Username tidak boleh kosong',
+                'unit_id.exists' => 'Unit tidak ditemukan'
+            ]);
+            if ($validation->fails()) {
+                return Response::json([
+                    'message' => $validation->errors()->first(),
+                ], 422);
+            }
+
+            $validated = $validation->validated();
+
+            $admin = Admin::findOrFail($validated['id']);
+            $admin->update([
+                'nama' => $validated['nama'],
+                'username' => $validated['username'],
+                'unit_id' => $validated['unit_id']
+            ]);
+            return Response::json([
+                'message' => 'Admin berhasil diperbarui'
+            ]);
+        } catch (QueryException $exception) {
+            return Response::json([
+                'message' => 'Server gagal memproses permintaan',
+            ], 500);
+        }
+
     }
 
     /**

@@ -18,4 +18,8 @@ class Admin extends Authenticatable
     {
         return $this->belongsTo(Unit::class, 'unit_id', 'id');
     }
+    public function pengajuan_promosi()
+    {
+        return $this->hasMany(PengajuanPromosi::class, 'admin_id', 'id');
+    }
 }

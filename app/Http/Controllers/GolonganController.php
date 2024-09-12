@@ -86,9 +86,40 @@ class GolonganController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Golongan $golongan)
+    public function update(Request $request)
     {
-        //
+        $validation = Validator::make($request->only(['id', 'nama', 'keterangan']), [
+            'id' => 'required',
+            'nama' => 'required|string',
+            'keterangan' => 'nullable|string',
+        ], [
+            'id.required' => 'Id Golongan tidak boleh kosong!',
+            'nama.required' => 'Nama Golongan tidak boleh kosong!',
+            'nama.string' => 'Format Nama Golongan tidak valid!',
+            'keterangan.string' => 'Format Keterangan Golongan tidak valid!',
+        ]);
+        if ($validation->fails()) {
+            return Response::json([
+                'message' => $validation->errors()->first(),
+            ], 400);
+        }
+        $validated = $validation->validated();
+        try {
+            $unit = Golongan::find($validated['id']);
+            if (!$unit) {
+                return Response::json([
+                    'message' => 'Golongan tidak ditemukan!'
+                ], 404);
+            }
+            $unit->update($validated);
+            return Response::json([
+                'message' => 'Golongan berhasil diperbarui!',
+            ]);
+        } catch (QueryException $exception) {
+            return Response::json([
+                'message' => 'Server gagal memproses permintaan',
+            ], 500);
+        }
     }
 
     /**
