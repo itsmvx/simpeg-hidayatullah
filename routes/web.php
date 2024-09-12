@@ -71,6 +71,7 @@ Route::prefix('status-pegawai')->name('status-pegawai.')->group(function () {
 Route::prefix('pegawai')->name('pegawai.')->group(function () {
     Route::post('/create', [PegawaiController::class, 'create'])->name('create');
     Route::post('/data', [PegawaiController::class, 'show'])->name('data');
+    Route::post('/data-mass', [PegawaiController::class, 'show_mass'])->name('data-mass');
     Route::post('/update', [PegawaiController::class, 'update'])->name('update');
     Route::post('/update-by-admin', [PegawaiController::class, 'updateByAdmin'])->name('update-by-admin');
     Route::post('/delete', [PegawaiController::class, 'destroy'])->name('delete');
