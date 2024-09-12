@@ -29,6 +29,7 @@ class PegawaiSeeder extends Seeder
             'naga', 'komodo', 'panda', 'tapir', 'capung', 'semut',
             'lebah', 'belalang', 'rubah'
         ];
+
         $amanah = [
             "Guru Qur'an", "Ka TU", "Kebersihan", "Kepala Sekolah", "Security",
             "Waka Akademik", "Waka Humas", "Waka Kesiswaan",
@@ -37,9 +38,14 @@ class PegawaiSeeder extends Seeder
             "Staff TU"
         ];
 
-
         for ($i = 0; $i < 1400; $i++) {
-            $defaultPassword = $faker->randomElement($hewan).$faker->numberBetween(1000, 9999);
+            $jenisKelamin = $faker->randomElement(['Laki-Laki', 'Perempuan']);
+            $nama = $jenisKelamin === 'Laki-Laki' ? $faker->name('male') : $faker->name('female');
+
+            $tanggalLahir = $faker->dateTimeBetween('-60 years', '-19 years')->format('Y-m-d');
+            $tanggalMasuk = $faker->dateTimeBetween($tanggalLahir . ' +19 years', 'now')->format('Y-m-d');
+            $defaultPassword = $faker->randomElement($hewan) . $faker->numberBetween(1000, 9999);
+
             Pegawai::create([
                 'id' => Str::uuid(),
                 'password' => Hash::make($defaultPassword, ['rounds' => 12]),
@@ -47,10 +53,11 @@ class PegawaiSeeder extends Seeder
                 'nip' => $faker->unique()->numerify('###############'),
                 'nik' => $faker->unique()->nik(),
                 'foto' => null,
-                'nama' => $faker->name,
-                'jenis_kelamin' => $faker->randomElement(['Laki-Laki', 'Perempuan']),
+                'nama' => $nama,
+                'jenis_kelamin' => $jenisKelamin,
                 'tempat_lahir' => $faker->city,
-                'tanggal_lahir' => $faker->date(),
+                'tanggal_lahir' => $tanggalLahir,
+                'tanggal_masuk' => $tanggalMasuk,
                 'no_hp' => $faker->phoneNumber,
                 'suku' => $faker->randomElement(['Jawa', 'Sunda', 'Batak', 'Minangkabau']),
                 'alamat' => $faker->address,
@@ -61,7 +68,6 @@ class PegawaiSeeder extends Seeder
                 'kompetensi_quran' => $faker->randomElement(['Jilid 1', 'Jilid 2', 'Jilid 3', 'Jilid 4', null]),
                 'sertifikasi' => $faker->randomElement(['Diknas', 'Kemenag', null]),
                 'status_aktif' => $faker->randomElement(['Aktif', 'Nonaktif', 'Cuti']),
-                'tanggal_masuk' => $faker->date(),
                 'tanggal_promosi' => $faker->optional()->date(),
                 'tanggal_marhalah' => $faker->optional()->date(),
                 'bpjs_kesehatan' => $faker->boolean,
