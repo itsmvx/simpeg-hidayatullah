@@ -29,9 +29,16 @@ class PegawaiSeeder extends Seeder
             'naga', 'komodo', 'panda', 'tapir', 'capung', 'semut',
             'lebah', 'belalang', 'rubah'
         ];
+        $amanah = [
+            "Guru Qur'an", "Ka TU", "Kebersihan", "Kepala Sekolah", "Security",
+            "Waka Akademik", "Waka Humas", "Waka Kesiswaan",
+            "Guru IPA", "Guru IPS", "Guru Matematika", "Guru Bahasa Indonesia",
+            "Guru PKN", "Guru Fiqih", "Wali Kelas", "Partner Kelas",
+            "Staff TU"
+        ];
 
 
-        for ($i = 0; $i < 1100; $i++) {
+        for ($i = 0; $i < 1400; $i++) {
             $defaultPassword = $faker->randomElement($hewan).$faker->numberBetween(1000, 9999);
             Pegawai::create([
                 'id' => Str::uuid(),
@@ -49,8 +56,8 @@ class PegawaiSeeder extends Seeder
                 'alamat' => $faker->address,
                 'agama' => 'Islam',
                 'status_pernikahan' => $faker->randomElement(['Belum Menikah', 'Menikah', 'Cerai Hidup', 'Cerai Mati']),
-                'amanah' => $faker->jobTitle,
-                'amanah_atasan' => $faker->jobTitle,
+                'amanah' => $faker->randomElement($amanah),
+                'amanah_atasan' => $faker->name(),
                 'kompetensi_quran' => $faker->randomElement(['Jilid 1', 'Jilid 2', 'Jilid 3', 'Jilid 4', null]),
                 'sertifikasi' => $faker->randomElement(['Diknas', 'Kemenag', null]),
                 'status_aktif' => $faker->randomElement(['Aktif', 'Nonaktif', 'Cuti']),
