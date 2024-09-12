@@ -240,6 +240,108 @@ class PegawaiController extends Controller
         }
     }
 
+    public function show_mass(Request $request)
+    {
+        try {
+            $validation = Validator::make($request->only('id'), [
+                'id' => 'required|array',
+                'id.*' => 'required|string',
+            ], [
+                'id.required' => 'Input Pegawai tidak boleh kosong',
+                'id.array' => 'ID Pegawai harus berupa array',
+                'id.*.required' => 'Setiap ID Pegawai tidak boleh kosong',
+            ]);
+
+            if ($validation->fails()) {
+                return Response::json([
+                    'message' => $validation->errors()->first()
+                ], 404);
+            }
+
+            $pegawai = Pegawai::select(
+                'pegawai.id',
+                'pegawai.nip',
+                'pegawai.nama',
+                'pegawai.foto',
+                'pegawai.jenis_kelamin',
+                'pegawai.tanggal_masuk',
+                'pegawai.tempat_lahir',
+                'pegawai.tanggal_lahir',
+                'pegawai.no_hp',
+                'pegawai.alamat',
+                'pegawai.data_pendidikan_formal',
+                'pegawai.keahlian',
+                'unit.nama as unit',
+                'status_pegawai.nama as status_pegawai',
+                'marhalah.nama as marhalah',
+                'golongan.nama as golongan'
+            )
+                ->leftJoin('unit', 'unit.id', '=', 'pegawai.unit_id')
+                ->leftJoin('status_pegawai', 'status_pegawai.id', '=', 'pegawai.status_pegawai_id')
+                ->leftJoin('marhalah', 'marhalah.id', '=', 'pegawai.marhalah_id')
+                ->leftJoin('golongan', 'golongan.id', '=', 'pegawai.golongan_id')
+                ->whereIn('pegawai.id', $request->id)
+                ->get();
+
+            if ($pegawai->isEmpty()) {
+                return Response::json([
+                    'message' => 'Data Pegawai tidak ditemukan',
+                ], 404);
+            }
+
+            $rekapBulanan = RekapPegawai::select(
+                'rekap_pegawai.gaji',
+                'rekap_pegawai.raport_profesi',
+                'rekap_pegawai.kedisiplinan',
+                'rekap_pegawai.ketuntasan_kerja',
+                'rekap_pegawai.skill_manajerial',
+                'rekap_pegawai.skill_leadership',
+                'rekap_pegawai.prestasi',
+                'rekap_pegawai.catatan_negatif',
+                'rekap_pegawai.pembinaan',
+                'rekap_pegawai.pegawai_id'
+            )
+                ->join('periode_rekap', 'periode_rekap.id', '=', 'rekap_pegawai.periode_rekap_id')
+                ->whereIn('rekap_pegawai.pegawai_id', $request->id)
+                ->where('periode_rekap.jenis', '=', 'bulanan')
+                ->where('terverifikasi', true)
+                ->orderBy('periode_rekap.awal', 'desc')
+                ->get();
+
+            $rekapTahunan = RekapPegawai::select(
+                'rekap_pegawai.amanah',
+                'periode_rekap.nama as periode',
+                'unit.nama as unit',
+                'rekap_pegawai.pegawai_id'
+            )
+                ->leftJoin('periode_rekap', 'periode_rekap.id', '=', 'rekap_pegawai.periode_rekap_id')
+                ->leftJoin('unit', 'unit.id', '=', 'rekap_pegawai.unit_id')
+                ->whereIn('rekap_pegawai.pegawai_id', $request->id)
+                ->where('periode_rekap.jenis', '=', 'tahunan')
+                ->where('terverifikasi', true)
+                ->orderBy('periode_rekap.awal', 'asc')
+                ->get();
+
+            $result = $pegawai->map(function ($p) use ($rekapBulanan, $rekapTahunan) {
+                return [
+                    'pegawai' => $p,
+                    'rekapBulanan' => $rekapBulanan->where('pegawai_id', $p->id)->first(),
+                    'rekapTahunan' => $rekapTahunan->where('pegawai_id', $p->id)->values(),
+                ];
+            });
+
+            return Response::json([
+                'data' => $result
+            ]);
+
+        } catch (QueryException $exception) {
+            return Response::json([
+                'message' => $exception->getMessage(),
+            ], 500);
+        }
+    }
+
+
 
     /**
      * Show the form for editing the specified resource.

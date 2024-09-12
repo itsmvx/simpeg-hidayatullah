@@ -9,24 +9,18 @@ import {
     DialogFooter,
     DialogHeader,
     IconButton,
-    List,
-    ListItem,
-    ListItemPrefix,
     Tooltip,
     Typography
 } from "@material-tailwind/react";
-import { ChevronDown, CircleCheck, CircleX, FileSearch, Pencil, Plus, Search, Trash2, X } from "lucide-react";
+import { CircleCheck, CircleX, FileSearch, Plus, Trash2 } from "lucide-react";
 import { IDNamaColumn, PageProps, PaginationData } from "@/types";
 import { Head, Link, router } from "@inertiajs/react";
-import { Input } from "@/Components/Input";
 import { format } from "date-fns";
 import { id as localeID } from "date-fns/locale/id";
-import { Checkbox } from "@/Components/Checkbox";
-import { ChangeEvent, useState } from "react";
+import { useState } from "react";
 import axios, { AxiosError } from "axios";
 import Pagination from "@/Components/Pagination";
 import { AdminLayout } from "@/Layouts/AdminLayout";
-import { jenisKelamin } from "@/Lib/StaticData";
 import { notifyToast } from "@/Lib/Utils";
 import { TableFilterBy } from "@/Components/TableFilterBy";
 import { ViewPerPageList } from "@/Components/ViewPerPageList";
@@ -51,7 +45,7 @@ type Rekaps = {
     periode_rekap: IDNamaColumn;
 }[];
 
-export default function ADMIN_RekapPegawaiIndexPage({ auth, unverifiedCount, marhalahs, golongans, statusPegawais, pagination }: PageProps<{
+export default function ADMIN_RekapPegawaiIndexPage({ auth, marhalahs, golongans, statusPegawais, pagination }: PageProps<{
     unverifiedCount: number;
     marhalahs: IDNamaColumn[];
     golongans: IDNamaColumn[];
@@ -70,80 +64,6 @@ export default function ADMIN_RekapPegawaiIndexPage({ auth, unverifiedCount, mar
         rekapId: string;
     }>(deleteDialogInit);
     const [ onSubmitDelete, setOnSubmitDelete ] = useState(false);
-    const [ sortBy, setSortBy ] = useState('');
-    type FilterBy = {
-        marhalah: string[];
-        golongan: string[];
-        statusPegawai: string[];
-        jenisKelamin: string[];
-        unit: string[];
-    };
-    const filterByInit: FilterBy = {
-        marhalah: [],
-        golongan: [],
-        statusPegawai: [],
-        jenisKelamin: [],
-        unit: []
-    };
-    const [ filterBy, setFilterBy ] = useState<FilterBy>(() => {
-        const searchParams = new URLSearchParams(window.location.search);
-        const filterParam = searchParams.get('filter');
-        if (filterParam) {
-            return JSON.parse(atob(filterParam)) as FilterBy;
-        }
-        return filterByInit;
-    });
-    const [ openFilterBy, setOpenFilterBy ] = useState(false);
-    const handleChangeFilterBy = (by: keyof FilterBy, event: ChangeEvent<HTMLInputElement>) => {
-        const { value } = event.target;
-        setFilterBy((prevState) => ({
-            ...prevState,
-            [by]: prevState[by].includes(value)
-                ? prevState[by].filter((filt) => filt !== value)
-                : [ ...prevState[by], value ],
-        }));
-    };
-    const handleSetFilterBy = () => {
-        const isEmpty = Object.values(filterBy).every((filters) => filters.length === 0);
-
-        const filterBase64 = btoa(JSON.stringify(filterBy));
-        const searchParams = new URLSearchParams(window.location.search);
-
-        if (isEmpty) {
-            searchParams.delete('filter');
-        } else {
-            searchParams.set('filter', filterBase64);
-        }
-
-        router.visit(window.location.pathname + '?' + searchParams.toString(), {
-            preserveState: true,
-            preserveScroll: true,
-        });
-
-        setOpenFilterBy(false);
-    };
-
-    const [viewPerPage, setViewPerPage] = useState(() => {
-        const searchParams = new URLSearchParams(window.location.search);
-        const viewParam = searchParams.get('view');
-        return viewParam ? parseInt(viewParam, 10) : 10;
-    });
-    const handleSetViewPerPage = (value: number) => {
-        const searchParams = new URLSearchParams(window.location.search);
-        if (value === 10) {
-            searchParams.delete('view');
-        } else {
-            searchParams.set('view', String(value));
-        }
-        setViewPerPage(value);
-        router.visit(window.location.pathname + '?' + searchParams.toString(), {
-            preserveState: true,
-            preserveScroll: true,
-        });
-    };
-
-    const [ search, setSearch ] = useState('');
-
     const handleOpenDelete = () => setDeleteDialog((prevState) => ({
         ...prevState,
         open: true
@@ -213,11 +133,10 @@ export default function ADMIN_RekapPegawaiIndexPage({ auth, unverifiedCount, mar
                         <table className="mt-4 w-full min-w-max table-auto text-left">
                             <thead>
                             <tr>
-                                { TABLE_HEAD.map((head, index) => (
+                                { TABLE_HEAD.map((head) => (
                                     <th
                                         key={ head }
-                                        onClick={ () => setSortBy(head) }
-                                        className="cursor-pointer border-y border-blue-gray-100 bg-blue-gray-50/50 p-4 transition-colors hover:bg-blue-gray-50 last:cursor-auto last:hover:bg-blue-gray-50/50"
+                                        className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-4"
                                     >
                                         <Typography
                                             variant="small"
@@ -411,166 +330,6 @@ export default function ADMIN_RekapPegawaiIndexPage({ auth, unverifiedCount, mar
                     </CardFooter>
                 </Card>
 
-                <Dialog size="xl" open={ openFilterBy } handler={ () => setOpenFilterBy(true) } className="p-4">
-                    <DialogHeader className="relative m-0 block">
-                        <Typography variant="h4" color="blue-gray">
-                            Filter berdasarkan
-                        </Typography>
-                        <Typography className="mt-1 font-normal text-gray-600">
-                            Dapat memilih lebih dari opsi
-                        </Typography>
-                        <IconButton
-                            size="sm"
-                            variant="text"
-                            className="!absolute right-3.5 top-3.5"
-                            onClick={() => setOpenFilterBy(false)}
-                        >
-                            <X className="h-4 w-4 stroke-2" />
-                        </IconButton>
-                    </DialogHeader>
-                    <DialogBody className="h-80 overflow-auto">
-                        <div className="flex flex-col md:flex-row flex-wrap gap-2 justify-around">
-                            <div>
-                                <Typography variant="h6">
-                                    Status Pegawai
-                                </Typography>
-                                <List>
-                                    {
-                                        statusPegawais.sort((a, b) => a.nama.localeCompare(b.nama)).map((status, index) => ((
-                                            <ListItem className="p-0" key={status.id}>
-                                                <label
-                                                    htmlFor={ status.id }
-                                                    className="flex w-full cursor-pointer items-center px-3 py-2"
-                                                >
-                                                    <ListItemPrefix className="mr-3">
-                                                        <Checkbox
-                                                            id={ status.id }
-                                                            ripple={ false }
-                                                            className="hover:before:opacity-0"
-                                                            containerProps={ {
-                                                                className: "p-0",
-                                                            } }
-                                                            value={ status.nama }
-                                                            checked={ filterBy.statusPegawai.includes(status.nama) }
-                                                            onChange={ (event) => handleChangeFilterBy('statusPegawai', event) }
-                                                        />
-                                                    </ListItemPrefix>
-                                                    <Typography color="blue-gray" className="text-sm font-medium">
-                                                        { status.nama }
-                                                    </Typography>
-                                                </label>
-                                            </ListItem>
-                                        )))
-                                    }
-                                </List>
-
-                                <Typography variant="h6">
-                                    Jenis Kelamin
-                                </Typography>
-                                <List>
-                                    {
-                                        jenisKelamin.map((jenis, index) => ((
-                                            <ListItem className="p-0" key={jenis}>
-                                                <label
-                                                    htmlFor={ jenis }
-                                                    className="flex w-full cursor-pointer items-center px-3 py-2"
-                                                >
-                                                    <ListItemPrefix className="mr-3">
-                                                        <Checkbox
-                                                            id={ jenis }
-                                                            ripple={ false }
-                                                            className="hover:before:opacity-0"
-                                                            containerProps={ {
-                                                                className: "p-0",
-                                                            } }
-                                                            value={ jenis }
-                                                            checked={ filterBy.jenisKelamin.includes(jenis) }
-                                                            onChange={ (event) => handleChangeFilterBy('jenisKelamin', event) }
-                                                        />
-                                                    </ListItemPrefix>
-                                                    <Typography color="blue-gray" className="text-sm font-medium">
-                                                        { jenis }
-                                                    </Typography>
-                                                </label>
-                                            </ListItem>
-                                        )))
-                                    }
-                                </List>
-                            </div>
-                            <div>
-                                <Typography variant="h6">
-                                    Marhalah
-                                </Typography>
-                                <List>
-                                    {
-                                        marhalahs.sort((a, b) => a.nama.localeCompare(b.nama)).map((marhalah, index) => ((
-                                            <ListItem className="p-0" key={marhalah.id}>
-                                                <label
-                                                    htmlFor={ marhalah.id }
-                                                    className="flex w-full cursor-pointer items-center px-3 py-2"
-                                                >
-                                                    <ListItemPrefix className="mr-3">
-                                                        <Checkbox
-                                                            id={ marhalah.id }
-                                                            ripple={ false }
-                                                            className="hover:before:opacity-0"
-                                                            containerProps={ {
-                                                                className: "p-0",
-                                                            } }
-                                                            value={ marhalah.nama }
-                                                            checked={ filterBy.marhalah.includes(marhalah.nama) }
-                                                            onChange={ (event) => handleChangeFilterBy('marhalah', event) }
-                                                        />
-                                                    </ListItemPrefix>
-                                                    <Typography color="blue-gray" className="text-sm font-medium">
-                                                        { marhalah.nama }
-                                                    </Typography>
-                                                </label>
-                                            </ListItem>
-                                        )))
-                                    }
-                                </List>
-                                <Typography variant="h6">
-                                    Golongan
-                                </Typography>
-                                <List>
-                                    {
-                                        golongans.sort((a, b) => a.nama.localeCompare(b.nama)).map((golongan, index) => ((
-                                            <ListItem className="p-0" key={golongan.id}>
-                                                <label
-                                                    htmlFor={ golongan.id }
-                                                    className="flex w-full cursor-pointer items-center px-3 py-2"
-                                                >
-                                                    <ListItemPrefix className="mr-3">
-                                                        <Checkbox
-                                                            id={ golongan.id }
-                                                            ripple={ false }
-                                                            className="hover:before:opacity-0"
-                                                            containerProps={ {
-                                                                className: "p-0",
-                                                            } }
-                                                            value={ golongan.nama }
-                                                            checked={ filterBy.golongan.includes(golongan.nama) }
-                                                            onChange={ (event) => handleChangeFilterBy('golongan', event) }
-                                                        />
-                                                    </ListItemPrefix>
-                                                    <Typography color="blue-gray" className="text-sm font-medium">
-                                                        { golongan.nama }
-                                                    </Typography>
-                                                </label>
-                                            </ListItem>
-                                        )))
-                                    }
-                                </List>
-                            </div>
-                        </div>
-                    </DialogBody>
-                    <DialogFooter>
-                        <Button className="ml-auto" onClick={ handleSetFilterBy }>
-                            Simpan Filter
-                        </Button>
-                    </DialogFooter>
-                </Dialog>
                 <Dialog open={ deleteDialog.open } handler={ handleOpenDelete }>
                     <DialogHeader className="text-gray-900">
                         Hapus Rekap terpilih?

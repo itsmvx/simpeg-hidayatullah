@@ -10,22 +10,15 @@ import {
     TextRun
 } from "docx";
 import { saveAs } from "file-saver";
+import JSZip from "jszip";
 import { format } from "date-fns";
 import { id } from "date-fns/locale";
 
-type PihakPertama = {
-    nama: string;
-    amanah?: string;
-};
-type PihakKedua = {
-    nama: string;
-    amanah: string;
-};
-type Periode = {
-    awal: string;
-    akhir: string;
-};
-export const generatePerjanjianKontrakKerja = (pihakPertama: PihakPertama, pihakKedua: PihakKedua, tanggal: string, periode: Periode, lokasi = 'Surabaya') => {
+type PihakPertama = { nama: string; amanah?: string };
+type PihakKedua = { nama: string; amanah: string };
+type Periode = { awal: string; akhir: string };
+
+const createDocument = async (pihakPertama: PihakPertama, pihakKedua: PihakKedua, tanggal: string, periode: Periode, lokasi = 'Surabaya') => {
     const data = {
         nama_pihak_pertama: pihakPertama.nama,
         amanah_pihak_pertama: pihakPertama.amanah ?? "Kepala SDI Pondok Pesantren Hidayatullah (PPH) Surabaya",
@@ -38,6 +31,7 @@ export const generatePerjanjianKontrakKerja = (pihakPertama: PihakPertama, pihak
             akhir: periode.akhir
         }
     };
+
     const numbering = {
         config: [
             {
@@ -48,14 +42,11 @@ export const generatePerjanjianKontrakKerja = (pihakPertama: PihakPertama, pihak
                         format: LevelFormat.DECIMAL,
                         text: "%1.",
                         alignment: AlignmentType.START,
-                        style: {
-                            paragraph: {
-                                indent: { left: 240, hanging: 240 }
-                            }
-                        }
+                        style: { paragraph: { indent: { left: 240, hanging: 240 } } }
                     }
                 ]
-            }, {
+            },
+            {
                 reference: "kewajiban-pihak-kedua",
                 levels: [
                     {
@@ -63,20 +54,14 @@ export const generatePerjanjianKontrakKerja = (pihakPertama: PihakPertama, pihak
                         format: LevelFormat.DECIMAL,
                         text: "%1.",
                         alignment: AlignmentType.START,
-                        style: {
-                            paragraph: {
-                                indent: { left: 240, hanging: 240 }
-                            }
-                        }
+                        style: { paragraph: { indent: { left: 240, hanging: 240 } } }
                     }
                 ]
             }
         ]
     };
-    const textDefaultProps: IRunOptions = {
-        size: '11pt',
-        font: 'calibri'
-    };
+
+    const textDefaultProps: IRunOptions = { size: '11pt', font: 'calibri' };
 
     const doc = new Document({
         numbering: numbering,
@@ -84,149 +69,84 @@ export const generatePerjanjianKontrakKerja = (pihakPertama: PihakPertama, pihak
             {
                 children: [
                     new Paragraph({
-                        children: [
-                            new TextRun({
-                                text: "PERJANJIAN KONTRAK KERJA",
-                                ...textDefaultProps,
-                                size: '15pt',
-                                bold: true
-                            }),
-                        ],
+                        children: [new TextRun({ text: "PERJANJIAN KONTRAK KERJA", ...textDefaultProps, size: '15pt', bold: true })],
                         heading: "Title",
-                        alignment: "center",
+                        alignment: AlignmentType.CENTER,
+                        spacing: { line: 240 }
+                    }),
+                    new Paragraph({ spacing: { line: 240 } }),
+                    new Paragraph({
+                        children: [new TextRun({ text: "Bismillahirrahmaanirrahim,", italics: true, ...textDefaultProps })],
+                        alignment: AlignmentType.START,
                         spacing: { line: 240 }
                     }),
                     new Paragraph({
-                        spacing: { line: 240 }
-                    }),
-                    new Paragraph({
-                        children: [
-                            new TextRun({
-                                text: "Bismillahirrahmaanirrahim,",
-                                italics: true,
-                                ...textDefaultProps
-                            }),
-                        ],
-                        alignment: "start",
-                        spacing: { line: 240 }
-                    }),
-                    new Paragraph({
-                        children: [
-                            new TextRun({
-                                text: `Dalam rangka mendukung proses penyelenggaraan pendidikan di Pondok Pesantren Hidayatullah Surabaya maka bersama ini kami melakukan kontrak kerja antara pihak Sumber Daya Insani (SDI) dengan aktivis sebagai berikut bahwa`,
-                                ...textDefaultProps,
-                            }),
-                        ],
-                        alignment: 'both',
+                        children: [new TextRun({
+                            text: `Dalam rangka mendukung proses penyelenggaraan pendidikan di Pondok Pesantren Hidayatullah Surabaya maka bersama ini kami melakukan kontrak kerja antara pihak Sumber Daya Insani (SDI) dengan aktivis sebagai berikut bahwa`,
+                            ...textDefaultProps
+                        })],
+                        alignment: AlignmentType.BOTH,
                         spacing: { after: 200 }
                     }),
                     new Paragraph({
-                        children: [
-                            new TextRun({
-                                text: "Yang bertanda tangan di bawah ini:",
-                                ...textDefaultProps
-                            }),
-                        ],
+                        children: [new TextRun({ text: "Yang bertanda tangan di bawah ini:", ...textDefaultProps })],
                         spacing: { line: 240 },
-                        alignment: 'both',
-                        indent: {
-                            start: '0.75cm'
-                        }
+                        alignment: AlignmentType.BOTH,
+                        indent: { start: '0.75cm' }
                     }),
                     new Paragraph({
                         children: [
-                            new TextRun({
-                                text: "Nama\t: ",
-                                ...textDefaultProps
-                            }),
-                            new TextRun({
-                                text: data.nama_pihak_pertama,
-                                ...textDefaultProps
-                            }),
+                            new TextRun({ text: "Nama\t: ", ...textDefaultProps }),
+                            new TextRun({ text: data.nama_pihak_pertama, ...textDefaultProps })
                         ],
-                        alignment: 'both',
+                        alignment: AlignmentType.BOTH,
                         spacing: { line: 240 },
-                        indent: {
-                            start: '0.75cm'
-                        }
+                        indent: { start: '0.75cm' }
                     }),
                     new Paragraph({
                         children: [
-                            new TextRun({
-                                text: "Amanah\t: ",
-                                ...textDefaultProps
-                            }),
-                            new TextRun({
-                                text: data.amanah_pihak_pertama,
-                                ...textDefaultProps
-                            }),
+                            new TextRun({ text: "Amanah\t: ", ...textDefaultProps }),
+                            new TextRun({ text: data.amanah_pihak_pertama, ...textDefaultProps })
                         ],
-                        alignment: 'both',
+                        alignment: AlignmentType.BOTH,
                         spacing: { line: 240 },
-                        indent: {
-                            start: '0.75cm'
-                        }
+                        indent: { start: '0.75cm' }
                     }),
                     new Paragraph({
                         children: [
                             new TextRun({
                                 text: "Yang bertindak dan mewakili Pondok Pesantren Hidayatullah Surabaya selanjutnya disebut Pihak Pertama.",
                                 ...textDefaultProps
-                            }),
+                            })
                         ],
-                        alignment: 'both',
+                        alignment: AlignmentType.BOTH,
                         spacing: { line: 240 },
-                        indent: {
-                            start: '0.75cm'
-                        }
+                        indent: { start: '0.75cm' }
                     }),
+                    new Paragraph({ spacing: { line: 240 } }),
                     new Paragraph({
-                        spacing: { line: 240 }
+                        children: [
+                            new TextRun({ text: "Selanjutnya yang bertanda tangan di bawah ini:", ...textDefaultProps })
+                        ],
+                        spacing: { line: 240 },
+                        indent: { start: '0.75cm' }
                     }),
                     new Paragraph({
                         children: [
-                            new TextRun({
-                                text: "Selanjutnya yang bertanda tangan di bawah ini:",
-                                ...textDefaultProps
-                            }),
+                            new TextRun({ text: "Nama\t: ", ...textDefaultProps }),
+                            new TextRun({ text: data.nama_pihak_kedua, ...textDefaultProps })
                         ],
-                        spacing: { line: 240 },
-                        indent: {
-                            start: '0.75cm'
-                        }
+                        alignment: AlignmentType.BOTH,
+                        indent: { start: '0.75cm' }
                     }),
                     new Paragraph({
                         children: [
-                            new TextRun({
-                                text: "Nama\t: ",
-                                ...textDefaultProps
-                            }),
-                            new TextRun({
-                                text: data.nama_pihak_kedua,
-                                ...textDefaultProps
-                            }),
+                            new TextRun({ text: "Amanah\t: ", ...textDefaultProps }),
+                            new TextRun({ text: data.amanah_pihak_kedua, ...textDefaultProps })
                         ],
-                        alignment: 'both',
-                        indent: {
-                            start: '0.75cm'
-                        }
-                    }),
-                    new Paragraph({
-                        children: [
-                            new TextRun({
-                                text: "Amanah\t: ",
-                                ...textDefaultProps
-                            }),
-                            new TextRun({
-                                text: data.amanah_pihak_kedua,
-                                ...textDefaultProps
-                            }),
-                        ],
-                        alignment: 'both',
+                        alignment: AlignmentType.BOTH,
                         spacing: { line: 240 },
-                        indent: {
-                            start: '0.75cm'
-                        }
+                        indent: { start: '0.75cm' }
                     }),
                     new Paragraph({
                         children: [
@@ -470,11 +390,56 @@ export const generatePerjanjianKontrakKerja = (pihakPertama: PihakPertama, pihak
                         spacing: { line: 240 }
                     }),
                 ],
-            },
-        ],
+            }
+        ]
     });
 
-    Packer.toBlob(doc).then((blob) => {
-        saveAs(blob, "Perjanjian_Kontrak_Kerja.docx");
+    return await Packer.toBlob(doc);
+};
+
+export const generateMultipleDocuments = async (props: {
+    docsData: Array<{pihakPertama: PihakPertama, pihakKedua: PihakKedua, tanggal: string, periode: Periode, lokasi?: string}>;
+    fileName?: string;
+    setUpdateFileProgress?: (progress: number) => void;
+    setUpdateFileSize?: (size: number) => void
+}) => {
+    const { docsData, fileName, setUpdateFileProgress, setUpdateFileSize } = props;
+    const zip = new JSZip();
+
+    for (let i = 0; i < props.docsData.length; i++) {
+        const { pihakPertama, pihakKedua, tanggal, periode, lokasi } = docsData[i];
+
+        try {
+            const docBlob = await createDocument(pihakPertama, pihakKedua, tanggal, periode, lokasi);
+            zip.file(`Perjanjian_Kontrak_Kerja_${pihakKedua.nama}.docx`, docBlob);
+
+            if (setUpdateFileSize) {
+                setUpdateFileSize(docBlob.size);
+            }
+            if (setUpdateFileProgress) {
+                setUpdateFileProgress(i+1);
+            }
+        } catch (error) {
+            throw new Error(`Gagal memproses Dokumen ke ${i+1}`);
+        }
+    }
+
+    try {
+        const zipBlob = await zip.generateAsync({ type: "blob" });
+        if (setUpdateFileSize) {
+            setUpdateFileSize(zipBlob.size);
+        }
+
+        saveAs(zipBlob, `${fileName ?? `Surat Perjanjian Kontrak Kerja-${Math.random().toString(36).substring(2, 8)}`}.zip`);
+
+    } catch (error) {
+        throw new Error('Gagal memproses Dokumen');
+    }
+};
+export const generateSingleDocument = async (pihakPertama: PihakPertama, pihakKedua: PihakKedua, tanggal: string, periode: Periode, lokasi = 'Surabaya') => {
+    const doc = createDocument(pihakPertama, pihakKedua, tanggal, periode, lokasi);
+
+    doc.then((blob) => {
+        saveAs(blob, `Perjanjian_Kontrak_Kerja_${pihakKedua.nama}.docx`);
     });
 };

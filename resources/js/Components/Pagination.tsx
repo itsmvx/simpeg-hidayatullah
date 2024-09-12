@@ -2,7 +2,7 @@ import { router } from '@inertiajs/react'
 import { memo } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Button, IconButton } from "@material-tailwind/react";
-const Pagination = ({ paginateItems, className }: {
+const Pagination = ({ paginateItems, className, preserveState }: {
     className?: string
     paginateItems: {
         current_page: number;
@@ -17,6 +17,7 @@ const Pagination = ({ paginateItems, className }: {
             active: boolean;
         }[];
     };
+    preserveState?: boolean;
 }) => {
 
     if (paginateItems.last_page == 1) {
@@ -27,7 +28,7 @@ const Pagination = ({ paginateItems, className }: {
     const handleNavigate = (url: string | null) => {
         router.visit(url ?? '', {
             preserveScroll: true,
-            preserveState: true,
+            preserveState: preserveState ?? true,
         });
     };
     const getItemProps = (isActive: boolean, url: string | null) =>

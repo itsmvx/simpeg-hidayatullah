@@ -23,11 +23,12 @@ type FilterBy = {
     unit: string[];
     amanah: string[];
 }
-export const TableFilterBy = ({ golongans, marhalahs, statusPegawais, units }: {
+export const TableFilterBy = ({ golongans, marhalahs, statusPegawais, units, preserveState }: {
     golongans: IDNamaColumn[];
     marhalahs: IDNamaColumn[];
     statusPegawais: IDNamaColumn[];
     units?: IDNamaColumn[];
+    preserveState?: boolean;
 }) => {
     const filterByInit: FilterBy = {
         marhalah: [],
@@ -35,7 +36,7 @@ export const TableFilterBy = ({ golongans, marhalahs, statusPegawais, units }: {
         statusPegawai: [],
         jenisKelamin: [],
         unit: [],
-        amanah: []
+        amanah: [],
     };
     const filterAmanah = [
         'Kepala Sekolah',
@@ -43,6 +44,7 @@ export const TableFilterBy = ({ golongans, marhalahs, statusPegawais, units }: {
         'Waka Kesiswaaan',
         'Waka Humas',
         'Ka TU',
+        'Admin',
         `Guru Qur'an`,
         'Kebersihan',
         'Security'
@@ -79,7 +81,7 @@ export const TableFilterBy = ({ golongans, marhalahs, statusPegawais, units }: {
         }
 
         router.visit(window.location.pathname + '?' + searchParams.toString(), {
-            preserveState: true,
+            preserveState: preserveState ?? true,
             preserveScroll: true,
         });
 
@@ -213,7 +215,7 @@ export const TableFilterBy = ({ golongans, marhalahs, statusPegawais, units }: {
                                         </Typography>
                                         <List>
                                             {
-                                                units.sort((a, b) => a.nama.localeCompare(b.nama)).map((unit, index) => ((
+                                                units.sort((a, b) => a.nama.localeCompare(b.nama)).map((unit) => ((
                                                     <ListItem className="p-0" key={ unit.id }>
                                                         <label
                                                             htmlFor={ unit.id }
@@ -248,7 +250,7 @@ export const TableFilterBy = ({ golongans, marhalahs, statusPegawais, units }: {
                             </Typography>
                             <List>
                                 {
-                                    statusPegawais.sort((a, b) => a.nama.localeCompare(b.nama)).map((status, index) => ((
+                                    statusPegawais.sort((a, b) => a.nama.localeCompare(b.nama)).map((status) => ((
                                         <ListItem className="p-0" key={ status.id }>
                                             <label
                                                 htmlFor={ status.id }
@@ -281,7 +283,7 @@ export const TableFilterBy = ({ golongans, marhalahs, statusPegawais, units }: {
                             </Typography>
                             <List>
                                 {
-                                    jenisKelamin.map((jenis, index) => ((
+                                    jenisKelamin.map((jenis) => ((
                                         <ListItem className="p-0" key={ jenis }>
                                             <label
                                                 htmlFor={ jenis }
@@ -348,7 +350,7 @@ export const TableFilterBy = ({ golongans, marhalahs, statusPegawais, units }: {
                             </Typography>
                             <List>
                                 {
-                                    marhalahs.sort((a, b) => a.nama.localeCompare(b.nama)).map((marhalah, index) => ((
+                                    marhalahs.sort((a, b) => a.nama.localeCompare(b.nama)).map((marhalah) => ((
                                         <ListItem className="p-0" key={ marhalah.id }>
                                             <label
                                                 htmlFor={ marhalah.id }
@@ -380,7 +382,7 @@ export const TableFilterBy = ({ golongans, marhalahs, statusPegawais, units }: {
                             </Typography>
                             <List>
                                 {
-                                    golongans.sort((a, b) => a.nama.localeCompare(b.nama)).map((golongan, index) => ((
+                                    golongans.sort((a, b) => a.nama.localeCompare(b.nama)).map((golongan) => ((
                                         <ListItem className="p-0" key={ golongan.id }>
                                             <label
                                                 htmlFor={ golongan.id }
