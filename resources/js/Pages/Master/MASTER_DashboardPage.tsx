@@ -116,13 +116,13 @@ export default function MASTER_DashboardPage({ auth, unit, golongan, marhalah, a
             <MasterLayout auth={auth}>
                 <section className="mb-1 grid gap-y-10 gap-x-6 md:grid-cols-2 xl:grid-cols-4">
                     { cardData.map(({ icon, title, description, count, lastUpdate, link }) => (
-                        <Card key={title} className="border border-blue-gray-100 shadow-sm">
+                        <Card key={title} className="border border-green-200 shadow-sm ">
                             <CardHeader
                                 variant="gradient"
-                                color="gray"
+                                color="black"
                                 floated={ false }
                                 shadow={ false }
-                                className="absolute grid h-12 w-12 place-items-center"
+                                className="absolute grid h-12 w-12 place-items-center bg-gradient-to-tr from-green-500 via-green-300 to-white"
                             >
                                 { icon }
                             </CardHeader>
@@ -152,7 +152,7 @@ export default function MASTER_DashboardPage({ auth, unit, golongan, marhalah, a
                                     fullWidth
                                     variant="outlined"
                                     size="sm"
-                                    className="!py-1.5 !px-3 flex flex-row gap-2.5 items-center justify-center !rounded-xl !shadow-none !text-xs font-semibold font-sans !border-gray-400/90"
+                                    className="!py-1.5 !px-3 flex flex-row gap-2.5 items-center justify-center !rounded-xl !shadow-none !text-xs font-semibold font-sans !border-gray-400/90 hover:!border-green-500 hover:!border-2 transition-none"
                                     onClick={() => router.visit(link)}
                                 >
                                     Kelola
@@ -169,7 +169,7 @@ export default function MASTER_DashboardPage({ auth, unit, golongan, marhalah, a
                             shadow={ false }
                             className="absolute grid h-12 w-12 place-items-center"
                         >
-                            <NotebookPen />
+                            <NotebookPen/>
                         </CardHeader>
                         <CardBody className="p-4 text-left ml-20">
                             <Typography variant="small" className="font-normal text-blue-gray-900">
