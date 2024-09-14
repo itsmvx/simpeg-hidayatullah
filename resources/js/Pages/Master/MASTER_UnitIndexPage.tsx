@@ -155,7 +155,7 @@ export default function MASTER_UnitIndexPage({ auth, pagination }: PageProps<{
                     <CardHeader floated={false} shadow={false} className="rounded-none">
                         <div className="mb-8 flex flex-col lg:flex-row items-start justify-between gap-3">
                             <div>
-                                <Typography variant="h5" color="blue-gray">
+                                <Typography variant="h5" color="blue-gray" className="text-2xl">
                                     Daftar Unit
                                 </Typography>
                                 <Typography color="gray" className="mt-1 font-normal">
@@ -171,7 +171,7 @@ export default function MASTER_UnitIndexPage({ auth, pagination }: PageProps<{
                             <div className="flex flex-col shrink-0 gap-2 lg:flex-row">
                                 <Button
                                     onClick={() => setOpenFormDialog(true)}
-                                    className="flex items-center gap-1.5 capitalize font-medium text-base" size="sm"
+                                    className="flex items-center gap-1.5 capitalize font-medium text-base hover:bg-green-300 hover:text-black" size="sm"
                                 >
                                     <Plus />
                                     Tambahkan Unit baru
