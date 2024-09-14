@@ -24,61 +24,61 @@ const navListMenuItems = [
     {
         title: "Unit",
         description: "mengatur unit dalam sistem",
-        icon: <Building2 />,
+        icon: <Building2 color="black"/>,
         link: route('master.unit.index')
     },
     {
         title: "Golongan",
         description: "mengatur golongan dalam sistem",
-        icon: <UsersRound />,
+        icon: <UsersRound color="black"/>,
         link: route('master.golongan.index')
     },
     {
         title: "Marhalah",
         description: "mengatur marhalah dalam sistem",
-        icon: <Award />,
+        icon: <Award color="black"/>,
         link: route('master.marhalah.index')
     },
     {
         title: "Status Pegawai",
         description: "mengatur Status kepegawaian dalam sistem",
-        icon: <ShieldCheck />,
+        icon: <ShieldCheck color="black"/>,
         link: route('master.status-pegawai.index')
     },
     {
         title: "Admin",
         description: "mengatur Admin dalam sistem",
-        icon: <CircleUserRound />,
+        icon: <CircleUserRound color="black"/>,
         link: route('master.admin.index')
     },
     {
         title: "Pegawai",
         description: "mengatur data pegawai dalam sistem",
-        icon: <UserRound />,
+        icon: <UserRound color="black"/>,
         link: route('master.pegawai.index')
     },
     {
         title: "Rekap kepegawaian",
         description: "mengatur dan menerima rekap pegawaian",
-        icon: <Newspaper />,
+        icon: <Newspaper color="black"/>,
         link: route('master.rekap-pegawai.index')
     },
     {
         title: "Periode Rekap",
         description: "mengatur Periode rekap pegawai",
-        icon: <CalendarDays />,
+        icon: <CalendarDays color="black"/>,
         link: route('master.periode-rekap.index')
     },
     {
         title: "Pengajuan Promosi",
         description: "Mengatur dan menerima Promosi Pegawai",
-        icon: <WorkSpaceIcon width={25} />,
+        icon: <WorkSpaceIcon width={25} color="black"/>,
         link: route('master.pengajuan-promosi.index')
     },
     {
         title: "Sumber daya dokumen",
         description: "Menu sumber daya dokumen",
-        icon: <FileDown width={25} />,
+        icon: <FileDown width={25} color="black"/>,
         link: route('master.sumber-daya.index')
     }
 ];
@@ -90,7 +90,7 @@ export const MasterNavbarLists = () => {
     const renderItems = navListMenuItems.map(({ icon, title, description, link }, key) => (
         <Link href={link} key={ key }>
             <MenuItem className="flex items-center gap-3 rounded-lg">
-                <div className="flex items-center justify-center rounded-lg bg-gradient-to-tr from-green-500 via-green-300 via-70% to-white p-2">
+                <div className="flex items-center justify-center rounded-lg bg-gradient-to-tr from-green-500 via-green-300 to-white shadow-xl p-2">
                     { icon }
                 </div>
                 <div className="capitalize">

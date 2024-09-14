@@ -38,7 +38,7 @@ export default function MASTER_DashboardPage({ auth, unit, golongan, marhalah, a
         {
             title: "Unit",
             description: "Unit terdaftar",
-            icon: <Building2 />,
+            icon: <Building2 color="black"/>,
             link: route('master.unit.index'),
             count: unit.count,
             lastUpdate: unit.lastUpdate
@@ -46,7 +46,7 @@ export default function MASTER_DashboardPage({ auth, unit, golongan, marhalah, a
         {
             title: "Golongan",
             description: "Golongan terdaftar",
-            icon: <UsersRound />,
+            icon: <UsersRound color="black"/>,
             link: route('master.golongan.index'),
             count: golongan.count,
             lastUpdate: golongan.lastUpdate
@@ -54,7 +54,7 @@ export default function MASTER_DashboardPage({ auth, unit, golongan, marhalah, a
         {
             title: "Marhalah",
             description: "Marhalah terdaftar",
-            icon: <Award />,
+            icon: <Award color="black"/>,
             link: route('master.marhalah.index'),
             count: marhalah.count,
             lastUpdate: marhalah.lastUpdate
@@ -62,7 +62,7 @@ export default function MASTER_DashboardPage({ auth, unit, golongan, marhalah, a
         {
             title: "Admin",
             description: "Admin terdaftar",
-            icon: <CircleUserRound />,
+            icon: <CircleUserRound color="black"/>,
             link: route('master.admin.index'),
             count: admin.count,
             lastUpdate: admin.lastUpdate
@@ -70,7 +70,7 @@ export default function MASTER_DashboardPage({ auth, unit, golongan, marhalah, a
         {
             title: "Pegawai",
             description: "Pegawai terdaftar",
-            icon: <UserRound />,
+            icon: <UserRound color="black"/>,
             link: route('master.pegawai.index'),
             count: pegawai.count,
             lastUpdate: pegawai.lastUpdate
@@ -78,7 +78,7 @@ export default function MASTER_DashboardPage({ auth, unit, golongan, marhalah, a
         {
             title: "Status Pegawai",
             description: "Status Pegawai terdaftar",
-            icon: <ShieldCheck />,
+            icon: <ShieldCheck color="black"/>,
             link: route('master.status-pegawai.index'),
             count: statusPegawai.count,
             lastUpdate: statusPegawai.lastUpdate
@@ -87,7 +87,7 @@ export default function MASTER_DashboardPage({ auth, unit, golongan, marhalah, a
         {
             title: "Rekap kepegawaian",
             description: "Rekap Pegawai belum terverifikasi",
-            icon: <Newspaper />,
+            icon: <Newspaper color="black"/>,
             link: route('master.rekap-pegawai.index'),
             count: rekapPegawai.count,
             lastUpdate: rekapPegawai.lastUpdate
@@ -95,7 +95,7 @@ export default function MASTER_DashboardPage({ auth, unit, golongan, marhalah, a
         {
             title: "Periode Rekap",
             description: "Periode Rekap yang dibuka",
-            icon: <CalendarDays />,
+            icon: <CalendarDays color="black"/>,
             link: route('master.periode-rekap.index'),
             count: periodeRekap.count,
             lastUpdate: periodeRekap.lastUpdate
@@ -103,7 +103,7 @@ export default function MASTER_DashboardPage({ auth, unit, golongan, marhalah, a
         {
             title: "Pengajuan Promosi",
             description: "Pengajuan Promosi masih menunggu",
-            icon: <WorkSpaceIcon width={25} />,
+            icon: <WorkSpaceIcon width={25} color="black"/>,
             link: route('master.pengajuan-promosi.index'),
             count: pengajuanPromosi.count,
             lastUpdate: pengajuanPromosi.lastUpdate
@@ -122,7 +122,7 @@ export default function MASTER_DashboardPage({ auth, unit, golongan, marhalah, a
                                 color="black"
                                 floated={ false }
                                 shadow={ false }
-                                className="absolute grid h-12 w-12 place-items-center !bg-white bg-gradient-to-tr from-green-500 via-green-300 to-white to-95%"
+                                className="absolute grid h-12 w-12 place-items-center bg-gradient-to-tr from-green-500 via-green-300 to-white shadow-xl"
                             >
                                 { icon }
                             </CardHeader>

@@ -195,7 +195,7 @@ export default function MASTER_PegawaiIndexPage({ auth, marhalahs, golongans, st
                                 { TABLE_HEAD.map((head, index) => (
                                     <th
                                         key={ head }
-                                        className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-4"
+                                        className="border-y border-blue-gray-100 bg-blue-gray-100 p-4"
                                     >
                                         <Typography
                                             variant="small"
@@ -232,8 +232,8 @@ export default function MASTER_PegawaiIndexPage({ auth, marhalahs, golongans, st
                                                 : "p-4 border-b border-blue-gray-50";
 
                                             return (
-                                                <tr key={ id }>
-                                                    <td className={ `${ classes } w-3` }>
+                                                <tr key={ id } className="even:bg-gray-100">
+                                                    <td className={ `${ classes } w-3 ` }>
                                                         <Typography
                                                             variant="small"
                                                             color="blue-gray"
