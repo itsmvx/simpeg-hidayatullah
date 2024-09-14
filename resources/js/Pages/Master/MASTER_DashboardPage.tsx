@@ -116,18 +116,18 @@ export default function MASTER_DashboardPage({ auth, unit, golongan, marhalah, a
             <MasterLayout auth={auth}>
                 <section className="mb-1 grid gap-y-10 gap-x-6 md:grid-cols-2 xl:grid-cols-4">
                     { cardData.map(({ icon, title, description, count, lastUpdate, link }) => (
-                        <Card key={title} className="border border-green-200 shadow-sm ">
+                        <Card key={title} className="border border-green-200 shadow-sm">
                             <CardHeader
-                                variant="gradient"
+                                variant="linear"
                                 color="black"
                                 floated={ false }
                                 shadow={ false }
-                                className="absolute grid h-12 w-12 place-items-center bg-gradient-to-tr from-green-500 via-green-300 to-white"
+                                className="absolute grid h-12 w-12 place-items-center !bg-white bg-gradient-to-tr from-green-500 via-green-300 to-white to-95%"
                             >
                                 { icon }
                             </CardHeader>
                             <CardBody className="p-4 text-left ml-20">
-                                <Typography variant="small" className="font-normal text-blue-gray-900">
+                                <Typography variant="small" className="font-normal text-blue-gray-900 font-bold">
                                     { title }
                                 </Typography>
                                 <Typography variant="h4" color="blue-gray" className="flex items-center gap-1.5">

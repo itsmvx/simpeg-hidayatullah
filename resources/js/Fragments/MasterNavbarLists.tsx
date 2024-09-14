@@ -90,7 +90,7 @@ export const MasterNavbarLists = () => {
     const renderItems = navListMenuItems.map(({ icon, title, description, link }, key) => (
         <Link href={link} key={ key }>
             <MenuItem className="flex items-center gap-3 rounded-lg">
-                <div className="flex items-center justify-center rounded-lg !bg-blue-gray-50 p-2">
+                <div className="flex items-center justify-center rounded-lg bg-gradient-to-tr from-green-500 via-green-300 via-70% to-white p-2">
                     { icon }
                 </div>
                 <div className="capitalize">
