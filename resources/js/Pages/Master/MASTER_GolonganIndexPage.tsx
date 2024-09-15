@@ -150,7 +150,7 @@ export default function MASTER_GolonganIndexPage({ auth, pagination }: PageProps
                     <CardHeader floated={false} shadow={false} className="rounded-none">
                         <div className="mb-8 flex flex-col lg:flex-row items-start justify-between gap-3">
                             <div>
-                                <Typography variant="h5" color="blue-gray">
+                                <Typography variant="h5" color="blue-gray" className="text-2xl">
                                     Daftar Golongan
                                 </Typography>
                                 <Typography color="gray" className="mt-1 font-normal">
@@ -166,7 +166,7 @@ export default function MASTER_GolonganIndexPage({ auth, pagination }: PageProps
                             <div className="flex flex-col shrink-0 gap-2 lg:flex-row">
                                 <Button
                                     onClick={() => setOpenFormDialog(true)}
-                                    className="flex items-center gap-1.5 capitalize font-medium text-base" size="sm"
+                                    className="flex items-center gap-1.5 capitalize font-medium text-base hover:bg-gradient-to-t from-green-300 to-white hover:text-black" size="sm"
                                 >
                                     <Plus />
                                     Tambahkan Golongan baru
@@ -205,7 +205,7 @@ export default function MASTER_GolonganIndexPage({ auth, pagination }: PageProps
                                                 : "p-4 border-b border-blue-gray-50";
 
                                             return (
-                                                <tr key={ id }>
+                                                <tr key={ id } className="even:bg-gray-100">
                                                     <td className={ `${ classes } w-3` }>
                                                         <Typography
                                                             variant="small"
