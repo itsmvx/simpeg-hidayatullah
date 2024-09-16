@@ -116,7 +116,7 @@ export default function MASTER_DashboardPage({ auth, unit, golongan, marhalah, a
             <MasterLayout auth={auth}>
                 <section className="mb-1 grid gap-y-10 gap-x-6 md:grid-cols-2 xl:grid-cols-4">
                     { cardData.map(({ icon, title, description, count, lastUpdate, link }) => (
-                        <Card key={title} className="border border-green-200 shadow-sm shadow-lg">
+                        <Card key={title} className="border border-green-200 shadow-lg">
                             <CardHeader
                                 variant="linear"
                                 color="black"
