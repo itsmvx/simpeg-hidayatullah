@@ -46,7 +46,7 @@ export const MasterNavbar = ({ auth }: PageProps) => {
 
     return (
         <>
-            <Navbar className="mx-auto w-full px-4 py-2 sticky top-0 z-50 shadow-xl">
+            <Navbar className="mx-auto w-full px-4 py-2 sticky top-0 z-50 shadow-xl backdrop-blur-md">
                 <div className="flex items-center justify-between text-blue-gray-900">
                     <div className="w-56">
                         <Breadcrumbs className="bg-transparent p-0 transition-all mt-1 capitalize">

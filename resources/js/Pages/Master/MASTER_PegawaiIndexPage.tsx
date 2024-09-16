@@ -145,7 +145,7 @@ export default function MASTER_PegawaiIndexPage({ auth, marhalahs, golongans, st
                     <CardHeader floated={ false } shadow={ false } className="rounded-none">
                         <div className="mb-8 flex flex-col lg:flex-row items-start justify-between gap-3">
                             <div>
-                                <Typography variant="h5" color="blue-gray">
+                                <Typography variant="h5" color="blue-gray" className="text-2xl">
                                     Daftar Pegawai
                                 </Typography>
                                 <Typography color="gray" className="mt-1 font-normal">
@@ -171,7 +171,7 @@ export default function MASTER_PegawaiIndexPage({ auth, marhalahs, golongans, st
                                     onClick={ () => {
                                         router.visit(route('master.pegawai.create-upload'));
                                     } }
-                                    className="flex items-center gap-1.5 capitalize font-medium text-base" size="sm"
+                                    className="flex items-center gap-1.5 capitalize font-medium text-base hover:bg-[linear-gradient(to_top,#38bdf8_10%,#FFFFFF_90%)] hover:text-black" size="sm"
                                 >
                                     <FileUp />
                                     Upload File
@@ -180,7 +180,7 @@ export default function MASTER_PegawaiIndexPage({ auth, marhalahs, golongans, st
                                     onClick={ () => {
                                         router.visit(route('master.pegawai.create'));
                                     } }
-                                    className="flex items-center gap-1.5 capitalize font-medium text-base" size="sm"
+                                    className="flex items-center gap-1.5 capitalize font-medium text-base hover:bg-[linear-gradient(to_top,#4CAF50_10%,#FFFFFF_90%)] hover:text-black" size="sm"
                                 >
                                     <Plus/>
                                     Tambahkan Pegawai baru
@@ -195,12 +195,12 @@ export default function MASTER_PegawaiIndexPage({ auth, marhalahs, golongans, st
                                 { TABLE_HEAD.map((head, index) => (
                                     <th
                                         key={ head }
-                                        className="border-y border-blue-gray-100 bg-blue-gray-100 p-4"
+                                        className="border-y border-blue-gray-100 bg-[#1f1e33] p-4"
                                     >
                                         <Typography
                                             variant="small"
-                                            color="blue-gray"
-                                            className="flex items-center justify-between gap-2 font-normal leading-none opacity-70"
+                                            color="white"
+                                            className="flex items-center justify-between gap-2 font-normal leading-none font-bold"
                                         >
                                             { head }
                                         </Typography>

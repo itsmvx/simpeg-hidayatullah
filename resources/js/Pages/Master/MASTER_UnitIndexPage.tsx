@@ -171,7 +171,8 @@ export default function MASTER_UnitIndexPage({ auth, pagination }: PageProps<{
                             <div className="flex flex-col shrink-0 gap-2 lg:flex-row">
                                 <Button
                                     onClick={() => setOpenFormDialog(true)}
-                                    className="flex items-center gap-1.5 capitalize font-medium text-base hover:bg-gradient-to-t from-green-300 to-white hover:text-black" size="sm"
+                                    className="flex items-center gap-1.5 capitalize font-medium text-base hover:bg-[linear-gradient(to_top,#4CAF50_10%,#FFFFFF_90%)] hover:text-black"
+                                    size="sm"
                                 >
                                     <Plus />
                                     Tambahkan Unit baru
@@ -186,12 +187,12 @@ export default function MASTER_UnitIndexPage({ auth, pagination }: PageProps<{
                                 { TABLE_HEAD.map((head, index) => (
                                     <th
                                         key={ head }
-                                        className="border-y border-blue-gray-100 bg-blue-gray-50/50 bg-[#64748b] p-4" //Top Row
+                                        className="border-y border-blue-gray-100 bg-[#1f1e33] p-4" //Top Row
                                     >
                                         <Typography
                                             variant="small"
                                             color="white"
-                                            className="flex items-center justify-between gap-2 font-normal leading-none opacity-70 text-white font-bold" //Text on Top Row
+                                            className="flex items-center justify-between gap-2 font-normal leading-none font-bold" //Text on Top Row
                                         >
                                             { head }
                                         </Typography>
