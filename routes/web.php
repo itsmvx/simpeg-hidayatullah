@@ -18,6 +18,7 @@ use Inertia\Inertia;
 
 Route::prefix('auth')->name('auth.')->group(function () {
     Route::get('/login', [AuthController::class, 'loginPage'])->name('login')->middleware('noauth');
+    Route::get('/account', [AuthController::class, 'accountPage'])->name('account')->middleware('withauth');
     Route::post('/admin', [AuthController::class, 'authAdmin'])->name('admin')->middleware('noauth');
     Route::post('/pegawai', [AuthController::class, 'authPegawai'])->name('pegawai')->middleware('noauth');
     Route::get('/user', [AuthController::class, 'getUser'])->name('user');

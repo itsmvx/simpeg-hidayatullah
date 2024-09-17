@@ -50,6 +50,7 @@ export const ViewPerPageList = ({ className, preserveState }: {
                                     value={ 25 }
                                     checked={ viewPerPage === 25 }
                                     onChange={ () => handleSetViewPerPage(25) }
+                                    color="green"
                                 />
                             </ListItemPrefix>
                             <Typography color="blue-gray" className="font-medium">

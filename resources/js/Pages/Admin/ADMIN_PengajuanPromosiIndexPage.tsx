@@ -89,7 +89,7 @@ export default function ADMIN_PengajuanPromosiIndexPage({ auth, pagination }: Pa
                     <CardHeader floated={ false } shadow={ false } className="rounded-none">
                         <div className="mb-8 flex flex-col md:flex-row items-start justify-between gap-3">
                             <div>
-                                <Typography variant="h5" color="blue-gray">
+                                <Typography variant="h5" color="blue-gray" className="text-2xl">
                                     Daftar Pengajuan Promosi
                                 </Typography>
                                 <Typography color="gray" className="mt-1 font-normal">
@@ -109,7 +109,7 @@ export default function ADMIN_PengajuanPromosiIndexPage({ auth, pagination }: Pa
                                     onClick={ () => {
                                         router.visit(route('admin.pengajuan-promosi.create'));
                                     } }
-                                    className="flex items-center gap-1.5 capitalize font-medium text-base" size="sm"
+                                    className="flex items-center gap-1.5 capitalize font-medium text-base hover:bg-[linear-gradient(to_top,#4CAF50_10%,#FFFFFF_90%)] hover:text-black" size="sm"
                                 >
                                     <Plus/>
                                     Buat Pengajuan baru
@@ -124,12 +124,12 @@ export default function ADMIN_PengajuanPromosiIndexPage({ auth, pagination }: Pa
                                 { TABLE_HEAD.map((head, index) => (
                                     <th
                                         key={ head }
-                                        className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-4"
+                                        className="border-y border-blue-gray-100 bg-[#1f1e33] p-4"
                                     >
                                         <Typography
                                             variant="small"
-                                            color="blue-gray"
-                                            className="flex items-center justify-between gap-2 font-normal leading-none opacity-70"
+                                            color="white"
+                                            className="flex items-center justify-between gap-2 font-normal leading-none font-bold"
                                         >
                                             { head }
                                         </Typography>
@@ -160,7 +160,7 @@ export default function ADMIN_PengajuanPromosiIndexPage({ auth, pagination }: Pa
                                             : "p-4 border-b border-blue-gray-50";
 
                                         return (
-                                            <tr key={ id }>
+                                            <tr key={ id } className="even:bg-gray-100">
                                                 <td className={ `${ classes } w-3` }>
                                                     <Typography
                                                         variant="small"

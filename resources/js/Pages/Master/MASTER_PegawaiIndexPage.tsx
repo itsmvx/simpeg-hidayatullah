@@ -359,7 +359,7 @@ export default function MASTER_PegawaiIndexPage({ auth, marhalahs, golongans, st
                     <CardHeader floated={ false } shadow={ false } className="rounded-none">
                         <div className="mb-8 flex flex-col lg:flex-row items-start justify-between gap-3">
                             <div>
-                                <Typography variant="h5" color="blue-gray">
+                                <Typography variant="h5" color="blue-gray" className="text-2xl">
                                     Daftar Pegawai
                                 </Typography>
                                 <Typography color="gray" className="mt-1 font-normal">
@@ -386,7 +386,7 @@ export default function MASTER_PegawaiIndexPage({ auth, marhalahs, golongans, st
                                     onClick={ () => {
                                         router.visit(route('master.pegawai.create-upload'));
                                     } }
-                                    className="flex items-center gap-1.5 capitalize font-medium text-base w-44 self-end" size="sm"
+                                    className="flex items-center gap-1.5 capitalize font-medium text-base w-44 self-end hover:bg-[linear-gradient(to_top,#38bdf8_10%,#FFFFFF_90%)] hover:text-black" size="sm"
                                 >
                                     <FileUp />
                                     Upload File
@@ -432,7 +432,7 @@ export default function MASTER_PegawaiIndexPage({ auth, marhalahs, golongans, st
                                         onClick={ () => {
                                             router.visit(route('master.pegawai.create'));
                                         } }
-                                        className="flex items-center gap-1.5 capitalize font-medium text-base" size="sm"
+                                        className="flex items-center gap-1.5 capitalize font-medium text-base hover:bg-[linear-gradient(to_top,#4CAF50_10%,#FFFFFF_90%)] hover:text-black" size="sm"
                                     >
                                         <Plus/>
                                         Tambahkan Pegawai baru
@@ -445,7 +445,7 @@ export default function MASTER_PegawaiIndexPage({ auth, marhalahs, golongans, st
                         <table className="mt-4 w-full min-w-max table-auto text-left">
                             <thead>
                             <tr>
-                                <th className="border-y border-blue-gray-100 bg-blue-gray-50/50 px-2">
+                                <th className="border-y border-blue-gray-100 bg-[#1f1e33] px-2">
                                     <div className="flex items-center justify-between gap-2 font-normal leading-none opacity-70">
                                         <Checkbox
                                             size={4}
@@ -453,18 +453,22 @@ export default function MASTER_PegawaiIndexPage({ auth, marhalahs, golongans, st
                                             onChange={ () => {
                                                 setPegawaisChecked((prevState) => prevState.length < 1 ? pagination.data.map((data) => ({ id: data.id, nama: data.nama, amanah: data.amanah })) : [])
                                             } }
+                                            className="checked:bg-white checked:border-white checked:before:bg-white hover:checked:bg-white focus:checked:bg-white"
+                                            containerProps={{
+                                                className: '*:!text-black'
+                                            }}
                                         />
                                     </div>
                                 </th>
                                 { TABLE_HEAD.map((head) => (
                                     <th
                                         key={ head }
-                                        className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-4"
+                                        className="border-y border-blue-gray-100 bg-[#1f1e33] p-4"
                                     >
                                         <Typography
                                             variant="small"
-                                            color="blue-gray"
-                                            className="flex items-center justify-between gap-2 font-normal leading-none opacity-70"
+                                            color="white"
+                                            className="flex items-center justify-between gap-2 font-normal leading-none font-bold"
                                         >
                                             { head }
                                         </Typography>
@@ -496,7 +500,7 @@ export default function MASTER_PegawaiIndexPage({ auth, marhalahs, golongans, st
                                                 : "p-4 border-b border-blue-gray-50";
 
                                             return (
-                                                <tr key={ id }>
+                                                <tr key={ id } className="even:bg-gray-100">
                                                     <td className={ ` w-min ${index === 0 ? '!p-0 !py-4' : ''}` }>
                                                         <Typography
                                                             variant="small"
@@ -510,7 +514,7 @@ export default function MASTER_PegawaiIndexPage({ auth, marhalahs, golongans, st
                                                             />
                                                         </Typography>
                                                     </td>
-                                                    <td className={ `${ classes } w-3` }>
+                                                    <td className={ `${ classes } w-3 ` }>
                                                         <Typography
                                                             variant="small"
                                                             color="blue-gray"

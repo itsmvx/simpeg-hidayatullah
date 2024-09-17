@@ -14,7 +14,7 @@ export const MasterLayout = ({ auth, children }: PageProps<{
     return (
         <>
             <ErrorBoundary fallback={ <div>Something went wrong</div> }>
-                <div className="min-h-screen p-5 flex flex-col gap-2 bg-blue-gray-50/50">
+                <div className="min-h-screen p-5 flex flex-col gap-2 bg-blue-gray-50/50 bg-gradient-to-t from-[#9FE2BF] from-10% via-white to-white-500">
                     <MasterNavbar auth={ auth }/>
                     <Card className="mt-1 flex-1 p-5">
                         { children }

@@ -77,7 +77,7 @@ export const SearchInput = ({ placeholder }: {
                 <form ref={ searchFormRef } onSubmit={ handleFormSubmit } className="flex items-center justify-end gap-1">
                     <Input
                         label="Pencarian"
-                        placeholder={placeholder ?? "cari berdasarkan nama"}
+                        placeholder={placeholder ?? "Cari berdasarkan nama"}
                         value={ search.input }
                         onChange={ (event) => {
                             setSearch((prevState) => ({
@@ -86,6 +86,7 @@ export const SearchInput = ({ placeholder }: {
                             }));
                         } }
                         required
+                        color="green"
                     />
                     <Button type="submit" variant="text" className="!p-3">
                         <Search className="w-5 h-5"/>

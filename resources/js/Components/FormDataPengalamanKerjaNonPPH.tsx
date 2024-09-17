@@ -65,7 +65,7 @@ const FormDataPengalamanKerjaNonPPH = ({ formState, setFormState, formDefault }:
                                     { TABLE_HEAD.map(({ key, label }, idx) => (
                                         <td key={`${index}-${idx}`} className={classes}>
                                             <Input
-                                                color="teal"
+                                                color="green"
                                                 type="text"
                                                 id={String(index)}
                                                 name={key}

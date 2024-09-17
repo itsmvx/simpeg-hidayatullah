@@ -26,7 +26,7 @@ export default function ADMIN_DashboardPage({ auth, pegawai, pengajuanPromosi, r
         {
             title: "Pegawai",
             description: "Pegawai terdaftar",
-            icon: <UserRound />,
+            icon: <UserRound color="black"/>,
             link: route('admin.pegawai.index'),
             count: pegawai.count,
             lastUpdate: pegawai.lastUpdate
@@ -34,7 +34,7 @@ export default function ADMIN_DashboardPage({ auth, pegawai, pengajuanPromosi, r
         {
             title: "Rekap kepegawaian",
             description: "Rekap Pegawai belum terverifikasi",
-            icon: <Newspaper />,
+            icon: <Newspaper color="black"/>,
             link: route('admin.rekap-pegawai.index'),
             count: rekapPegawai.count,
             lastUpdate: rekapPegawai.lastUpdate
@@ -42,7 +42,7 @@ export default function ADMIN_DashboardPage({ auth, pegawai, pengajuanPromosi, r
         {
             title: "Pengajuan Promosi",
             description: "Pengajuan Promosi masih menunggu",
-            icon: <WorkSpaceIcon width={25} />,
+            icon: <WorkSpaceIcon width={25} color="black"/>,
             link: route('admin.pengajuan-promosi.index'),
             count: pengajuanPromosi.count,
             lastUpdate: pengajuanPromosi.lastUpdate
@@ -55,13 +55,13 @@ export default function ADMIN_DashboardPage({ auth, pegawai, pengajuanPromosi, r
             <AdminLayout auth={auth}>
                 <section className="mb-1 grid gap-y-10 gap-x-6 md:grid-cols-2 xl:grid-cols-4">
                     { cardData.map(({ icon, title, description, count, lastUpdate, link }) => (
-                        <Card key={title} className="border border-blue-gray-100 shadow-sm">
+                        <Card key={title} className="border border-green-200 shadow-lg">
                             <CardHeader
                                 variant="gradient"
                                 color="gray"
                                 floated={ false }
                                 shadow={ false }
-                                className="absolute grid h-12 w-12 place-items-center"
+                                className="absolute grid h-12 w-12 place-items-center bg-gradient-to-tr from-green-500 via-green-300 to-white shadow-xl"
                             >
                                 { icon }
                             </CardHeader>
@@ -91,7 +91,7 @@ export default function ADMIN_DashboardPage({ auth, pegawai, pengajuanPromosi, r
                                     fullWidth
                                     variant="outlined"
                                     size="sm"
-                                    className="!py-1.5 !px-3 flex flex-row gap-2.5 items-center justify-center !rounded-xl !shadow-none !text-xs font-semibold font-sans !border-gray-400/90"
+                                    className="!py-1.5 !px-3 flex flex-row gap-2.5 items-center justify-center !rounded-xl !shadow-none !text-xs font-semibold font-sans !border-gray-400/90 hover:!border-green-500 hover:!border-2 transition-none"
                                     onClick={() => router.visit(link)}
                                 >
                                     Kelola
