@@ -78,7 +78,7 @@ const FormDataPendidikanFormal = ({ formState, setFormState, formDefault }: {
                                     <td className={ classes }>
                                         <Select
                                             label="Tingkat Pendidikan"
-                                            color="teal"
+                                            color="green"
                                             name="tingkat"
                                             onChange={(value) => {
                                                 handleSelectChange(index, 'tingkat', value ?? '');
@@ -95,7 +95,7 @@ const FormDataPendidikanFormal = ({ formState, setFormState, formDefault }: {
                                     { TABLE_HEAD.filter((_, idx) => idx !== 0).map(({ key, label }, idx) => (
                                         <td key={`${key}-${idx}`} className={classes}>
                                             <Input
-                                                color="teal"
+                                                color="green"
                                                 type="text"
                                                 id={String(index)}
                                                 label={ label }

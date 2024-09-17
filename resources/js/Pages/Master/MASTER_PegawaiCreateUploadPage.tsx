@@ -383,7 +383,7 @@ export default function MASTER_PegawaiCreateUploadPage({ auth, golongans, marhal
                                     </div>
                                     <Input
                                         type="text"
-                                        color="teal"
+                                        color="green"
                                         label="Nomor Induk Kewarganegaraan ( NIK )"
                                         name="nik"
                                         value={ formInputs.data[formInputs.currIndex].nik }
@@ -393,7 +393,7 @@ export default function MASTER_PegawaiCreateUploadPage({ auth, golongans, marhal
                                     />
                                     <Input
                                         type="text"
-                                        color="teal"
+                                        color="green"
                                         label="Nomor Induk Pegawai ( NIP )"
                                         name="nip"
                                         value={ formInputs.data[formInputs.currIndex].nip }
@@ -403,7 +403,7 @@ export default function MASTER_PegawaiCreateUploadPage({ auth, golongans, marhal
                                     />
                                     <Input
                                         type="text"
-                                        color="teal"
+                                        color="green"
                                         label="Nama lengkap"
                                         name="nama"
                                         value={ formInputs.data[formInputs.currIndex].nama }
@@ -412,7 +412,7 @@ export default function MASTER_PegawaiCreateUploadPage({ auth, golongans, marhal
                                         error={ !formInputs.data[formInputs.currIndex].nama }
                                     />
                                     <Input
-                                        type="text" color="teal"
+                                        type="text" color="green"
                                         label="Suku bangsa"
                                         name="suku"
                                         value={ formInputs.data[formInputs.currIndex].suku }
@@ -422,7 +422,7 @@ export default function MASTER_PegawaiCreateUploadPage({ auth, golongans, marhal
                                     />
                                     <Input
                                         type="text"
-                                        color="teal"
+                                        color="green"
                                         label="Tempat Lahir"
                                         name="tempat_lahir"
                                         value={ formInputs.data[formInputs.currIndex].tempat_lahir }
@@ -433,7 +433,7 @@ export default function MASTER_PegawaiCreateUploadPage({ auth, golongans, marhal
                                     <Popover placement="bottom">
                                         <PopoverHandler>
                                             <Input
-                                                color="teal"
+                                                color="green"
                                                 label="Tanggal Lahir"
                                                 value={ dateInputValue(formInputs.data[formInputs.currIndex].tanggal_lahir) }
                                                 readOnly
@@ -458,7 +458,7 @@ export default function MASTER_PegawaiCreateUploadPage({ auth, golongans, marhal
                                     <div className="flex flex-row gap-4">
                                         <Input
                                             type="text"
-                                            color="teal"
+                                            color="green"
                                             label="Usia (Tahun)"
                                             name="usia_tahun"
                                             disabled
@@ -468,7 +468,7 @@ export default function MASTER_PegawaiCreateUploadPage({ auth, golongans, marhal
                                         />
                                         <Input
                                             type="text"
-                                            color="teal"
+                                            color="green"
                                             label="Usia (Bulan)"
                                             name="usia_bulan"
                                             disabled
@@ -479,7 +479,7 @@ export default function MASTER_PegawaiCreateUploadPage({ auth, golongans, marhal
                                     </div>
                                     <Select
                                         label="Jenis kelamin"
-                                        color="teal"
+                                        color="green"
                                         name="jenis_kelamin"
                                         value={ formInputs.data[formInputs.currIndex].jenis_kelamin }
                                         aria-required={true}
@@ -495,7 +495,7 @@ export default function MASTER_PegawaiCreateUploadPage({ auth, golongans, marhal
                                         }
                                     </Select>
                                     <Input
-                                        type="text" color="teal"
+                                        type="text" color="green"
                                         label="Alamat"
                                         name="alamat"
                                         value={ formInputs.data[formInputs.currIndex].alamat }
@@ -505,7 +505,7 @@ export default function MASTER_PegawaiCreateUploadPage({ auth, golongans, marhal
                                     />
                                     <Input
                                         type="text"
-                                        color="teal"
+                                        color="green"
                                         label="Agama"
                                         name="agama"
                                         value={ formInputs.data[formInputs.currIndex].agama }
@@ -515,7 +515,7 @@ export default function MASTER_PegawaiCreateUploadPage({ auth, golongans, marhal
                                     />
                                     <Select
                                         label="Status pernikahan"
-                                        color="teal"
+                                        color="green"
                                         name="status_pernikahan"
                                         value={ formInputs.data[formInputs.currIndex].status_pernikahan }
                                         onChange={ (value: string | undefined) => handleSelectChange(formInputs.currIndex, 'status_pernikahan', value ?? '') }
@@ -531,7 +531,7 @@ export default function MASTER_PegawaiCreateUploadPage({ auth, golongans, marhal
                                     </Select>
                                     <Select
                                         label="Golongan"
-                                        color="teal"
+                                        color="green"
                                         name="golongan_id"
                                         value={ formInputs.data[formInputs.currIndex].golongan_id ?? undefined }
                                         onChange={ (value: string | undefined) => handleSelectChange(formInputs.currIndex, 'golongan_id', value ?? '') }
@@ -556,7 +556,7 @@ export default function MASTER_PegawaiCreateUploadPage({ auth, golongans, marhal
                                     </Select>
                                     <Select
                                         label="Marhalah"
-                                        color="teal"
+                                        color="green"
                                         name="marhalah_id"
                                         value={ formInputs.data[formInputs.currIndex].marhalah_id ?? undefined }
                                         onChange={ (value: string | undefined) => handleSelectChange(formInputs.currIndex, 'marhalah_id', value ?? '') }
@@ -581,7 +581,7 @@ export default function MASTER_PegawaiCreateUploadPage({ auth, golongans, marhal
                                     </Select>
                                     <Select
                                         label="Status Pegawai"
-                                        color="teal"
+                                        color="green"
                                         name="status_pegawai_id"
                                         value={ formInputs.data[formInputs.currIndex].status_pegawai_id ?? undefined }
                                         onChange={ (value: string | undefined) => handleSelectChange(formInputs.currIndex, 'status_pegawai_id', value ?? '') }
@@ -606,7 +606,7 @@ export default function MASTER_PegawaiCreateUploadPage({ auth, golongans, marhal
                                     </Select>
                                     <Select
                                         label="Unit"
-                                        color="teal"
+                                        color="green"
                                         name="unit_id"
                                         value={ formInputs.data[formInputs.currIndex].unit_id ?? undefined }
                                         onChange={ (value: string | undefined) => handleSelectChange(formInputs.currIndex, 'unit_id', value ?? '') }
@@ -632,7 +632,7 @@ export default function MASTER_PegawaiCreateUploadPage({ auth, golongans, marhal
                                     <Popover placement="bottom">
                                         <PopoverHandler>
                                             <Input
-                                                color="teal"
+                                                color="green"
                                                 label="Tahun Masuk"
                                                 value={ dateInputValue(formInputs.data[formInputs.currIndex].tanggal_masuk) }
                                                 readOnly
@@ -656,7 +656,7 @@ export default function MASTER_PegawaiCreateUploadPage({ auth, golongans, marhal
                                     </Popover>
                                     <Select
                                         label="Status Aktif"
-                                        color="teal"
+                                        color="green"
                                         name="status_aktif"
                                         value={ formInputs.data[formInputs.currIndex].status_aktif }
                                         onChange={ (value: string | undefined) => handleSelectChange(formInputs.currIndex, 'status_aktif', value ?? '') }
@@ -671,7 +671,7 @@ export default function MASTER_PegawaiCreateUploadPage({ auth, golongans, marhal
                                         }
                                     </Select>
                                     <Input
-                                        type="text" color="teal"
+                                        type="text" color="green"
                                         label="Kompetensi Qur'an"
                                         name="kompetensi_quran"
                                         value={ formInputs.data[formInputs.currIndex].kompetensi_quran }
@@ -680,7 +680,7 @@ export default function MASTER_PegawaiCreateUploadPage({ auth, golongans, marhal
                                         error={ !formInputs.data[formInputs.currIndex].kompetensi_quran }
                                     />
                                     <Input
-                                        type="text" color="teal"
+                                        type="text" color="green"
                                         label="Amanah"
                                         name="amanah"
                                         value={ formInputs.data[formInputs.currIndex].amanah }
@@ -689,7 +689,7 @@ export default function MASTER_PegawaiCreateUploadPage({ auth, golongans, marhal
                                         error={ !formInputs.data[formInputs.currIndex].amanah }
                                     />
                                     <Input
-                                        type="text" color="teal"
+                                        type="text" color="green"
                                         label="Amanah atasan langsung"
                                         name="amanah_atasan"
                                         value={ formInputs.data[formInputs.currIndex].amanah_atasan }
@@ -698,7 +698,7 @@ export default function MASTER_PegawaiCreateUploadPage({ auth, golongans, marhal
                                         error={ !formInputs.data[formInputs.currIndex].amanah_atasan }
                                     />
                                     <Input
-                                        type="text" color="teal"
+                                        type="text" color="green"
                                         label="Nomor HP/WA"
                                         name="no_hp"
                                         value={ formInputs.data[formInputs.currIndex].no_hp }
@@ -707,7 +707,7 @@ export default function MASTER_PegawaiCreateUploadPage({ auth, golongans, marhal
                                         error={ !formInputs.data[formInputs.currIndex].no_hp }
                                     />
                                     <Input
-                                        type="text" color="teal"
+                                        type="text" color="green"
                                         label="Sertifikasi (bila ada)"
                                         name="sertifikasi"
                                         value={ formInputs.data[formInputs.currIndex].sertifikasi }

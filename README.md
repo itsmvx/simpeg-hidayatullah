@@ -7,3 +7,4 @@
 - Applied colors to all Master pages
 - Yet another color adjustment on the buttons
 - Applied colors to all Admin pages
+- Applied colors to several create pages on Master and Admin
