@@ -118,8 +118,6 @@ export default function MASTER_DashboardPage({ auth, unit, golongan, marhalah, a
                     { cardData.map(({ icon, title, description, count, lastUpdate, link }) => (
                         <Card key={title} className="border border-green-200 shadow-lg">
                             <CardHeader
-                                variant="linear"
-                                color="black"
                                 floated={ false }
                                 shadow={ false }
                                 className="absolute grid h-12 w-12 place-items-center bg-gradient-to-tr from-green-500 via-green-300 to-white shadow-xl"
@@ -127,7 +125,7 @@ export default function MASTER_DashboardPage({ auth, unit, golongan, marhalah, a
                                 { icon }
                             </CardHeader>
                             <CardBody className="p-4 text-left ml-20">
-                                <Typography variant="small" className="font-normal text-blue-gray-900 font-bold">
+                                <Typography variant="small" className="text-blue-gray-900 font-bold">
                                     { title }
                                 </Typography>
                                 <Typography variant="h4" color="blue-gray" className="flex items-center gap-1.5">
@@ -152,7 +150,7 @@ export default function MASTER_DashboardPage({ auth, unit, golongan, marhalah, a
                                     fullWidth
                                     variant="outlined"
                                     size="sm"
-                                    className="!py-1.5 !px-3 flex flex-row gap-2.5 items-center justify-center !rounded-xl !shadow-none !text-xs font-semibold font-sans !border-gray-400/90 hover:!border-green-500 hover:!border-2 transition-none"
+                                    className="!py-1.5 !px-3 flex flex-row gap-2.5 items-center justify-center !rounded-xl !shadow-none !text-xs font-semibold font-sans border-2 !border-gray-400/90 hover:!border-green-500 transition-none"
                                     onClick={() => router.visit(link)}
                                 >
                                     Kelola
@@ -161,40 +159,40 @@ export default function MASTER_DashboardPage({ auth, unit, golongan, marhalah, a
                             </CardFooter>
                         </Card>
                     )) }
-                    <Card className="border border-blue-gray-100 shadow-sm">
-                        <CardHeader
-                            variant="gradient"
-                            color="gray"
-                            floated={ false }
-                            shadow={ false }
-                            className="absolute grid h-12 w-12 place-items-center"
-                        >
-                            <NotebookPen/>
-                        </CardHeader>
-                        <CardBody className="p-4 text-left ml-20">
-                            <Typography variant="small" className="font-normal text-blue-gray-900">
-                                Buat Surat Kontrak kerja
-                            </Typography>
-                            <Typography variant="h4" color="blue-gray" className="flex items-center gap-1.5">
-                                {""}
-                                <span className="text-xs text-blue-gray-800 mt-1.5">
-                                    Buat
-                                </span>
-                            </Typography>
-                        </CardBody>
-                        <CardFooter className="-mt-3">
-                            <Button
-                                fullWidth
-                                variant="outlined"
-                                size="sm"
-                                className="!py-1.5 !px-3 flex flex-row gap-2.5 items-center justify-center !rounded-xl !shadow-none !text-xs font-semibold font-sans !border-gray-400/90"
-                                onClick={() => router.visit('/')}
-                            >
-                                Kelola
-                                <ExternalLink  width={18} />
-                            </Button>
-                        </CardFooter>
-                    </Card>
+                    {/*<Card className="border border-blue-gray-100 shadow-sm">*/}
+                    {/*    <CardHeader*/}
+                    {/*        variant="gradient"*/}
+                    {/*        color="gray"*/}
+                    {/*        floated={ false }*/}
+                    {/*        shadow={ false }*/}
+                    {/*        className="absolute grid h-12 w-12 place-items-center"*/}
+                    {/*    >*/}
+                    {/*        <NotebookPen/>*/}
+                    {/*    </CardHeader>*/}
+                    {/*    <CardBody className="p-4 text-left ml-20">*/}
+                    {/*        <Typography variant="small" className="font-normal text-blue-gray-900">*/}
+                    {/*            Buat Surat Kontrak kerja*/}
+                    {/*        </Typography>*/}
+                    {/*        <Typography variant="h4" color="blue-gray" className="flex items-center gap-1.5">*/}
+                    {/*            {""}*/}
+                    {/*            <span className="text-xs text-blue-gray-800 mt-1.5">*/}
+                    {/*                Buat*/}
+                    {/*            </span>*/}
+                    {/*        </Typography>*/}
+                    {/*    </CardBody>*/}
+                    {/*    <CardFooter className="-mt-3">*/}
+                    {/*        <Button*/}
+                    {/*            fullWidth*/}
+                    {/*            variant="outlined"*/}
+                    {/*            size="sm"*/}
+                    {/*            className="!py-1.5 !px-3 flex flex-row gap-2.5 items-center justify-center !rounded-xl !shadow-none !text-xs font-semibold font-sans !border-gray-400/90"*/}
+                    {/*            onClick={() => router.visit('/')}*/}
+                    {/*        >*/}
+                    {/*            Kelola*/}
+                    {/*            <ExternalLink  width={18} />*/}
+                    {/*        </Button>*/}
+                    {/*    </CardFooter>*/}
+                    {/*</Card>*/}
                 </section>
             </MasterLayout>
         </>

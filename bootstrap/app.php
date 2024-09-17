@@ -18,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin' => \App\Http\Middleware\AuthAdmin::class,
             'noauth' => \App\Http\Middleware\NoAuth::class,
+            'withauth' => \App\Http\Middleware\WithAuth::class,
         ]);
         //
     })

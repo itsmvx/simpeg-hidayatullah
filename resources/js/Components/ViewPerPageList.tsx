@@ -3,8 +3,9 @@ import { router } from "@inertiajs/react";
 import { List, ListItem, ListItemPrefix, Typography } from "@material-tailwind/react";
 import { Checkbox } from "@/Components/Checkbox";
 
-export const ViewPerPageList = ({ className }: {
+export const ViewPerPageList = ({ className, preserveState }: {
     className?: string;
+    preserveState?: boolean;
 }) => {
     const [ viewPerPage, setViewPerPage ] = useState(() => {
         const searchParams = new URLSearchParams(window.location.search);
@@ -13,7 +14,6 @@ export const ViewPerPageList = ({ className }: {
     });
     const handleSetViewPerPage = (value: number) => {
         const searchParams = new URLSearchParams(window.location.search);
-        const pageParam = searchParams.get('page');
         if (value === 25) {
             searchParams.delete('view');
         } else {
@@ -22,7 +22,7 @@ export const ViewPerPageList = ({ className }: {
         setViewPerPage(value);
         searchParams.delete('page');
         router.visit(window.location.pathname + '?' + searchParams.toString(), {
-            preserveState: true,
+            preserveState: preserveState ?? true,
             preserveScroll: true,
         });
     };

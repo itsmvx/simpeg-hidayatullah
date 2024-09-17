@@ -372,7 +372,12 @@ class AdminMasterPagesController extends Controller
             'marhalahs' => fn() => Marhalah::select('id', 'nama')->get(),
             'statusPegawais' => fn() => StatusPegawai::select('id', 'nama')->get(),
             'units' => fn() => Unit::select('id', 'nama')->get(),
-            'currDate' => fn() => Carbon::now('Asia/Jakarta')->toDateString()
+            'currDate' => fn() => Carbon::now('Asia/Jakarta')->toDateString(),
+            'periodes' => Inertia::lazy(fn() => PeriodeRekap::select('id', 'nama', 'awal', 'akhir')->where('status', true)->orderBy('awal', 'asc')->orderBy('akhir', 'desc')->get()),
+            'suratProps' => Inertia::lazy(fn() => [
+                'kepalaSDI' => config('information.sdi_personalia') ?? null,
+                'currDate' => Carbon::now('Asia/Jakarta')->toDateString()
+            ])
         ]);
     }
     public function pegawaiCreatePage()

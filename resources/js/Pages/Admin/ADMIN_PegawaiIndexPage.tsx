@@ -17,7 +17,7 @@ import { toast } from "react-toastify";
 import axios, { AxiosError, AxiosProgressEvent } from "axios";
 import Pagination from "@/Components/Pagination";
 import { calculateDatePast } from "@/Lib/Utils";
-import CV_PDFGenerator, { PegawaiExportCV } from "@/Lib/Generate_Dokumen/RekapPegawai";
+import CV_PDFGenerator, { PegawaiExportCV } from "@/Lib/Generate_Dokumen/RekapPegawaii";
 import { pdf } from "@react-pdf/renderer";
 import { saveAs } from "file-saver";
 import { ViewPerPageList } from "@/Components/ViewPerPageList";
