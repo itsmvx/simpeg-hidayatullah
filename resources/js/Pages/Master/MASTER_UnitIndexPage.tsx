@@ -155,7 +155,7 @@ export default function MASTER_UnitIndexPage({ auth, pagination }: PageProps<{
                     <CardHeader floated={false} shadow={false} className="rounded-none">
                         <div className="mb-8 flex flex-col lg:flex-row items-start justify-between gap-3">
                             <div>
-                                <Typography variant="h5" color="blue-gray">
+                                <Typography variant="h5" color="blue-gray" className="text-2xl">
                                     Daftar Unit
                                 </Typography>
                                 <Typography color="gray" className="mt-1 font-normal">
@@ -171,7 +171,8 @@ export default function MASTER_UnitIndexPage({ auth, pagination }: PageProps<{
                             <div className="flex flex-col shrink-0 gap-2 lg:flex-row">
                                 <Button
                                     onClick={() => setOpenFormDialog(true)}
-                                    className="flex items-center gap-1.5 capitalize font-medium text-base" size="sm"
+                                    className="flex items-center gap-1.5 capitalize font-medium text-base hover:bg-[linear-gradient(to_top,#4CAF50_10%,#FFFFFF_90%)] hover:text-black"
+                                    size="sm"
                                 >
                                     <Plus />
                                     Tambahkan Unit baru
@@ -186,12 +187,12 @@ export default function MASTER_UnitIndexPage({ auth, pagination }: PageProps<{
                                 { TABLE_HEAD.map((head, index) => (
                                     <th
                                         key={ head }
-                                        className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-4"
+                                        className="border-y border-blue-gray-100 bg-[#1f1e33] p-4" //Top Row
                                     >
                                         <Typography
                                             variant="small"
-                                            color="blue-gray"
-                                            className="flex items-center justify-between gap-2 font-normal leading-none opacity-70"
+                                            color="white"
+                                            className="flex items-center justify-between gap-2 font-normal leading-none font-bold" //Text on Top Row
                                         >
                                             { head }
                                         </Typography>
@@ -207,15 +208,15 @@ export default function MASTER_UnitIndexPage({ auth, pagination }: PageProps<{
                                             const isLast = index === pagination.data.length - 1;
                                             const classes = isLast
                                                 ? "p-4"
-                                                : "p-4 border-b border-blue-gray-50";
+                                                : "p-4 border-b border-blue-gray-50"; //Rows
 
                                             return (
-                                                <tr key={ id }>
-                                                    <td className={ `${ classes } w-3` }>
+                                                <tr key={ id } className="even:bg-gray-100">
+                                                    <td className={ `${ classes } w-3 ` }>
                                                         <Typography
                                                             variant="small"
                                                             color="blue-gray"
-                                                            className="font-normal text-center"
+                                                            className="font-normal text-center" //Numbers
                                                         >
                                                             { pagination.from + index }
                                                         </Typography>

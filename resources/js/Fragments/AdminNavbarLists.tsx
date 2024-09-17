@@ -23,19 +23,19 @@ export const AdminNavbarLists = () => {
         {
             title: "Pegawai",
             description: "mengatur  data Pegawai di Unit",
-            icon: <UserRound />,
+            icon: <UserRound color="black"/>,
             link: route('admin.pegawai.index')
         },
         {
             title: "Rekap kepegawaian",
             description: "Membuat laporan Rekap Pegawai di Unit",
-            icon: <Newspaper />,
+            icon: <Newspaper color="black"/>,
             link: route('admin.rekap-pegawai.index')
         },
         {
             title: "Pengajuan Promosi",
             description: "Mengajukan Promosi Pegawai di Unit",
-            icon: <WorkSpaceIcon width={25} />,
+            icon: <WorkSpaceIcon width={25} color="black"/>,
             link: route('admin.pengajuan-promosi.index')
         }
     ];
@@ -46,7 +46,7 @@ export const AdminNavbarLists = () => {
     const renderItems = navListMenuItems.map(({ icon, title, description, link }, key) => (
         <Link href={link} key={ key }>
             <MenuItem className="flex items-center gap-3 rounded-lg">
-                <div className="flex items-center justify-center rounded-lg !bg-blue-gray-50 p-2">
+                <div className="flex items-center justify-center rounded-lg !bg-blue-gray-50 p-2 bg-gradient-to-tr from-green-500 via-green-300 to-white shadow-xl">
                     { icon }
                 </div>
                 <div className="capitalize">
