@@ -12,13 +12,13 @@ export const PegawaiNavbarLists = () => {
         {
             title: "Data Pegawai",
             description: "Mengatur data Pegawai",
-            icon: <UserRound />,
+            icon: <UserRound className="text-gray-200"/>,
             link: route('pegawai.profile')
         },
         {
             title: "Rekap kepegawaian",
             description: "Melihat Rekap Pegawai anda",
-            icon: <Newspaper />,
+            icon: <Newspaper className="text-gray-200"/>,
             link: route('pegawai.rekap-pegawai.index')
         },
     ];
@@ -29,7 +29,7 @@ export const PegawaiNavbarLists = () => {
     const renderItems = navListMenuItems.map(({ icon, title, description, link }, key) => (
         <Link href={link} key={ key }>
             <MenuItem className="flex items-center gap-3 rounded-lg">
-                <div className="flex items-center justify-center rounded-lg !bg-blue-gray-50 p-2">
+                <div className="flex items-center justify-center rounded-lg bg-primary-purple-light p-2">
                     { icon }
                 </div>
                 <div className="capitalize">

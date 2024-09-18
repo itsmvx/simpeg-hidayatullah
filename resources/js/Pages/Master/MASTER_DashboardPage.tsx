@@ -38,7 +38,7 @@ export default function MASTER_DashboardPage({ auth, unit, golongan, marhalah, a
         {
             title: "Unit",
             description: "Unit terdaftar",
-            icon: <Building2 color="black"/>,
+            icon: <Building2 className="text-white"/>,
             link: route('master.unit.index'),
             count: unit.count,
             lastUpdate: unit.lastUpdate
@@ -46,7 +46,7 @@ export default function MASTER_DashboardPage({ auth, unit, golongan, marhalah, a
         {
             title: "Golongan",
             description: "Golongan terdaftar",
-            icon: <UsersRound color="black"/>,
+            icon: <UsersRound className="text-white"/>,
             link: route('master.golongan.index'),
             count: golongan.count,
             lastUpdate: golongan.lastUpdate
@@ -54,7 +54,7 @@ export default function MASTER_DashboardPage({ auth, unit, golongan, marhalah, a
         {
             title: "Marhalah",
             description: "Marhalah terdaftar",
-            icon: <Award color="black"/>,
+            icon: <Award className="text-white"/>,
             link: route('master.marhalah.index'),
             count: marhalah.count,
             lastUpdate: marhalah.lastUpdate
@@ -62,7 +62,7 @@ export default function MASTER_DashboardPage({ auth, unit, golongan, marhalah, a
         {
             title: "Admin",
             description: "Admin terdaftar",
-            icon: <CircleUserRound color="black"/>,
+            icon: <CircleUserRound className="text-white"/>,
             link: route('master.admin.index'),
             count: admin.count,
             lastUpdate: admin.lastUpdate
@@ -70,7 +70,7 @@ export default function MASTER_DashboardPage({ auth, unit, golongan, marhalah, a
         {
             title: "Pegawai",
             description: "Pegawai terdaftar",
-            icon: <UserRound color="black"/>,
+            icon: <UserRound className="text-white"/>,
             link: route('master.pegawai.index'),
             count: pegawai.count,
             lastUpdate: pegawai.lastUpdate
@@ -78,7 +78,7 @@ export default function MASTER_DashboardPage({ auth, unit, golongan, marhalah, a
         {
             title: "Status Pegawai",
             description: "Status Pegawai terdaftar",
-            icon: <ShieldCheck color="black"/>,
+            icon: <ShieldCheck className="text-white"/>,
             link: route('master.status-pegawai.index'),
             count: statusPegawai.count,
             lastUpdate: statusPegawai.lastUpdate
@@ -87,7 +87,7 @@ export default function MASTER_DashboardPage({ auth, unit, golongan, marhalah, a
         {
             title: "Rekap kepegawaian",
             description: "Rekap Pegawai belum terverifikasi",
-            icon: <Newspaper color="black"/>,
+            icon: <Newspaper className="text-white"/>,
             link: route('master.rekap-pegawai.index'),
             count: rekapPegawai.count,
             lastUpdate: rekapPegawai.lastUpdate
@@ -95,7 +95,7 @@ export default function MASTER_DashboardPage({ auth, unit, golongan, marhalah, a
         {
             title: "Periode Rekap",
             description: "Periode Rekap yang dibuka",
-            icon: <CalendarDays color="black"/>,
+            icon: <CalendarDays className="text-white"/>,
             link: route('master.periode-rekap.index'),
             count: periodeRekap.count,
             lastUpdate: periodeRekap.lastUpdate
@@ -103,7 +103,7 @@ export default function MASTER_DashboardPage({ auth, unit, golongan, marhalah, a
         {
             title: "Pengajuan Promosi",
             description: "Pengajuan Promosi masih menunggu",
-            icon: <WorkSpaceIcon width={25} color="black"/>,
+            icon: <WorkSpaceIcon width={25} className="text-white"/>,
             link: route('master.pengajuan-promosi.index'),
             count: pengajuanPromosi.count,
             lastUpdate: pengajuanPromosi.lastUpdate
@@ -116,11 +116,11 @@ export default function MASTER_DashboardPage({ auth, unit, golongan, marhalah, a
             <MasterLayout auth={auth}>
                 <section className="mb-1 grid gap-y-10 gap-x-6 md:grid-cols-2 xl:grid-cols-4">
                     { cardData.map(({ icon, title, description, count, lastUpdate, link }) => (
-                        <Card key={title} className="border border-green-200 shadow-lg">
+                        <Card key={title} className="border border-pph-green/80 bg-[#f1edff] !shadow-none">
                             <CardHeader
                                 floated={ false }
                                 shadow={ false }
-                                className="absolute grid h-12 w-12 place-items-center bg-gradient-to-tr from-green-500 via-green-300 to-white shadow-xl"
+                                className="absolute grid h-12 w-12 place-items-center bg-pph-green"
                             >
                                 { icon }
                             </CardHeader>
@@ -150,7 +150,7 @@ export default function MASTER_DashboardPage({ auth, unit, golongan, marhalah, a
                                     fullWidth
                                     variant="outlined"
                                     size="sm"
-                                    className="!py-1.5 !px-3 flex flex-row gap-2.5 items-center justify-center !rounded-xl !shadow-none !text-xs font-semibold font-sans border-2 !border-gray-400/90 hover:!border-green-500 transition-none"
+                                    className="!py-1.5 !px-3 flex flex-row gap-2.5 items-center justify-center !rounded-xl !shadow-none !text-xs font-semibold font-sans border-2 !border-gray-400/80 hover:!border-primary-purple transition-colors ease-in-out duration-200"
                                     onClick={() => router.visit(link)}
                                 >
                                     Kelola
@@ -159,40 +159,6 @@ export default function MASTER_DashboardPage({ auth, unit, golongan, marhalah, a
                             </CardFooter>
                         </Card>
                     )) }
-                    {/*<Card className="border border-blue-gray-100 shadow-sm">*/}
-                    {/*    <CardHeader*/}
-                    {/*        variant="gradient"*/}
-                    {/*        color="gray"*/}
-                    {/*        floated={ false }*/}
-                    {/*        shadow={ false }*/}
-                    {/*        className="absolute grid h-12 w-12 place-items-center"*/}
-                    {/*    >*/}
-                    {/*        <NotebookPen/>*/}
-                    {/*    </CardHeader>*/}
-                    {/*    <CardBody className="p-4 text-left ml-20">*/}
-                    {/*        <Typography variant="small" className="font-normal text-blue-gray-900">*/}
-                    {/*            Buat Surat Kontrak kerja*/}
-                    {/*        </Typography>*/}
-                    {/*        <Typography variant="h4" color="blue-gray" className="flex items-center gap-1.5">*/}
-                    {/*            {""}*/}
-                    {/*            <span className="text-xs text-blue-gray-800 mt-1.5">*/}
-                    {/*                Buat*/}
-                    {/*            </span>*/}
-                    {/*        </Typography>*/}
-                    {/*    </CardBody>*/}
-                    {/*    <CardFooter className="-mt-3">*/}
-                    {/*        <Button*/}
-                    {/*            fullWidth*/}
-                    {/*            variant="outlined"*/}
-                    {/*            size="sm"*/}
-                    {/*            className="!py-1.5 !px-3 flex flex-row gap-2.5 items-center justify-center !rounded-xl !shadow-none !text-xs font-semibold font-sans !border-gray-400/90"*/}
-                    {/*            onClick={() => router.visit('/')}*/}
-                    {/*        >*/}
-                    {/*            Kelola*/}
-                    {/*            <ExternalLink  width={18} />*/}
-                    {/*        </Button>*/}
-                    {/*    </CardFooter>*/}
-                    {/*</Card>*/}
                 </section>
             </MasterLayout>
         </>
