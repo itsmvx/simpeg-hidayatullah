@@ -397,7 +397,21 @@ const createDocument = async (pihakPertama: PihakPertama, pihakKedua: PihakKedua
     return await Packer.toBlob(doc);
 };
 
-export const generateMultipleDocuments = async (props: {
+export const generateSingleSuratKontrakKerja = async (props: {
+    pihakPertama: PihakPertama;
+    pihakKedua: PihakKedua;
+    tanggal: string;
+    periode: Periode;
+    lokasi?: string;
+}) => {
+    const { pihakPertama, pihakKedua, tanggal, periode, lokasi } = props;
+    const doc = createDocument(pihakPertama, pihakKedua, tanggal, periode, lokasi ?? 'Surabaya');
+
+    doc.then((blob) => {
+        saveAs(blob, `Perjanjian_Kontrak_Kerja_${pihakKedua.nama}.docx`);
+    });
+};
+export const generateMultipleSuratKontrakKerja = async (props: {
     docsData: Array<{pihakPertama: PihakPertama, pihakKedua: PihakKedua, tanggal: string, periode: Periode, lokasi?: string}>;
     fileName?: string;
     setUpdateFileProgress?: (progress: number) => void;
@@ -435,11 +449,4 @@ export const generateMultipleDocuments = async (props: {
     } catch (error) {
         throw new Error('Gagal memproses Dokumen');
     }
-};
-export const generateSingleDocument = async (pihakPertama: PihakPertama, pihakKedua: PihakKedua, tanggal: string, periode: Periode, lokasi = 'Surabaya') => {
-    const doc = createDocument(pihakPertama, pihakKedua, tanggal, periode, lokasi);
-
-    doc.then((blob) => {
-        saveAs(blob, `Perjanjian_Kontrak_Kerja_${pihakKedua.nama}.docx`);
-    });
 };

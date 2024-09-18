@@ -90,7 +90,7 @@ export default function ADMIN_RekapPegawaiIndexPage({ auth, marhalahs, golongans
 
     return (
         <>
-            <Head title="Admin - Rekap Pegawai" />
+            <Head title="Admin - Manajemen Rekap Pegawai" />
             <AdminLayout auth={auth}>
                 <Card className="h-full w-full" shadow={false}>
                     <CardHeader floated={ false } shadow={ false } className="rounded-none">
@@ -121,10 +121,10 @@ export default function ADMIN_RekapPegawaiIndexPage({ auth, marhalahs, golongans
                                     onClick={ () => {
                                         router.visit(route('admin.rekap-pegawai.create'));
                                     } }
-                                    className="flex items-center gap-1.5 capitalize font-medium text-base hover:bg-[linear-gradient(to_top,#4CAF50_10%,#FFFFFF_90%)] hover:text-black" size="sm"
+                                    className="flex items-center gap-1.5 capitalize font-medium text-base !bg-pph-green-deep hover:!bg-pph-green-deep/80 hover:text-white" size="sm"
                                 >
                                     <Plus/>
-                                    Tambahkan Rekap baru
+                                    Tambahkan
                                 </Button>
                             </div>
                         </div>
@@ -136,12 +136,11 @@ export default function ADMIN_RekapPegawaiIndexPage({ auth, marhalahs, golongans
                                 { TABLE_HEAD.map((head) => (
                                     <th
                                         key={ head }
-                                        className="cursor-pointer border-y border-blue-gray-100 bg-[#1f1e33] p-4 transition-colors hover:bg-[#3a374d] last:cursor-auto last:hover:bg-[#3a374d]"
+                                        className="first:rounded-l-md last:rounded-r-md bg-pph-green-deep p-4"
                                     >
                                         <Typography
                                             variant="small"
-                                            color="white"
-                                            className="flex items-center justify-between gap-2 font-normal leading-none font-bold"
+                                            className="flex items-center justify-between gap-2 font-semibold leading-none !text-white"
                                         >
                                             { head }
                                         </Typography>

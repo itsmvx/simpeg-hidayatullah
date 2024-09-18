@@ -4,11 +4,13 @@ import PPHLogo from "@/Assets/Images/logo-pph.webp";
 import MenAvatar from "@/Assets/Images/men.jpg";
 import WomenAvatar from "@/Assets/Images/women.jpg";
 import PPHLogoText from "@/Assets/Images/logo-hidayatullah-surabaya-website-1-1536x429.png";
+import AdminProfile from "@/Assets/Images/profile-admin.png";
 export {
     HarunaPP,
     PPHBackground,
     PPHLogo,
     MenAvatar,
     WomenAvatar,
-    PPHLogoText
+    PPHLogoText,
+    AdminProfile
 };

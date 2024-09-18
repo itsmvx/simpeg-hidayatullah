@@ -1,7 +1,6 @@
 import { MasterLayout } from "@/Layouts/MasterLayout";
 import { PageProps } from "@/types";
 import { Head, Link } from "@inertiajs/react";
-import { Button } from "@material-tailwind/react";
 import { Plus } from "lucide-react";
 
 export default function MASTER_SumberDayaIndexPage({ auth }: PageProps) {
