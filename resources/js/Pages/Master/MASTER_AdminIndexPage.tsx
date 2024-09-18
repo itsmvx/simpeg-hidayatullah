@@ -252,10 +252,10 @@ export default function MASTER_AdminIndexPage({ auth, pagination, units }: PageP
                             <div className="flex flex-col shrink-0 gap-2 lg:flex-row">
                                 <Button
                                     onClick={() => setOpenFormDialog(true)}
-                                    className="flex items-center gap-1.5 capitalize font-medium text-base" size="sm"
+                                    className="flex items-center gap-1.5 capitalize font-medium text-base bg-pph-green-deep hover:bg-pph-green-deep/80 hover:text-white" size="sm"
                                 >
                                     <Plus />
-                                    Tambahkan Admin baru
+                                    Tambahkan
                                 </Button>
                             </div>
                         </div>
@@ -267,12 +267,11 @@ export default function MASTER_AdminIndexPage({ auth, pagination, units }: PageP
                                 { TABLE_HEAD.map((head, index) => (
                                     <th
                                         key={ head }
-                                        className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-4"
+                                        className="first:rounded-l-md last:rounded-r-md bg-pph-green-deep p-4"
                                     >
                                         <Typography
                                             variant="small"
-                                            color="blue-gray"
-                                            className="flex items-center justify-between gap-2 font-normal leading-none opacity-70"
+                                            className="flex items-center justify-between gap-2 font-semibold leading-none !text-white"
                                         >
                                             { head }
                                         </Typography>
@@ -291,7 +290,7 @@ export default function MASTER_AdminIndexPage({ auth, pagination, units }: PageP
                                                 : "p-4 border-b border-blue-gray-50";
 
                                             return (
-                                                <tr key={id}>
+                                                <tr key={id} className="even:bg-gray-100">
                                                     <td className={`${classes} w-3`}>
                                                         <Typography
                                                             variant="small"
@@ -312,15 +311,13 @@ export default function MASTER_AdminIndexPage({ auth, pagination, units }: PageP
                                                     </td>
                                                     <td className={`${classes} min-w-52`}>
                                                         <div className="flex items-center gap-3">
-                                                            <div className="flex flex-col">
-                                                                <Typography
-                                                                    variant="small"
-                                                                    color="blue-gray"
-                                                                    className="font-normal"
-                                                                >
-                                                                    {username}
-                                                                </Typography>
-                                                            </div>
+                                                            <Typography
+                                                                variant="small"
+                                                                color="blue-gray"
+                                                                className="font-normal"
+                                                            >
+                                                                {username}
+                                                            </Typography>
                                                         </div>
                                                     </td>
                                                     <td className={`${classes} min-w-52`}>

@@ -9,7 +9,7 @@ import {
     Navbar,
     Typography
 } from "@material-tailwind/react";
-import { X, Menu as MenuIcon, Home, ChevronDown, LogOut, LogIn, UserRoundCog, LayoutDashboard } from "lucide-react";
+import { X, Menu as MenuIcon, ChevronDown, LogOut, LogIn, UserRoundCog, LayoutDashboard } from "lucide-react";
 import { Link, router } from "@inertiajs/react";
 import axios, { AxiosError } from "axios";
 import { notifyToast } from "@/Lib/Utils";
@@ -46,7 +46,7 @@ export const MasterNavbar = ({ auth }: PageProps) => {
 
     return (
         <>
-            <Navbar className="mx-auto w-full px-4 py-2 sticky top-0 z-50">
+            <Navbar className="mx-auto w-full px-4 py-2 sticky top-0 z-50 !backdrop-blur-none !backdrop-filter-none !bg-opacity-100">
                 <div className="flex items-center justify-between text-blue-gray-900">
                     <div className="w-56">
                         <Breadcrumbs className="bg-transparent p-0 transition-all mt-1 capitalize">
@@ -89,7 +89,7 @@ export const MasterNavbar = ({ auth }: PageProps) => {
                                             </Button>
                                         </MenuHandler>
                                         <MenuList className="w-max border-0">
-                                            <MenuItem className="flex items-center gap-3 w-60">
+                                            <MenuItem className="flex items-center gap-3 w-60" onClick={() => router.visit(route('auth.account'))}>
                                                 <div className="w-8 aspect-square flex justify-items-center">
                                                     <UserRoundCog width={35} className="mx-auto mt-0.5" />
                                                 </div>
@@ -157,7 +157,7 @@ export const MasterNavbar = ({ auth }: PageProps) => {
                                             </Button>
                                         </MenuHandler>
                                         <MenuList className="w-max border-0">
-                                            <MenuItem className="flex items-center gap-3 w-60">
+                                            <MenuItem className="flex items-center gap-3 w-60" onClick={() => router.visit(route('auth.account'))}>
                                                 <div className="w-8 aspect-square flex justify-items-center">
                                                     <UserRoundCog width={35} className="mx-auto mt-0.5" />
                                                 </div>

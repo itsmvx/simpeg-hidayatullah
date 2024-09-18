@@ -285,7 +285,7 @@ export default function MASTER_RekapPegawaiCreatePage({ auth, units, periodes }:
             <MasterLayout auth={auth}>
                 <main className="w-full min-h-screen bg-gray-50">
                     <header className="px-6 py-2 bg-white rounded-md rounded-b-none border ">
-                        <Typography className="flex justify-items-center gap-1.5 font-semibold text-lg">
+                        <Typography className="flex justify-items-center gap-1.5 font-bold text-lg text-primary-purple">
                             <span>
                                 <CircleAlert/>
                             </span>
@@ -306,7 +306,7 @@ export default function MASTER_RekapPegawaiCreatePage({ auth, units, periodes }:
                         <form onSubmit={ handleFormSubmit } className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-4 p-5">
                             <Select
                                 label="Unit"
-                                color="teal"
+                                color="green"
                                 name="unit_id"
                                 onChange={ (value: string | undefined) => handleSelectChange('unit_id', value ?? '') }
                             >
@@ -334,7 +334,7 @@ export default function MASTER_RekapPegawaiCreatePage({ auth, units, periodes }:
                             </Select>
                             <Select
                                 label="Periode Rekap"
-                                color="teal"
+                                color="green"
                                 name="periode_rekap_id"
                                 onChange={ (value: string | undefined) => handleSelectChange('periode_rekap_id', value ?? '') }
                                 disabled={ !formInputs.unit_id }
@@ -391,7 +391,7 @@ export default function MASTER_RekapPegawaiCreatePage({ auth, units, periodes }:
                             />
                             <Input
                                 type="text"
-                                color="teal"
+                                color="green"
                                 label="Golongan"
                                 name="golongan"
                                 value={ pegawais?.selected?.golongan.nama ?? '' }
@@ -400,7 +400,7 @@ export default function MASTER_RekapPegawaiCreatePage({ auth, units, periodes }:
                             />
                             <Input
                                 type="text"
-                                color="teal"
+                                color="green"
                                 label="Marhalah"
                                 name="marhalah"
                                 value={ pegawais?.selected?.marhalah.nama ?? '' }
@@ -409,7 +409,7 @@ export default function MASTER_RekapPegawaiCreatePage({ auth, units, periodes }:
                             />
                             <Input
                                 type="text"
-                                color="teal"
+                                color="green"
                                 label="Status Pegawai"
                                 name="status_pegawai"
                                 value={ pegawais?.selected?.status_pegawai.nama ?? '' }
@@ -418,7 +418,7 @@ export default function MASTER_RekapPegawaiCreatePage({ auth, units, periodes }:
                             />
                             <Input
                                 type="text"
-                                color="teal"
+                                color="green"
                                 label="Amanah"
                                 name="amanah"
                                 value={ formInputs.amanah }
@@ -427,7 +427,7 @@ export default function MASTER_RekapPegawaiCreatePage({ auth, units, periodes }:
                             />
                             <Input
                                 type="text"
-                                color="teal"
+                                color="green"
                                 label="Amanah Organisasi (tidak wajib diisi)"
                                 name="organisasi"
                                 value={ formInputs.organisasi ?? '' }
@@ -435,7 +435,7 @@ export default function MASTER_RekapPegawaiCreatePage({ auth, units, periodes }:
                             />
                             <Input
                                 type="number"
-                                color="teal"
+                                color="green"
                                 label="Gaji"
                                 name="gaji"
                                 value={ formInputs.gaji }
@@ -443,7 +443,7 @@ export default function MASTER_RekapPegawaiCreatePage({ auth, units, periodes }:
                                 required
                             />
                             <Input
-                                type="text" color="teal"
+                                type="text" color="green"
                                 label="Ketuntasan Kerja"
                                 name="ketuntasan_kerja"
                                 value={ formInputs.ketuntasan_kerja }
@@ -451,7 +451,7 @@ export default function MASTER_RekapPegawaiCreatePage({ auth, units, periodes }:
                                 required
                             />
                             <TextArea
-                                color="teal"
+                                color="green"
                                 label="Kedisiplinan"
                                 name="kedisiplinan"
                                 value={ formInputs.kedisiplinan }
@@ -459,7 +459,7 @@ export default function MASTER_RekapPegawaiCreatePage({ auth, units, periodes }:
                                 required
                             />
                             <TextArea
-                                color="teal"
+                                color="green"
                                 label="Rapor Profesi"
                                 name="raport_profesi"
                                 value={ formInputs.raport_profesi }
@@ -468,35 +468,35 @@ export default function MASTER_RekapPegawaiCreatePage({ auth, units, periodes }:
                             />
                             <TextArea
                                 label="Skill Manajerial (tidak wajib diisi)"
-                                color="teal"
+                                color="green"
                                 name="skill_manajerial"
                                 value={ formInputs.skill_manajerial ?? '' }
                                 onChange={ handleInputChange }
                             />
                             <TextArea
                                 label="Skill Leadership (tidak wajib diisi)"
-                                color="teal"
+                                color="green"
                                 name="skill_leadership"
                                 value={ formInputs.skill_leadership ?? '' }
                                 onChange={ handleInputChange }
                             />
                             <TextArea
                                 label="Catatan Negatif (tidak wajib diisi)"
-                                color="teal"
+                                color="green"
                                 name="catatan_negatif"
                                 value={ formInputs.catatan_negatif ?? '' }
                                 onChange={ handleInputChange }
                             />
                             <TextArea
                                 label="Prestasi (tidak wajib diisi)"
-                                color="teal"
+                                color="green"
                                 name="prestasi"
                                 value={ formInputs.prestasi ?? '' }
                                 onChange={ handleInputChange }
                             />
                             <TextArea
                                 label="Pembinaan (tidak wajib diisi)"
-                                color="teal"
+                                color="green"
                                 name="pembinaan"
                                 value={ formInputs.pembinaan ?? '' }
                                 onChange={ handleInputChange }

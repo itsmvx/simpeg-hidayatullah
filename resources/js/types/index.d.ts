@@ -1,9 +1,11 @@
 interface AuthUser {
     id: string;
     nama: string;
-    username: string;
+    username: string | null;
+    foto: string | null;
+    jenis_kelamin: JenisKelamin | null;
     unit_id: string | null;
-}
+};
 
 export type StatusPernikahan = 'Belum Menikah' | 'Menikah' | 'Cerai Hidup' | 'Cerai Mati';
 export type StatusAktif = 'Aktif' | 'Nonaktif' | 'Cuti';
@@ -118,41 +120,6 @@ export type PegawaiToRekap = {
     marhalah: IDNamaColumn;
     status_pegawai: IDNamaColumn;
 };
-// export type FormRekapPegawai<T extends Record<string, unknown> = Record<string, unknown>> = T & {
-//     nik: string;
-//     nik: string;
-//     foto: string | null;
-//     nama: string;
-//     jenis_kelamin: JenisKelamin;
-//     tempat_lahir: string;
-//     tanggal_lahir: string;
-//     no_hp: string;
-//     suku: string;
-//     alamat: string;
-//     agama: string;
-//     status_pernikahan: StatusPernikahan;
-//     amanah: string;
-//     amanah_atasan: string;
-//     kompetensi_quran: string;
-//     sertifikasi: string | null;
-//     status_aktif: StatusAktif;
-//     tanggal_masuk?: Date;
-//     tanggal_promosi?: Date;
-//     tanggal_marhalah?: Date
-//     bpjs_kesehatan: boolean;
-//     bpjs_ketenagakerjaan: boolean;
-//     data_keluarga: string;
-//     pendidikan_formal: string;
-//     pendidikan_non_formal: string;
-//     pengalaman_organisasi: string;
-//     pengalaman_kerja_pph: string;
-//     pengalaman_kerja_non_pph: string;
-//     keahlian: string | null;
-//     golongan_id: string | null;
-//     marhalah_id: string | null;
-//     status_pegawai_id: string | null;
-//     unit_id: string | null;
-// };
 
 export type ModelOnlyColumns<T, K extends keyof T> = Pick<T, K>;
 export type ModelWithoutColumns<T, K extends keyof T> = Omit<T, K>;
@@ -184,13 +151,6 @@ export type PaginationData<T> = {
     prev_page_url: string | null;
     to: number;
     total: number;
-};
-export type FilterBy = {
-    golongan: string[];
-    jenisKelamin: string[];
-    marhalah: string[];
-    statusPegawai: string[];
-    unit: string[];
 };
 
 export type MTColor =

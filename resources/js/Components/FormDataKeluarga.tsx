@@ -76,7 +76,7 @@ const FormDataKeluarga = ({ formState, setFormState, formDefault }: {
                                     <td className={ classes }>
                                         <Select
                                             label="Status dlm keluarga"
-                                            color="teal"
+                                            color="green"
                                             onChange={(value) => {
                                                 handleSelectChange(index, 'status', value ?? '');
                                             }}
@@ -99,7 +99,7 @@ const FormDataKeluarga = ({ formState, setFormState, formDefault }: {
                                                     ? (
                                                         <Select
                                                             label="Jenis kelamin"
-                                                            color="teal"
+                                                            color="green"
                                                             onChange={(value) => handleSelectChange(index, 'jenisKelamin', value ?? '')}
                                                             value={form.jenisKelamin}
                                                         >
@@ -109,7 +109,7 @@ const FormDataKeluarga = ({ formState, setFormState, formDefault }: {
                                                     ) : key === 'tanggalLahir'
                                                         ? (
                                                             <Input
-                                                                color="teal"
+                                                                color="green"
                                                                 type="date"
                                                                 id={String(index)}
                                                                 name={key}
@@ -119,7 +119,7 @@ const FormDataKeluarga = ({ formState, setFormState, formDefault }: {
                                                             />
                                                         ) : (
                                                             <Input
-                                                                color="teal"
+                                                                color="green"
                                                                 type="text"
                                                                 id={String(index)}
                                                                 label={ label }

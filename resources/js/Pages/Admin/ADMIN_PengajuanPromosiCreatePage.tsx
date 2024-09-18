@@ -251,10 +251,10 @@ export default function ADMIN_PengajuanPromosiCreatePage({ auth, admin, pegawais
             <Head title="Admin - Buat Pengajuan Promosi Create"/>
             <AdminLayout auth={auth}>
                 <main className="w-full min-h-screen bg-gray-50 space-y-4">
-                    <header className="px-6 py-2 bg-white rounded-md rounded-b-none border ">
+                    <header className="px-6 py-2 bg-white rounded-md rounded-b-none border">
                         <Typography className="flex justify-items-center gap-1.5 font-semibold text-lg">
                             <span>
-                                <CircleAlert/>
+                                <CircleAlert />
                             </span>
                             Informasi
                         </Typography>
@@ -281,7 +281,7 @@ export default function ADMIN_PengajuanPromosiCreatePage({ auth, admin, pegawais
                            />
                             <Input
                                 type="text"
-                                color="teal"
+                                color="green"
                                 label="Judul"
                                 name="nama"
                                 value={ formInput.nama }
@@ -313,7 +313,7 @@ export default function ADMIN_PengajuanPromosiCreatePage({ auth, admin, pegawais
                             />
                             <Select
                                 label="Jenis Promosi"
-                                color="teal"
+                                color="green"
                                 name="asal_type"
                                 onChange={ (value: string | undefined) => handleSelectChange('asal_type', value ?? '') }
                                 disabled={ !formInput.pegawai_id }
@@ -351,7 +351,7 @@ export default function ADMIN_PengajuanPromosiCreatePage({ auth, admin, pegawais
                                 </Typography>
                                 <Input
                                     type="text"
-                                    color="teal"
+                                    color="green"
                                     name="unit"
                                     value={ pegawai ? pegawai[formInput.asal_type]?.nama ?? '' : '' }
                                     disabled={ !formInput.pegawai_id || !pegawai || !formInput.asal_id }
@@ -381,7 +381,7 @@ export default function ADMIN_PengajuanPromosiCreatePage({ auth, admin, pegawais
                                 <SelectAkhirPengajuan type={ formInput.asal_type }/>
                             </div>
                             <TextArea
-                                color="teal"
+                                color="green"
                                 label="Keterangan (tidak wajib diisi)"
                                 name="keterangan"
                                 value={ formInput.keterangan ?? '' }

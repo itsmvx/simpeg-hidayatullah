@@ -146,8 +146,7 @@ export default function LoginPage() {
                         <Tabs value={ loginAs } className="w-64 lg:w-80 mx-auto">
                             <TabsHeader>
                                 { tabData.map(({ label, value, icon }) => (
-                                    <Tab key={ value } value={ value } className="text-xs font-medium font-sans"
-                                         onClick={ () => handleToggleLoginAs(value) }>
+                                    <Tab key={ value } value={ value } className="text-xs font-medium" onClick={ () => handleToggleLoginAs(value) }>
                                         <div className="flex items-center gap-2">
                                             { icon }
                                             { label }
@@ -167,8 +166,9 @@ export default function LoginPage() {
                     <form className="mx-auto w-64 lg:w-80 flex flex-col gap-4" onSubmit={ handleFormSubmit }>
                         <Input
                             type="text"
-                            label="Username"
+                            label={ loginAs === 'admin' ? 'Username' : 'Username atau NIP' }
                             size="md"
+                            color="green"
                             name="username"
                             placeholder="username"
                             error={ formState.onError }
@@ -179,6 +179,7 @@ export default function LoginPage() {
                         <Input
                             type="password"
                             label="Password"
+                            color="green"
                             name="password"
                             placeholder="*****"
                             error={ formState.onError }
@@ -190,7 +191,7 @@ export default function LoginPage() {
                             type="submit"
                             disabled={ formState.onSubmit || formState.onError }
                             loading={ formState.onSubmit }
-                            className="lg:mt-5 flex items-center justify-center"
+                            className="lg:mt-5 flex items-center justify-center !bg-pph-green-deep"
                             fullWidth
                         >
                             Masuk
@@ -198,7 +199,7 @@ export default function LoginPage() {
                         <Button
                             type="button"
                             variant="text"
-                            className="mt-5 flex items-center justify-center gap-1.5 h-9"
+                            className="mt-5 flex items-center justify-center gap-1.5 h-9 hover:!bg-pph-green/70"
                             fullWidth
                             onClick={() => router.visit('/')}
                         >

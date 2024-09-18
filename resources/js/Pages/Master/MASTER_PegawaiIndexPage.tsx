@@ -39,7 +39,7 @@ import { ViewPerPageList } from "@/Components/ViewPerPageList";
 import { SearchInput } from "@/Components/SearchInput";
 import { TableFilterBy } from "@/Components/TableFilterBy";
 import { Checkbox } from "@/Components/Checkbox";
-import { generateMultipleDocuments } from "@/Lib/Generate_Dokumen/SuratPerjanjianKontrakKerja";
+import { generateMultipleSuratKontrakKerja, generateSingleSuratKontrakKerja } from "@/Lib/Generate_Dokumen/SuratPerjanjianKontrakKerja";
 import { Input } from "@/Components/Input";
 import { id } from "date-fns/locale";
 import { generateMultipleRekap, generateSingleRekap, PegawaiRekapPrint } from "@/Lib/Generate_Dokumen/RekapPegawai";
@@ -94,6 +94,18 @@ export default function MASTER_PegawaiIndexPage({ auth, marhalahs, golongans, st
         fileSize: 0,
         fileProgress: 0
     };
+    const singleDownloadSuratKontrakInit = {
+        openDialog: false,
+        periode_rekap_id: '',
+        tanggal: '',
+        onError: false,
+        errMsg: '',
+        onProcess: false,
+        pegawai: {
+            nama: '',
+            amanah: ''
+        }
+    };
     const massDownloadSuratKontrakInit = {
         openDialog: false,
         periode_rekap_id: '',
@@ -118,7 +130,6 @@ export default function MASTER_PegawaiIndexPage({ auth, marhalahs, golongans, st
         nama: string;
         amanah: string;
     }[]>([]);
-
     const [ massDownloadRekap, setMassDownloadRekap ] = useState<{
         openDialog: boolean;
         onSubmit: boolean;
@@ -130,6 +141,17 @@ export default function MASTER_PegawaiIndexPage({ auth, marhalahs, golongans, st
         fileSize: number;
         fileProgress: number
     }>(massDownloadRekapInit);
+    const [ singleDownloadSuratKontrak, setSingleDownloadSuratKontrak ] = useState<{
+        openDialog: boolean,
+        periode_rekap_id: string,
+        tanggal: string;
+        onError: boolean;
+        errMsg: string;
+        pegawai: {
+            nama: string;
+            amanah: string;
+        };
+    }>(singleDownloadSuratKontrakInit);
     const [ massDownloadSuratKontrak, setMassDownloadSuratKontrak ] = useState<{
         openDialog: boolean,
         onProcess: boolean,
@@ -192,6 +214,43 @@ export default function MASTER_PegawaiIndexPage({ auth, marhalahs, golongans, st
             return prevState.filter((prev) => prev.id !== id);
         });
     };
+    const handleSingleSuratKontrak = (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        if (periodes && suratProps) {
+            const selectedPeriode = periodes.find((periode) => periode.id === singleDownloadSuratKontrak.periode_rekap_id);
+            const suratKontrakKerjaProps = {
+                pihakPertama: {
+                    nama: suratProps.kepalaSDI ?? '{Nama_KA_SDI}'
+                },
+                pihakKedua: {
+                    nama: singleDownloadSuratKontrak.pegawai.nama,
+                    amanah: singleDownloadSuratKontrak.pegawai.amanah
+                },
+                tanggal: singleDownloadSuratKontrak.tanggal,
+                periode: {
+                    awal: selectedPeriode?.awal ?? new Date().toDateString(),
+                    akhir: selectedPeriode?.akhir ?? new Date().toDateString()
+                }
+            };
+            generateSingleSuratKontrakKerja({
+                ...suratKontrakKerjaProps
+            })
+                .then(() => {
+                    setSingleDownloadSuratKontrak((prevState) => ({
+                        ...singleDownloadSuratKontrakInit
+                    }));
+                })
+                .catch((err: Error) => {
+                    setSingleDownloadSuratKontrak((prevState) => ({
+                        ...prevState,
+                        onError: true,
+                        errMsg: err.message
+                    }));
+                });
+            return;
+        }
+        notifyToast('error', 'Properti data tidak sesuai')
+    };
     const setMassDownloadSuratKontrakFileSize = (size: number) => {
         setMassDownloadSuratKontrak((prevState) => ({
             ...prevState,
@@ -235,7 +294,7 @@ export default function MASTER_PegawaiIndexPage({ auth, marhalahs, golongans, st
                 fileName: fileName
             }));
 
-            generateMultipleDocuments({
+            generateMultipleSuratKontrakKerja({
                 docsData: suratKontrakKerjaProps,
                 fileName: fileName,
                 setUpdateFileProgress: setMassDownloadSuratKontrakFileProgress,
@@ -339,17 +398,16 @@ export default function MASTER_PegawaiIndexPage({ auth, marhalahs, golongans, st
                    }));
                });
        } catch (err: unknown) {
-
+           notifyToast('error', 'Gagal menghubungi server');
        }
-
     };
     useEffect(() => {
-        if (massDownloadSuratKontrak.openDialog) {
+        if (singleDownloadSuratKontrak.openDialog || massDownloadSuratKontrak.openDialog) {
             if (!periodes || !suratProps) {
                 router.reload({ only: ['periodes', 'suratProps'] });
             }
         }
-    }, [ massDownloadSuratKontrak.openDialog ]);
+    }, [ singleDownloadSuratKontrak.openDialog, massDownloadSuratKontrak.openDialog ]);
 
     return (
         <>
@@ -359,7 +417,7 @@ export default function MASTER_PegawaiIndexPage({ auth, marhalahs, golongans, st
                     <CardHeader floated={ false } shadow={ false } className="rounded-none">
                         <div className="mb-8 flex flex-col lg:flex-row items-start justify-between gap-3">
                             <div>
-                                <Typography variant="h5" color="blue-gray">
+                                <Typography variant="h5" color="blue-gray" className="text-2xl">
                                     Daftar Pegawai
                                 </Typography>
                                 <Typography color="gray" className="mt-1 font-normal">
@@ -386,18 +444,20 @@ export default function MASTER_PegawaiIndexPage({ auth, marhalahs, golongans, st
                                     onClick={ () => {
                                         router.visit(route('master.pegawai.create-upload'));
                                     } }
-                                    className="flex items-center gap-1.5 capitalize font-medium text-base w-44 self-end" size="sm"
+                                    ripple={false}
+                                    className="flex items-center gap-1.5 capitalize font-medium text-base w-44 self-end !bg-pph-green-deep hover:!bg-pph-green-deep/80 hover:text-white !shadow-none hover:!shadow-none transition-colors duration-200 ease-in-out" size="sm"
                                 >
                                     <FileUp />
                                     Upload File
                                 </Button>
-                                <div className="flex items-center justify-center gap-2">
+                                <div className="flex flex-col lg:flex-row items-center justify-center gap-2">
                                     <Menu placement="left-start">
                                         <MenuHandler>
                                             <Button
                                                 variant="filled"
                                                 disabled={ pegawaisChecked.length < 1 }
-                                                className="flex items-center gap-1.5 capitalize font-medium text-base order-last !py-2 !px-3.5"
+                                                ripple={false}
+                                                className="flex items-center gap-1.5 capitalize font-medium self-end lg:self-auto text-base order-last !py-2 !px-3.5 bg-pph-green-deep hover:!bg-pph-green-deep/80 disabled:!bg-pph-green-deep/80"
                                             >
                                                 <ListChecks />
                                                 Opsi
@@ -432,10 +492,11 @@ export default function MASTER_PegawaiIndexPage({ auth, marhalahs, golongans, st
                                         onClick={ () => {
                                             router.visit(route('master.pegawai.create'));
                                         } }
-                                        className="flex items-center gap-1.5 capitalize font-medium text-base" size="sm"
+                                        ripple={false}
+                                        className="flex items-center gap-1.5 self-end lg:self-auto capitalize font-medium text-base !bg-pph-green-deep hover:!bg-pph-green-deep/80 hover:text-white" size="sm"
                                     >
                                         <Plus/>
-                                        Tambahkan Pegawai baru
+                                        Tambahkan
                                     </Button>
                                 </div>
                             </div>
@@ -445,7 +506,7 @@ export default function MASTER_PegawaiIndexPage({ auth, marhalahs, golongans, st
                         <table className="mt-4 w-full min-w-max table-auto text-left">
                             <thead>
                             <tr>
-                                <th className="border-y border-blue-gray-100 bg-blue-gray-50/50 px-2">
+                                <th className="bg-pph-green-deep px-2 rounded-l-md">
                                     <div className="flex items-center justify-between gap-2 font-normal leading-none opacity-70">
                                         <Checkbox
                                             size={4}
@@ -453,18 +514,21 @@ export default function MASTER_PegawaiIndexPage({ auth, marhalahs, golongans, st
                                             onChange={ () => {
                                                 setPegawaisChecked((prevState) => prevState.length < 1 ? pagination.data.map((data) => ({ id: data.id, nama: data.nama, amanah: data.amanah })) : [])
                                             } }
+                                            className="checked:bg-white checked:border-white checked:before:bg-white hover:checked:bg-white focus:checked:bg-white"
+                                            containerProps={{
+                                                className: '*:!text-black *:!font-bold'
+                                            }}
                                         />
                                     </div>
                                 </th>
                                 { TABLE_HEAD.map((head) => (
                                     <th
                                         key={ head }
-                                        className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-4"
+                                        className="bg-pph-green-deep p-4 last:rounded-r-md"
                                     >
                                         <Typography
                                             variant="small"
-                                            color="blue-gray"
-                                            className="flex items-center justify-between gap-2 font-normal leading-none opacity-70"
+                                            className="flex items-center justify-between gap-2 font-semibold leading-none !text-white"
                                         >
                                             { head }
                                         </Typography>
@@ -496,7 +560,7 @@ export default function MASTER_PegawaiIndexPage({ auth, marhalahs, golongans, st
                                                 : "p-4 border-b border-blue-gray-50";
 
                                             return (
-                                                <tr key={ id }>
+                                                <tr key={ id } className="even:bg-gray-100">
                                                     <td className={ ` w-min ${index === 0 ? '!p-0 !py-4' : ''}` }>
                                                         <Typography
                                                             variant="small"
@@ -505,12 +569,17 @@ export default function MASTER_PegawaiIndexPage({ auth, marhalahs, golongans, st
                                                             as="div"
                                                         >
                                                             <Checkbox
+                                                                size={ 4 }
                                                                 checked={ !!pegawaisChecked.find((pegawai) => pegawai.id === id) }
                                                                 onChange={ () => handleSetCheckPegawai(id, nama, amanah) }
+                                                                className="checked:bg-green-500 checked:border-green-500 checked:before:bg-green-500 hover:checked:bg-green-500 focus:checked:bg-green-500"
+                                                                containerProps={ {
+                                                                    className: '*:!text-white *:!font-bold'
+                                                                } }
                                                             />
                                                         </Typography>
                                                     </td>
-                                                    <td className={ `${ classes } w-3` }>
+                                                    <td className={ `${ classes } w-3 ` }>
                                                         <Typography
                                                             variant="small"
                                                             color="blue-gray"
@@ -685,7 +754,7 @@ export default function MASTER_PegawaiIndexPage({ auth, marhalahs, golongans, st
                                                                     </MenuItem>
                                                                     <MenuItem
                                                                         className="flex flex-row items-center gap-1.5 font-medium text-sm"
-                                                                        onClick={ (() => downloadSingleRekap(index)) }>
+                                                                        onClick={ () => setSingleDownloadSuratKontrak((prevState) => ({ ...prevState, openDialog: true, pegawai: { nama: nama, amanah: amanah } })) }>
                                                                         <Handshake/>
                                                                         <span>Kontrak Kerja</span>
                                                                     </MenuItem>
@@ -823,12 +892,96 @@ export default function MASTER_PegawaiIndexPage({ auth, marhalahs, golongans, st
                     </DialogBody>
                 </Dialog>
 
-                <Dialog open={ massDownloadSuratKontrak.openDialog }
-                        handler={ () => setMassDownloadSuratKontrak((prevState) => ({
-                            ...prevState,
-                            openDialog: prevState.openDialog
-                        })) } className="p-4"
-                >
+                <Dialog open={ singleDownloadSuratKontrak.openDialog } handler={ () => setSingleDownloadSuratKontrak((prevState) => ({ ...prevState, openDialog: prevState.openDialog })) } className="p-4">
+                    <DialogHeader className="relative m-0 block">
+                        <Typography variant="h4" color="blue-gray">
+                            Buat Surat Kontrak kerja
+                        </Typography>
+                        <Typography className="mt-1 font-medium text-gray-700">
+                            Pilih Periode
+                        </Typography>
+                        <IconButton
+                            size="sm"
+                            variant="text"
+                            className="!absolute right-3.5 top-3.5 flex items-center justify-center"
+                            onClick={ () => setSingleDownloadSuratKontrak(singleDownloadSuratKontrakInit) }
+                        >
+                            <X width={ 18 }/>
+                        </IconButton>
+                    </DialogHeader>
+                    <DialogBody>
+                        <form onSubmit={ handleSingleSuratKontrak } className="space-y-3.5 !-my-4">
+                            <Select
+                                label="Periode Rekap"
+                                color="teal"
+                                name="periode_rekap_id"
+                                onChange={ (val) => setSingleDownloadSuratKontrak((prevState) => ({
+                                    ...prevState,
+                                    periode_rekap_id: val ?? ''
+                                })) }
+                                disabled={ !periodes }
+                            >
+                                {
+                                    periodes
+                                        ? periodes.length > 1
+                                            ? periodes.map((periode) => ((
+                                                <Option
+                                                    key={ periode.id }
+                                                    value={ periode.id }
+                                                >
+                                                    <div className="flex justify-items-center gap-1">
+                                                        <p className="flex justify-items-center gap-1.5 truncate">
+                                                            { periode.nama } &nbsp;
+                                                            ({ format(periode.awal, 'PPP', { locale: id }) } -&nbsp;
+                                                            { format(periode.akhir, 'PPP', { locale: id }) })
+                                                        </p>
+                                                    </div>
+                                                </Option>
+                                            )))
+                                            : (
+                                                <Option disabled value="">
+                                                    <div className="flex items-center gap-2">
+                                                        <TriangleAlert className="text-red-600"/>
+                                                        <p className="text-gray-900 font-semibold">
+                                                            Belum ada Periode terdaftar atau dibuka
+                                                        </p>
+                                                    </div>
+                                                </Option>
+                                            )
+                                        : (
+                                            <Option disabled value="">
+                                                <div className="flex items-center gap-2">
+                                                    Memuat Periode...
+                                                    <span
+                                                        className="w-3 h-3 rounded-full border-2 border-r-transparent border-gray-700 animate-spin"/>
+                                                </div>
+                                            </Option>
+                                        )
+                                }
+                            </Select>
+                            <Input
+                                type="date"
+                                color="teal"
+                                label="Tanggal Tanda Terima"
+                                value={ singleDownloadSuratKontrak.tanggal }
+                                onChange={ (event) => setSingleDownloadSuratKontrak((prevState) => ({
+                                    ...prevState,
+                                    tanggal: event.target.value
+                                })) }
+                                required
+                            />
+                            <div className="flex items-center justify-end gap-2">
+                                <Button color="red" className="!shadow-none" onClick={ () => setSingleDownloadSuratKontrak(singleDownloadSuratKontrakInit) }>
+                                    Batal
+                                </Button>
+                                <Button type="submit" color="green" className="!shadow-none" disabled={ !singleDownloadSuratKontrak.periode_rekap_id || !singleDownloadSuratKontrak.tanggal }>
+                                    Buat
+                                </Button>
+                            </div>
+                        </form>
+                    </DialogBody>
+                </Dialog>
+                <Dialog open={ massDownloadSuratKontrak.openDialog } handler={ () => setMassDownloadSuratKontrak((prevState) => ({ ...prevState, openDialog: prevState.openDialog })) } className="p-4">
                     <DialogHeader className="relative m-0 block">
                         <Typography variant="h4" color="blue-gray">
                             Buat Surat Kontrak kerja
@@ -870,7 +1023,7 @@ export default function MASTER_PegawaiIndexPage({ auth, marhalahs, golongans, st
                                                         >
                                                             <div className="flex justify-items-center gap-1">
                                                                 <p className="flex justify-items-center gap-1.5 truncate">
-                                                                { periode.nama } &nbsp;
+                                                                    { periode.nama } &nbsp;
                                                                     ({ format(periode.awal, 'PPP', { locale: id }) } -&nbsp;
                                                                     { format(periode.akhir, 'PPP', { locale: id }) })
                                                                 </p>

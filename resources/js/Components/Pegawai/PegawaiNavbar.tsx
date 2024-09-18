@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import {
-    Avatar,
     Breadcrumbs,
     Button,
     Collapse,
@@ -48,7 +47,7 @@ export const PegawaiNavbar = ({ auth }: PageProps) => {
 
     return (
         <>
-            <Navbar className="mx-auto w-full px-4 py-2 sticky top-0 z-50">
+            <Navbar className="mx-auto w-full px-4 py-2 sticky top-0 z-50 !backdrop-blur-none !backdrop-filter-none !bg-opacity-100">
                 <div className="flex items-center justify-between text-blue-gray-900">
                     <div className="w-56">
                         <Breadcrumbs className="bg-transparent p-0 transition-all mt-1 capitalize">
@@ -91,7 +90,7 @@ export const PegawaiNavbar = ({ auth }: PageProps) => {
                                             </Button>
                                         </MenuHandler>
                                         <MenuList className="w-max border-0">
-                                            <Link href={route('pegawai.profile')}>
+                                            <Link href={route('auth.account')}>
                                                 <MenuItem className="flex items-center gap-3 w-60 focus:outline-none focus:border-none">
                                                     <div className="w-8 aspect-square flex justify-items-center">
                                                         <UserRoundCog width={35} className="mx-auto mt-0.5" />

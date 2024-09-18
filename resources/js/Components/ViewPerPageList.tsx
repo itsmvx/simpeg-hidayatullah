@@ -43,13 +43,14 @@ export const ViewPerPageList = ({ className, preserveState }: {
                                 <Checkbox
                                     id="show-25"
                                     ripple={ false }
-                                    className="hover:before:opacity-0"
-                                    containerProps={ {
-                                        className: "p-0",
-                                    } }
+                                    className="hover:before:opacity-0 checked:bg-pph-green-deep checked:border-pph-green-deep checked:before:bg-pph-green-deep hover:checked:bg-pph-green-deep focus:checked:bg-pph-green-deep"
+                                    containerProps={{
+                                        className: '*:!text-white p-0'
+                                    }}
                                     value={ 25 }
                                     checked={ viewPerPage === 25 }
                                     onChange={ () => handleSetViewPerPage(25) }
+                                    color="green"
                                 />
                             </ListItemPrefix>
                             <Typography color="blue-gray" className="font-medium">
@@ -66,13 +67,14 @@ export const ViewPerPageList = ({ className, preserveState }: {
                                 <Checkbox
                                     id="show-50"
                                     ripple={ false }
-                                    className="hover:before:opacity-0"
-                                    containerProps={ {
-                                        className: "p-0",
-                                    } }
+                                    className="hover:before:opacity-0 checked:bg-pph-green-deep checked:border-pph-green-deep checked:before:bg-pph-green-deep hover:checked:bg-pph-green-deep focus:checked:bg-pph-green-deep"
+                                    containerProps={{
+                                        className: '*:!text-white p-0'
+                                    }}
                                     value={ 50 }
                                     checked={ viewPerPage === 50 }
                                     onChange={ () => handleSetViewPerPage(50) }
+                                    color="deep-purple"
                                 />
                             </ListItemPrefix>
                             <Typography color="blue-gray" className="font-medium">
@@ -91,10 +93,10 @@ export const ViewPerPageList = ({ className, preserveState }: {
                                 <Checkbox
                                     id="show-100"
                                     ripple={ false }
-                                    className="hover:before:opacity-0"
-                                    containerProps={ {
-                                        className: "p-0",
-                                    } }
+                                    className="hover:before:opacity-0 checked:bg-pph-green-deep checked:border-pph-green-deep checked:before:bg-pph-green-deep hover:checked:bg-pph-green-deep focus:checked:bg-pph-green-deep"
+                                    containerProps={{
+                                        className: '*:!text-white p-0'
+                                    }}
                                     value={ 100 }
                                     checked={ viewPerPage === 100 }
                                     onChange={ () => handleSetViewPerPage(100) }
@@ -114,10 +116,10 @@ export const ViewPerPageList = ({ className, preserveState }: {
                                 <Checkbox
                                     id="show-150"
                                     ripple={ false }
-                                    className="hover:before:opacity-0"
-                                    containerProps={ {
-                                        className: "p-0",
-                                    } }
+                                    className="hover:before:opacity-0 checked:bg-pph-green-deep checked:border-pph-green-deep checked:before:bg-pph-green-deep hover:checked:bg-pph-green-deep focus:checked:bg-pph-green-deep"
+                                    containerProps={{
+                                        className: '*:!text-white p-0'
+                                    }}
                                     value={ 150 }
                                     checked={ viewPerPage === 150 }
                                     onChange={ () => handleSetViewPerPage(150) }

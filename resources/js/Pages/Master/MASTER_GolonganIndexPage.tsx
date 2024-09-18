@@ -150,7 +150,7 @@ export default function MASTER_GolonganIndexPage({ auth, pagination }: PageProps
                     <CardHeader floated={false} shadow={false} className="rounded-none">
                         <div className="mb-8 flex flex-col lg:flex-row items-start justify-between gap-3">
                             <div>
-                                <Typography variant="h5" color="blue-gray">
+                                <Typography variant="h5" color="blue-gray" className="text-2xl">
                                     Daftar Golongan
                                 </Typography>
                                 <Typography color="gray" className="mt-1 font-normal">
@@ -166,10 +166,10 @@ export default function MASTER_GolonganIndexPage({ auth, pagination }: PageProps
                             <div className="flex flex-col shrink-0 gap-2 lg:flex-row">
                                 <Button
                                     onClick={() => setOpenFormDialog(true)}
-                                    className="flex items-center gap-1.5 capitalize font-medium text-base" size="sm"
+                                    className="flex items-center gap-1.5 capitalize font-medium text-base bg-pph-green-deep hover:bg-pph-green-deep/80 hover:text-white" size="sm"
                                 >
                                     <Plus />
-                                    Tambahkan Golongan baru
+                                    Tambahkan
                                 </Button>
                             </div>
                         </div>
@@ -181,12 +181,11 @@ export default function MASTER_GolonganIndexPage({ auth, pagination }: PageProps
                                 { TABLE_HEAD.map((head, index) => (
                                     <th
                                         key={ head }
-                                        className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-4"
+                                        className="first:rounded-l-md last:rounded-r-md bg-pph-green-deep p-4"
                                     >
                                         <Typography
                                             variant="small"
-                                            color="blue-gray"
-                                            className="flex items-center justify-between gap-2 font-normal leading-none opacity-70"
+                                            className="flex items-center justify-between gap-2 font-semibold leading-none !text-white"
                                         >
                                             { head }
                                         </Typography>
@@ -205,7 +204,7 @@ export default function MASTER_GolonganIndexPage({ auth, pagination }: PageProps
                                                 : "p-4 border-b border-blue-gray-50";
 
                                             return (
-                                                <tr key={ id }>
+                                                <tr key={ id } className="even:bg-gray-100">
                                                     <td className={ `${ classes } w-3` }>
                                                         <Typography
                                                             variant="small"

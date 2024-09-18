@@ -387,7 +387,7 @@ export default function MASTER_PegawaiCreatePage({ auth, golongans, marhalahs, s
                             </div>
                             <Input
                                 type="text"
-                                color="teal"
+                                color="green"
                                 label="Nomor Induk Kewarganegaraan ( NIK )"
                                 name="nik"
                                 value={ formInputs.nik }
@@ -396,7 +396,7 @@ export default function MASTER_PegawaiCreatePage({ auth, golongans, marhalahs, s
                             />
                             <Input
                                 type="text"
-                                color="teal"
+                                color="green"
                                 label="Nomor Induk Pegawai ( NIP )"
                                 name="nip"
                                 value={ formInputs.nip }
@@ -405,7 +405,7 @@ export default function MASTER_PegawaiCreatePage({ auth, golongans, marhalahs, s
                             />
                             <Input
                                 type="text"
-                                color="teal"
+                                color="green"
                                 label="Nama lengkap"
                                 name="nama"
                                 value={ formInputs.nama }
@@ -413,7 +413,7 @@ export default function MASTER_PegawaiCreatePage({ auth, golongans, marhalahs, s
                                 required
                             />
                             <Input
-                                type="text" color="teal"
+                                type="text" color="green"
                                 label="Suku bangsa"
                                 name="suku"
                                 value={ formInputs.suku }
@@ -422,7 +422,7 @@ export default function MASTER_PegawaiCreatePage({ auth, golongans, marhalahs, s
                             />
                             <Input
                                 type="text"
-                                color="teal"
+                                color="green"
                                 label="Tempat Lahir"
                                 name="tempat_lahir"
                                 value={ formInputs.tempat_lahir }
@@ -432,7 +432,7 @@ export default function MASTER_PegawaiCreatePage({ auth, golongans, marhalahs, s
                             <Popover placement="bottom">
                                 <PopoverHandler>
                                     <Input
-                                        color="teal"
+                                        color="green"
                                         label="Tanggal Lahir"
                                         value={ formInputs.tanggal_lahir ? format(formInputs.tanggal_lahir, "PPP", { locale: id }) : "" }
                                         readOnly
@@ -456,7 +456,7 @@ export default function MASTER_PegawaiCreatePage({ auth, golongans, marhalahs, s
                             <div className="flex flex-row gap-4">
                                 <Input
                                     type="text"
-                                    color="teal"
+                                    color="green"
                                     label="Usia (Tahun)"
                                     name="usia_tahun"
                                     disabled
@@ -466,7 +466,7 @@ export default function MASTER_PegawaiCreatePage({ auth, golongans, marhalahs, s
                                 />
                                 <Input
                                     type="text"
-                                    color="teal"
+                                    color="green"
                                     label="Usia (Bulan)"
                                     name="usia_bulan"
                                     disabled
@@ -477,7 +477,7 @@ export default function MASTER_PegawaiCreatePage({ auth, golongans, marhalahs, s
                             </div>
                             <Select
                                 label="Jenis kelamin"
-                                color="teal"
+                                color="green"
                                 name="jenis_kelamin"
                                 value={ formInputs.jenis_kelamin }
                                 aria-required={true}
@@ -492,7 +492,7 @@ export default function MASTER_PegawaiCreatePage({ auth, golongans, marhalahs, s
                                 }
                             </Select>
                             <Input
-                                type="text" color="teal"
+                                type="text" color="green"
                                 label="Alamat"
                                 name="alamat"
                                 value={ formInputs.alamat }
@@ -501,7 +501,7 @@ export default function MASTER_PegawaiCreatePage({ auth, golongans, marhalahs, s
                             />
                             <Input
                                 type="text"
-                                color="teal"
+                                color="green"
                                 label="Agama"
                                 name="agama"
                                 value={ formInputs.agama }
@@ -510,7 +510,7 @@ export default function MASTER_PegawaiCreatePage({ auth, golongans, marhalahs, s
                             />
                             <Select
                                 label="Status pernikahan"
-                                color="teal"
+                                color="green"
                                 name="status_pernikahan"
                                 value={ formInputs.status_pernikahan }
                                 onChange={ (value: string | undefined) => handleSelectChange('status_pernikahan', value ?? '') }
@@ -525,7 +525,7 @@ export default function MASTER_PegawaiCreatePage({ auth, golongans, marhalahs, s
                             </Select>
                             <Select
                                 label="Golongan"
-                                color="teal"
+                                color="green"
                                 name="golongan_id"
                                 value={ formInputs.golongan_id ?? undefined }
                                 onChange={ (value: string | undefined) => handleSelectChange('golongan_id', value ?? '') }
@@ -550,7 +550,7 @@ export default function MASTER_PegawaiCreatePage({ auth, golongans, marhalahs, s
                             </Select>
                             <Select
                                 label="Marhalah"
-                                color="teal"
+                                color="green"
                                 name="marhalah_id"
                                 value={ formInputs.marhalah_id ?? undefined }
                                 onChange={ (value: string | undefined) => handleSelectChange('marhalah_id', value ?? '') }
@@ -574,7 +574,7 @@ export default function MASTER_PegawaiCreatePage({ auth, golongans, marhalahs, s
                             </Select>
                             <Select
                                 label="Status Pegawai"
-                                color="teal"
+                                color="green"
                                 name="status_pegawai_id"
                                 value={ formInputs.status_pegawai_id ?? undefined }
                                 onChange={ (value: string | undefined) => handleSelectChange('status_pegawai_id', value ?? '') }
@@ -598,7 +598,7 @@ export default function MASTER_PegawaiCreatePage({ auth, golongans, marhalahs, s
                             </Select>
                             <Select
                                 label="Unit"
-                                color="teal"
+                                color="green"
                                 name="unit_id"
                                 value={ formInputs.unit_id ?? undefined }
                                 onChange={ (value: string | undefined) => handleSelectChange('unit_id', value ?? '') }
@@ -623,7 +623,7 @@ export default function MASTER_PegawaiCreatePage({ auth, golongans, marhalahs, s
                             <Popover placement="bottom">
                                 <PopoverHandler>
                                     <Input
-                                        color="teal"
+                                        color="green"
                                         label="Tahun Masuk"
                                         value={ formInputs.tanggal_masuk ? format(formInputs.tanggal_masuk, "y", { locale: id }) : "" }
                                         readOnly
@@ -646,7 +646,7 @@ export default function MASTER_PegawaiCreatePage({ auth, golongans, marhalahs, s
                             </Popover>
                             <Select
                                 label="Status Aktif"
-                                color="teal"
+                                color="green"
                                 name="status_aktif"
                                 value={ formInputs.status_aktif }
                                 onChange={ (value: string | undefined) => handleSelectChange('status_aktif', value ?? '') }
@@ -660,7 +660,7 @@ export default function MASTER_PegawaiCreatePage({ auth, golongans, marhalahs, s
                                 }
                             </Select>
                             <Input
-                                type="text" color="teal"
+                                type="text" color="green"
                                 label="Kompetensi Qur'an"
                                 name="kompetensi_quran"
                                 value={ formInputs.kompetensi_quran }
@@ -668,7 +668,7 @@ export default function MASTER_PegawaiCreatePage({ auth, golongans, marhalahs, s
                                 required
                             />
                             <Input
-                                type="text" color="teal"
+                                type="text" color="green"
                                 label="Amanah"
                                 name="amanah"
                                 value={ formInputs.amanah }
@@ -676,7 +676,7 @@ export default function MASTER_PegawaiCreatePage({ auth, golongans, marhalahs, s
                                 required
                             />
                             <Input
-                                type="text" color="teal"
+                                type="text" color="green"
                                 label="Amanah atasan langsung"
                                 name="amanah_atasan"
                                 value={ formInputs.amanah_atasan }
@@ -684,7 +684,7 @@ export default function MASTER_PegawaiCreatePage({ auth, golongans, marhalahs, s
                                 required
                             />
                             <Input
-                                type="text" color="teal"
+                                type="text" color="green"
                                 label="Nomor HP/WA"
                                 name="no_hp"
                                 value={ formInputs.no_hp }
@@ -692,7 +692,7 @@ export default function MASTER_PegawaiCreatePage({ auth, golongans, marhalahs, s
                                 required
                             />
                             <Input
-                                type="text" color="teal"
+                                type="text" color="green"
                                 label="Sertifikasi (bila ada)"
                                 name="sertifikasi"
                                 value={ formInputs.sertifikasi }
