@@ -21,7 +21,10 @@ export default withMT({
             colors: {
                 'pph-black': '#191917',
                 'pph-green': '#98C743',
-                'pph-white': '#FEFEFE'
+                'pph-green-deep': '#59ba52',
+                'pph-white': '#FEFEFE',
+                'primary-purple': '#98C743',
+                'primary-purple-light': '#2a3e59'
             }
         },
     },

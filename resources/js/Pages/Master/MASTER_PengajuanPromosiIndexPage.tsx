@@ -20,7 +20,6 @@ import { id as localeID } from "date-fns/locale/id";
 import { useState } from "react";
 import axios, { AxiosError } from "axios";
 import Pagination from "@/Components/Pagination";
-import { jenisPengajuanPromosi } from "@/Lib/StaticData";
 import { notifyToast } from "@/Lib/Utils";
 import { TableFilterBy } from "@/Components/TableFilterBy";
 import { ViewPerPageList } from "@/Components/ViewPerPageList";
@@ -122,12 +121,12 @@ export default function MASTER_PengajuanPromosiIndexPage({ auth, marhalahs, golo
                                 { TABLE_HEAD.map((head, index) => (
                                     <th
                                         key={ head }
-                                        className="border-y border-blue-gray-100 bg-[#1f1e33] p-4"
+                                        className="first:rounded-l-md last:rounded-r-md bg-pph-green-deep p-4"
                                     >
                                         <Typography
                                             variant="small"
                                             color="white"
-                                            className="flex items-center justify-between gap-2 font-normal leading-none font-bold"
+                                            className="flex items-center justify-between gap-2 font-semibold leading-none !text-white"
                                         >
                                             { head }
                                         </Typography>

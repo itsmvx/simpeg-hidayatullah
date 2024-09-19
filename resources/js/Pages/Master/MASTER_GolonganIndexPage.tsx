@@ -166,10 +166,10 @@ export default function MASTER_GolonganIndexPage({ auth, pagination }: PageProps
                             <div className="flex flex-col shrink-0 gap-2 lg:flex-row">
                                 <Button
                                     onClick={() => setOpenFormDialog(true)}
-                                    className="flex items-center gap-1.5 capitalize font-medium text-base hover:bg-[linear-gradient(to_top,#4CAF50_10%,#FFFFFF_90%)] hover:text-black" size="sm"
+                                    className="flex items-center gap-1.5 capitalize font-medium text-base bg-pph-green-deep hover:bg-pph-green-deep/80 hover:text-white" size="sm"
                                 >
                                     <Plus />
-                                    Tambahkan Golongan baru
+                                    Tambahkan
                                 </Button>
                             </div>
                         </div>
@@ -181,12 +181,11 @@ export default function MASTER_GolonganIndexPage({ auth, pagination }: PageProps
                                 { TABLE_HEAD.map((head, index) => (
                                     <th
                                         key={ head }
-                                        className="border-y border-blue-gray-100 bg-[#1f1e33] p-4"
+                                        className="first:rounded-l-md last:rounded-r-md bg-pph-green-deep p-4"
                                     >
                                         <Typography
                                             variant="small"
-                                            color="white"
-                                            className="flex items-center justify-between gap-2 font-normal leading-none font-bold"
+                                            className="flex items-center justify-between gap-2 font-semibold leading-none !text-white"
                                         >
                                             { head }
                                         </Typography>

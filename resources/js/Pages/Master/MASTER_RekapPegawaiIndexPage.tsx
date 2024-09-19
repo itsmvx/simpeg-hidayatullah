@@ -1,4 +1,4 @@
-import {
+ import {
     Button,
     Card,
     CardBody,
@@ -173,10 +173,11 @@ export default function MASTER_RekapPegawaiIndexPage({ auth, marhalahs, golongan
                                     onClick={ () => {
                                         router.visit(route('master.rekap-pegawai.create'));
                                     } }
-                                    className="flex items-center gap-1.5 capitalize font-medium text-base hover:bg-[linear-gradient(to_top,#4CAF50_10%,#FFFFFF_90%)] hover:text-black" size="sm"
+                                    ripple={false}
+                                    className="flex items-center gap-1.5 capitalize font-medium text-base !bg-pph-green-deep hover:!bg-pph-green-deep/80 hover:!text-white transition-colors ease-in-out duration-150" size="sm"
                                 >
                                     <Plus/>
-                                    Tambahkan Rekap baru
+                                    Tambahkan
                                 </Button>
                             </div>
                         </div>
@@ -188,12 +189,11 @@ export default function MASTER_RekapPegawaiIndexPage({ auth, marhalahs, golongan
                                 { TABLE_HEAD.map((head, index) => (
                                     <th
                                         key={ head }
-                                        className="border-y border-blue-gray-100 bg-[#1f1e33] p-4"
+                                        className="bg-pph-green-deep p-4 first:rounded-l-md last:rounded-r-md"
                                     >
                                         <Typography
                                             variant="small"
-                                            color="white"
-                                            className="flex items-center justify-between gap-2 font-normal leading-none font-bold"
+                                            className="flex items-center justify-between gap-2 font-semibold leading-none !text-white"
                                         >
                                             { head }
                                         </Typography>

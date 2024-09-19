@@ -12,7 +12,7 @@ import { format } from "date-fns";
 import { id } from "date-fns/locale";
 import ReactSelect from "react-select";
 import { Input } from "@/Components/Input";
-import { generatePerjanjianKontrakKerja } from "@/Lib/Generate_Dokumen/SuratPerjanjianKontrakKerja";
+import { generateSingleSuratKontrakKerja } from "@/Lib/Generate_Dokumen/SuratPerjanjianKontrakKerja";
 
 type FormSuratKontrakKerja = {
     unit_id: string;
@@ -99,19 +99,24 @@ export default function MASTER_SuratKontrakKerjaPage({ auth, units, periodes, su
             onProcess: true
         }));
         try {
-            const pihakPertama = {
-                nama: suratProps.kepalaSDI ?? '{Nama_KA_SDI}',
-            };
-            const pihakKedua = {
-                nama: pegawais.selected?.nama ?? '{Nama Pegawai}',
-                amanah: formInputs.amanah
-            };
             const selectedPeriode = periodes.find((periode) => periode.id === formInputs.periode_rekap_id);
-            const periode = {
-                awal: selectedPeriode?.awal ?? new Date().toDateString(),
-                akhir: selectedPeriode?.akhir ?? new Date().toDateString()
-            };
-            generatePerjanjianKontrakKerja(pihakPertama, pihakKedua, suratProps.currDate, periode);
+            const suratKontrakProps = {
+                pihakPertama: {
+                    nama: suratProps.kepalaSDI ?? '{Nama_KA_SDI}',
+                },
+                pihakKedua: {
+                    nama: pegawais.selected?.nama ?? '{Nama Pegawai}',
+                    amanah: formInputs.amanah
+                },
+                periode: {
+                    awal: selectedPeriode?.awal ?? new Date().toDateString(),
+                    akhir: selectedPeriode?.akhir ?? new Date().toDateString()
+                },
+                tanggal: new Date().toDateString()
+            }
+            generateSingleSuratKontrakKerja({
+                ...suratKontrakProps
+            });
             notifyToast('success', 'Berhasil membuat Dokumen!');
             setFormInputs(formSuratKontrakKerjaInit);
         } catch (err) {
@@ -121,7 +126,7 @@ export default function MASTER_SuratKontrakKerjaPage({ auth, units, periodes, su
 
     useEffect(() => {
         if (formInputs.unit_id) {
-            setPegawais((prevState) => ({
+            setPegawais(() => ({
                 data: [],
                 input: '',
                 onError: false,

@@ -2,7 +2,7 @@ import { router } from '@inertiajs/react'
 import { memo } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Button, IconButton } from "@material-tailwind/react";
-const Pagination = ({ paginateItems, className }: {
+const Pagination = ({ paginateItems, className, preserveState }: {
     className?: string
     paginateItems: {
         current_page: number;
@@ -17,6 +17,7 @@ const Pagination = ({ paginateItems, className }: {
             active: boolean;
         }[];
     };
+    preserveState?: boolean;
 }) => {
 
     if (paginateItems.last_page == 1) {
@@ -27,14 +28,14 @@ const Pagination = ({ paginateItems, className }: {
     const handleNavigate = (url: string | null) => {
         router.visit(url ?? '', {
             preserveScroll: true,
-            preserveState: true,
+            preserveState: preserveState ?? true,
         });
     };
     const getItemProps = (isActive: boolean, url: string | null) =>
         ({
             variant: isActive ? "filled" : "text",
-            color: "gray",
-            className: `rounded-full ${url ? 'cursor-pointer' : 'cursor-auto'}`,
+            color: "green",
+            className: `rounded-full font-medium ${isActive ? 'text-white' : 'text-black'} ${url ? 'cursor-pointer' : 'cursor-auto'}`,
             disabled: !url
         } as any);
 
@@ -47,7 +48,7 @@ const Pagination = ({ paginateItems, className }: {
                     onClick={ () => handleNavigate(paginateItems.prev_page_url) }
                     disabled={ !paginateItems.prev_page_url }
                 >
-                    <ArrowLeft strokeWidth={ 2 } className="h-4 w-4"/> Prev
+                    <ArrowLeft strokeWidth={ 2 } className="h-4 w-4"/>
                 </Button>
                 <div className="flex flex-wrap items-center gap-1.5">
                     {
@@ -68,7 +69,6 @@ const Pagination = ({ paginateItems, className }: {
                     onClick={ () => handleNavigate(paginateItems.next_page_url) }
                     disabled={ !paginateItems.next_page_url }
                 >
-                    Next
                     <ArrowRight strokeWidth={ 2 } className="h-4 w-4"/>
                 </Button>
                 <div className="mt-2 w-full flex md:hidden flex-row justify-between">
@@ -78,7 +78,8 @@ const Pagination = ({ paginateItems, className }: {
                         onClick={ () => handleNavigate(paginateItems.prev_page_url) }
                         disabled={ !paginateItems.prev_page_url }
                     >
-                        <ArrowLeft strokeWidth={ 2 } className="h-4 w-4"/> Prev
+                        <ArrowLeft strokeWidth={ 2 } className="h-4 w-4"/>
+                        Sebelumnya
                     </Button>
                     <Button
                         variant="text"
@@ -86,7 +87,7 @@ const Pagination = ({ paginateItems, className }: {
                         onClick={ () => handleNavigate(paginateItems.next_page_url) }
                         disabled={ !paginateItems.next_page_url }
                     >
-                        Next
+                        Selanjutnya
                         <ArrowRight strokeWidth={ 2 } className="h-4 w-4"/>
                     </Button>
                 </div>

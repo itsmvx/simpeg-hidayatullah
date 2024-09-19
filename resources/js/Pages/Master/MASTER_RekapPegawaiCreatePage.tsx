@@ -285,7 +285,7 @@ export default function MASTER_RekapPegawaiCreatePage({ auth, units, periodes }:
             <MasterLayout auth={auth}>
                 <main className="w-full min-h-screen bg-gray-50">
                     <header className="px-6 py-2 bg-white rounded-md rounded-b-none border ">
-                        <Typography className="flex justify-items-center gap-1.5 font-semibold text-lg text-[#0099CC]">
+                        <Typography className="flex justify-items-center gap-1.5 font-bold text-lg text-primary-purple">
                             <span>
                                 <CircleAlert/>
                             </span>

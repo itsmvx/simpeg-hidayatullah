@@ -73,6 +73,7 @@ class AdminUnitPagesController extends Controller
             'nip',
             'nama',
             'jenis_kelamin',
+            'amanah',
             'tanggal_promosi',
             'tanggal_marhalah',
             'status_pegawai_id',

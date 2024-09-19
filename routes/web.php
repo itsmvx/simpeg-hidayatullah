@@ -18,6 +18,7 @@ use Inertia\Inertia;
 
 Route::prefix('auth')->name('auth.')->group(function () {
     Route::get('/login', [AuthController::class, 'loginPage'])->name('login')->middleware('noauth');
+    Route::get('/account', [AuthController::class, 'accountPage'])->name('account')->middleware('withauth');
     Route::post('/admin', [AuthController::class, 'authAdmin'])->name('admin')->middleware('noauth');
     Route::post('/pegawai', [AuthController::class, 'authPegawai'])->name('pegawai')->middleware('noauth');
     Route::get('/user', [AuthController::class, 'getUser'])->name('user');
@@ -71,6 +72,7 @@ Route::prefix('status-pegawai')->name('status-pegawai.')->group(function () {
 Route::prefix('pegawai')->name('pegawai.')->group(function () {
     Route::post('/create', [PegawaiController::class, 'create'])->name('create');
     Route::post('/data', [PegawaiController::class, 'show'])->name('data');
+    Route::post('/data-mass', [PegawaiController::class, 'show_mass'])->name('data-mass');
     Route::post('/update', [PegawaiController::class, 'update'])->name('update');
     Route::post('/update-by-admin', [PegawaiController::class, 'updateByAdmin'])->name('update-by-admin');
     Route::post('/delete', [PegawaiController::class, 'destroy'])->name('delete');

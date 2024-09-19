@@ -23,9 +23,13 @@ class AuthController extends Controller
         //
     }
 
-    public function loginPage(Request $request)
+    public function loginPage()
     {
         return Inertia::render('LoginPage');
+    }
+    public function accountPage()
+    {
+        return Inertia::render('Auth/AUTH_AccountPage');
     }
     public function authAdmin(Request $request)
     {
