@@ -43,6 +43,7 @@ import { generateMultipleSuratKontrakKerja, generateSingleSuratKontrakKerja } fr
 import { Input } from "@/Components/Input";
 import { id } from "date-fns/locale";
 import { generateMultipleRekap, generateSingleRekap, PegawaiRekapPrint } from "@/Lib/Generate_Dokumen/RekapPegawai";
+import { exportToExcel } from "@/Lib/Generate_Dokumen/ExcelExport";
 
 type Pegawais = {
     id: string;
@@ -118,6 +119,10 @@ export default function MASTER_PegawaiIndexPage({ auth, marhalahs, golongans, st
         fileSize: 0,
         fileProgress: 0,
     };
+    const massDownloadExcelInit = {
+        onProcess: false,
+        progress: 0
+    };
 
     const [ deleteDialog, setDeleteDialog ] = useState<{
         open: boolean;
@@ -164,6 +169,10 @@ export default function MASTER_PegawaiIndexPage({ auth, marhalahs, golongans, st
         fileSize: number;
         fileProgress: number;
     }>(massDownloadSuratKontrakInit);
+    const [ massDownloadExcel, setMassDownloadExcel ] = useState<{
+        onProcess: boolean;
+        progress: number;
+    }>(massDownloadExcelInit);
 
     const handleOpenDelete = () => setDeleteDialog((prevState) => ({
         ...prevState,
@@ -401,6 +410,37 @@ export default function MASTER_PegawaiIndexPage({ auth, marhalahs, golongans, st
            notifyToast('error', 'Gagal menghubungi server');
        }
     };
+    const handleMassDownloadExcel = () => {
+        setMassDownloadExcel((prevState) => ({
+            ...prevState,
+            onProcess: true
+        }));
+        const toastId = toast.loading('Memproses Dokumen..', { autoClose: 5000 });
+        const pegawaisDataRaw = pagination.data.filter((pegawai) =>
+            pegawaisChecked.some((checked) => checked.id === pegawai.id)
+        ).map((pegawai, index) => ({
+            "No": index + 1,
+            "NIP": pegawai.nip,
+            "Nama": pegawai.nama,
+            "Jenis Kelamin": pegawai.jenis_kelamin,
+            "Unit": pegawai.unit?.nama ?? '-',
+            "Amanah": pegawai.amanah,
+            "Status Pegawai": pegawai.status_pegawai?.nama ?? '-',
+            "Golongan": pegawai.golongan?.nama ?? '-',
+            "Marhalah": pegawai.marhalah?.nama ?? '-'
+        }));
+
+        exportToExcel({
+            data: pegawaisDataRaw,
+            headers: Object.keys(pegawaisDataRaw[0]),
+            fileName: `export-pegawai-${format(new Date(), 'PPPp', { locale: localeID })}.xlsx`
+        });
+        toast.update(toastId, { type: 'success', isLoading: false, progress: 0.99, render: 'Berhasil mengunduh!' });
+        setTimeout(() => {
+            toast.dismiss(toastId);
+        }, 4000);
+    };
+
     useEffect(() => {
         if (singleDownloadSuratKontrak.openDialog || massDownloadSuratKontrak.openDialog) {
             if (!periodes || !suratProps) {
@@ -486,13 +526,22 @@ export default function MASTER_PegawaiIndexPage({ auth, marhalahs, golongans, st
                                                 <BookOpen/>
                                                 <span>Buku Panduan</span>
                                             </MenuItem>
+                                            <MenuItem
+                                                className="flex flex-row items-center gap-1.5 font-medium text-sm"
+                                                onClick={ handleMassDownloadExcel }
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" width={25} height={25} viewBox="0 0 24 24">
+                                                    <path fill="currentColor" d="m2.859 2.877l12.57-1.795a.5.5 0 0 1 .571.494v20.848a.5.5 0 0 1-.57.494L2.858 21.123a1 1 0 0 1-.859-.99V3.867a1 1 0 0 1 .859-.99M4 4.735v14.53l10 1.429V3.306zM17 19h3V5h-3V3h4a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1h-4zm-6.8-7l2.8 4h-2.4L9 13.714L7.4 16H5l2.8-4L5 8h2.4L9 10.286L10.6 8H13z"></path>
+                                                </svg>
+                                                <span>Export Excel (xlsx)</span>
+                                            </MenuItem>
                                         </MenuList>
                                     </Menu>
                                     <Button
                                         onClick={ () => {
                                             router.visit(route('master.pegawai.create'));
                                         } }
-                                        ripple={false}
+                                        ripple={ false }
                                         className="flex items-center gap-1.5 self-end lg:self-auto capitalize font-medium text-base !bg-pph-green-deep hover:!bg-pph-green-deep/80 hover:text-white" size="sm"
                                     >
                                         <Plus/>

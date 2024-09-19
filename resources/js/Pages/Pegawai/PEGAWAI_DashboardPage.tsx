@@ -1,17 +1,15 @@
 import {
     Card,
     CardBody,
-    CardHeader,
     Typography,
     Button,
-    IconButton, Navbar,
+    IconButton
 } from "@material-tailwind/react";
 import { PageProps } from "@/types";
-import {  PPHBackground, PPHLogo } from "@/Lib/StaticImages";
-import { Building2, Handshake, LogIn, Newspaper, UserRound } from "lucide-react";
+import { PPHLogo } from "@/Lib/StaticImages";
+import { ArrowRight, LogIn, Newspaper } from "lucide-react";
 import { Head, router } from "@inertiajs/react";
 import { ReactElement } from "react";
-import { Footer } from "@/Components/Footer";
 import { PegawaiLayout } from "@/Layouts/PegawaiLayout";
 import { getGreetingTimeOfDay } from "@/Lib/Utils";
 const PEGAWAI_DashboardPage = ({ auth, data, currDateTime }: PageProps<{
@@ -129,31 +127,39 @@ const PEGAWAI_DashboardPage = ({ auth, data, currDateTime }: PageProps<{
                                 </Button>
                             </div>
                             <div id="news" className="mx-auto flex w-full justify-center lg:w-96">
-                                <Card className="shadow-lg border shadow-gray-500/10 rounded-lg">
-                                    <CardHeader floated={ false }
-                                                className="relative aspect-video overflow-hidden flex items-center justify-center">
-                                        <img
-                                            alt="Card Image"
-                                            src={ PPHBackground }
-                                            className=" object-cover object-center"
-                                        />
-                                    </CardHeader>
-                                    <CardBody>
-                                        <Typography variant="small" color="blue-gray" className="font-normal">
-                                            Lorem ipsum
+                                <Card className="w-full shadow-lg border-2 border-pph-green shadow-gray-500/10 rounded-lg">
+                                    <CardBody className="px-0">
+                                        <Typography color="blue-gray" className="font-medium text-xs opacity-95 px-4">
+                                            Persiapkan akun anda
                                         </Typography>
                                         <Typography
                                             variant="h5"
                                             color="blue-gray"
-                                            className="mb-3 mt-2 font-bold"
+                                            className="mb-3 mt-2 font-bold px-4"
                                         >
-                                            Lorem Ipsum
+                                            Tahap penyiapan akun
                                         </Typography>
-                                        <Typography className="font-normal text-blue-gray-500">
-                                            lorem vituperatoribus dolorem euripidis sodales scripserit sed suas iuvaret
-                                            integer tale altera idque vis scelerisque porro autem tortor homero est
-                                            reformidans
-                                        </Typography>
+                                        <div className="px-4">
+                                            <div className="w-full h-0.5 bg-pph-green-deep"/>
+                                        </div>
+                                        <div className="mt-2 text-sm">
+                                        <ul className="flex flex-col divide-y-2 *:py-1.5 *:cursor-pointer font-medium overflow-hidden *:-translate-x-5 *:flex *:flex-row *:items-center *:justify-between *:transition-all *:duration-150 *:ease-in-out *:*:flex *:*:flex-row *:*:items-center *:*:gap-x-4">
+                                            <li className="hover:text-pph-green-deep hover:translate-x-5" onClick={() => router.visit(route('auth.account', { menu: 'akun' }))}>
+                                                <div>
+                                                    <ArrowRight width={ 20 }/>
+                                                    <p>Mengatur Username</p>
+                                                </div>
+                                                <ArrowRight width={ 20 }/>
+                                            </li>
+                                            <li className="hover:text-pph-green-deep hover:translate-x-5" onClick={() => router.visit(route('auth.account', { menu: 'akun' }))}>
+                                                <div>
+                                                <ArrowRight width={ 20 } />
+                                                        <p>Mengganti Password default</p>
+                                                    </div>
+                                                    <ArrowRight width={ 20 } />
+                                                </li>
+                                            </ul>
+                                        </div>
                                     </CardBody>
                                 </Card>
                             </div>

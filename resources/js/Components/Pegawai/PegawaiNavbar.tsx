@@ -15,7 +15,6 @@ import axios, { AxiosError } from "axios";
 import { notifyToast } from "@/Lib/Utils";
 import { LoadingOverlay } from "@/Components/LoadingOverlay";
 import { PageProps } from "@/types";
-import { AdminNavbarLists } from "@/Fragments/AdminNavbarLists";
 import { PegawaiNavbarLists } from "@/Fragments/PegawaiNavbarList";
 
 export const PegawaiNavbar = ({ auth }: PageProps) => {
@@ -139,7 +138,7 @@ export const PegawaiNavbar = ({ auth }: PageProps) => {
                     </IconButton>
                 </div>
                 <Collapse open={openNavbar}>
-                    <AdminNavbarLists />
+                    <PegawaiNavbarLists />
                     <div className="flex w-full flex-nowrap items-center justify-end gap-2 lg:hidden">
                         {
                             auth?.user
