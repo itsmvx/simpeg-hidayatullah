@@ -176,7 +176,7 @@ export default function ADMIN_RekapPegawaiIndexPage({ auth, marhalahs, golongans
                                                         color="blue-gray"
                                                         className="font-normal text-center"
                                                     >
-                                                        { index + 1 }
+                                                        { pagination.from + index }
                                                     </Typography>
                                                 </td>
                                                 <td className={ `${ classes } min-w-56` }>
@@ -194,28 +194,24 @@ export default function ADMIN_RekapPegawaiIndexPage({ auth, marhalahs, golongans
                                                 </td>
                                                 <td className={ `${ classes } min-w-40` }>
                                                     <div className="flex items-center gap-3">
-                                                        <div className="flex flex-col">
-                                                            <Typography
-                                                                variant="small"
-                                                                color="blue-gray"
-                                                                className="font-normal"
-                                                            >
-                                                                { periode_rekap.nama }
-                                                            </Typography>
-                                                        </div>
+                                                        <Typography
+                                                            variant="small"
+                                                            color="blue-gray"
+                                                            className="font-normal"
+                                                        >
+                                                            { periode_rekap.nama }
+                                                        </Typography>
                                                     </div>
                                                 </td>
                                                 <td className={ `${ classes } min-w-40` }>
                                                     <div className="flex items-center gap-3">
-                                                        <div className="flex flex-col">
-                                                            <Typography
-                                                                variant="small"
-                                                                color="blue-gray"
-                                                                className="font-normal"
-                                                            >
-                                                                { amanah }
-                                                            </Typography>
-                                                        </div>
+                                                        <Typography
+                                                            variant="small"
+                                                            color="blue-gray"
+                                                            className="font-normal"
+                                                        >
+                                                            { amanah }
+                                                        </Typography>
                                                     </div>
                                                 </td>
                                                 <td className={ `${ classes } min-w-44` }>

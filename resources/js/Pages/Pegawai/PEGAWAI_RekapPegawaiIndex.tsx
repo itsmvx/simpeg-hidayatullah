@@ -9,7 +9,7 @@ import {
 } from "@material-tailwind/react";
 import { FileSearch } from "lucide-react";
 import { IDNamaColumn, PageProps, PaginationData } from "@/types";
-import { Head, Link, router } from "@inertiajs/react";
+import { Head, Link } from "@inertiajs/react";
 import Pagination from "@/Components/Pagination";
 import { ViewPerPageList } from "@/Components/ViewPerPageList";
 import { SearchInput } from "@/Components/SearchInput";
@@ -67,12 +67,12 @@ export default function ADMIN_RekapPegawaiIndexPage({ auth, pagination }: PagePr
                                 { TABLE_HEAD.map((head, index) => (
                                     <th
                                         key={ head }
-                                        className="border-y border-blue-gray-100 bg-blue-gray-50/50 p-4"
+                                        className="bg-pph-green-deep p-4 first:rounded-l-md last:rounded-r-md"
                                     >
                                         <Typography
                                             variant="small"
                                             color="blue-gray"
-                                            className="flex items-center justify-between gap-2 font-normal leading-none opacity-70"
+                                            className="flex items-center justify-between gap-2 font-semibold leading-none !text-white"
                                         >
                                             { head }
                                         </Typography>
@@ -99,14 +99,14 @@ export default function ADMIN_RekapPegawaiIndexPage({ auth, pagination }: PagePr
                                                 : "p-4 border-b border-blue-gray-50";
 
                                             return (
-                                                <tr key={ id }>
+                                                <tr key={ id } className="even:bg-gray-100">
                                                     <td className={ `${ classes } w-3` }>
                                                         <Typography
                                                             variant="small"
                                                             color="blue-gray"
                                                             className="font-normal text-center"
                                                         >
-                                                            { index + 1 }
+                                                            { pagination.from + index }
                                                         </Typography>
                                                     </td>
                                                     <td className={ `${ classes } min-w-40` }>

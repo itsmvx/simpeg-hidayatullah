@@ -71,3 +71,6 @@ export const getGreetingTimeOfDay = (date: Date) => {
     }
 };
 
+export const isInputPasswordValid = (input: string): boolean => /^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[!@#$%^&*()_+{}\[\]:;"'<>,.?~`|\\/-]).{7,}$/.test(input);
+export const isInputUsernameValid = (input: string): boolean => /^(?:[A-Za-z]{5,}|[A-Za-z0-9]{5,})$/.test(input);
+

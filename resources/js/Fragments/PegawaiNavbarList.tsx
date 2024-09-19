@@ -29,14 +29,14 @@ export const PegawaiNavbarLists = () => {
     const renderItems = navListMenuItems.map(({ icon, title, description, link }, key) => (
         <Link href={link} key={ key }>
             <MenuItem className="flex items-center gap-3 rounded-lg">
-                <div className="flex items-center justify-center rounded-lg bg-primary-purple-light p-2">
+                <div className="flex items-center justify-center rounded-lg bg-pph-green-deep shadow-md p-2">
                     { icon }
                 </div>
                 <div className="capitalize">
-                    <Typography variant="h6" color="blue-gray" className="flex items-center text-sm font-bold">
+                <Typography variant="h6" color="blue-gray" className="flex items-center text-sm font-bold">
                         { title }
                     </Typography>
-                    <Typography variant="paragraph" className="text-xs !font-medium text-blue-gray-500">
+                    <Typography variant="paragraph" className="text-xs !font-medium text-blue-gray-600">
                         { description }
                     </Typography>
                 </div>
