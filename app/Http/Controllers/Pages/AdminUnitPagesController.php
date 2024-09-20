@@ -186,6 +186,7 @@ class AdminUnitPagesController extends Controller
             'marhalah_id',
             'golongan_id',
             'periode_rekap_id',
+            'admin_id',
             'created_at',
         ])->with([
             'pegawai:id,nama,jenis_kelamin',

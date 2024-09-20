@@ -1,6 +1,6 @@
 import { Head, router } from "@inertiajs/react";
 import { Card, Typography, Button, Tooltip, IconButton } from "@material-tailwind/react";
-import { CircleAlert, MoveLeft, Save } from "lucide-react";
+import { CircleAlert, CircleCheck, MoveLeft, Save } from "lucide-react";
 import { ChangeEvent, FormEvent, useState } from "react";
 import "react-day-picker/dist/style.css";
 import { AdminLayout } from "@/Layouts/AdminLayout";
@@ -29,6 +29,8 @@ type RekapPegawai = {
     status_pegawai_id: string;
     marhalah_id: string;
     periode_rekap_id: string;
+    admin_id: string | null;
+    terverifikasi: 0 | 1;
     pegawai: {
         id: string;
         nama: string;
@@ -101,7 +103,7 @@ export default function ADMIN_RekapPegawaiDetailsPage({ auth, rekap }: PageProps
             .finally(() => setOnSubmit(false));
     };
 
-
+console.log((Boolean(rekap.terverifikasi) || (rekap.admin_id !== auth.user?.id)))
     return (
         <>
             <Head title="Details Rekap Pegawai"/>
@@ -297,6 +299,7 @@ export default function ADMIN_RekapPegawaiDetailsPage({ auth, rekap }: PageProps
                                 value={ rekapPegawaiState.amanah }
                                 onChange={ handleInputChange }
                                 required
+                                readOnly={ (Boolean(rekap.terverifikasi) || (rekap.admin_id !== auth.user?.id)) }
                             />
                             <Input
                                 type="text"
@@ -305,6 +308,7 @@ export default function ADMIN_RekapPegawaiDetailsPage({ auth, rekap }: PageProps
                                 name="organisasi"
                                 value={ rekapPegawaiState.organisasi ?? '' }
                                 onChange={ handleInputChange }
+                                readOnly={ (Boolean(rekap.terverifikasi) || (rekap.admin_id !== auth.user?.id)) }
                             />
                             <Input
                                 type="number"
@@ -314,6 +318,7 @@ export default function ADMIN_RekapPegawaiDetailsPage({ auth, rekap }: PageProps
                                 value={ rekapPegawaiState.gaji }
                                 onChange={ handleInputChange }
                                 required
+                                readOnly={ (Boolean(rekap.terverifikasi) || (rekap.admin_id !== auth.user?.id)) }
                             />
                             <Input
                                 type="text" color="teal"
@@ -322,6 +327,7 @@ export default function ADMIN_RekapPegawaiDetailsPage({ auth, rekap }: PageProps
                                 value={ rekapPegawaiState.ketuntasan_kerja }
                                 onChange={ handleInputChange }
                                 required
+                                readOnly={ (Boolean(rekap.terverifikasi) || (rekap.admin_id !== auth.user?.id)) }
                             />
                             <TextArea
                                 color="teal"
@@ -330,6 +336,7 @@ export default function ADMIN_RekapPegawaiDetailsPage({ auth, rekap }: PageProps
                                 value={ rekapPegawaiState.kedisiplinan }
                                 onChange={ handleInputChange }
                                 required
+                                readOnly={ (Boolean(rekap.terverifikasi) || (rekap.admin_id !== auth.user?.id)) }
                             />
                             <TextArea
                                 color="teal"
@@ -338,6 +345,7 @@ export default function ADMIN_RekapPegawaiDetailsPage({ auth, rekap }: PageProps
                                 value={ rekapPegawaiState.raport_profesi }
                                 onChange={ handleInputChange }
                                 required
+                                readOnly={ (Boolean(rekap.terverifikasi) || (rekap.admin_id !== auth.user?.id)) }
                             />
                             <TextArea
                                 label="Skill Manajerial (tidak wajib diisi)"
@@ -345,6 +353,7 @@ export default function ADMIN_RekapPegawaiDetailsPage({ auth, rekap }: PageProps
                                 name="skill_manajerial"
                                 value={ rekapPegawaiState.skill_manajerial ?? '' }
                                 onChange={ handleInputChange }
+                                readOnly={ (Boolean(rekap.terverifikasi) || (rekap.admin_id !== auth.user?.id)) }
                             />
                             <TextArea
                                 label="Skill Leadership (tidak wajib diisi)"
@@ -352,6 +361,7 @@ export default function ADMIN_RekapPegawaiDetailsPage({ auth, rekap }: PageProps
                                 name="skill_leadership"
                                 value={ rekapPegawaiState.skill_leadership ?? '' }
                                 onChange={ handleInputChange }
+                                readOnly={ (Boolean(rekap.terverifikasi) || (rekap.admin_id !== auth.user?.id)) }
                             />
                             <TextArea
                                 label="Catatan Negatif (tidak wajib diisi)"
@@ -359,6 +369,7 @@ export default function ADMIN_RekapPegawaiDetailsPage({ auth, rekap }: PageProps
                                 name="catatan_negatif"
                                 value={ rekapPegawaiState.catatan_negatif ?? '' }
                                 onChange={ handleInputChange }
+                                readOnly={ (Boolean(rekap.terverifikasi) || (rekap.admin_id !== auth.user?.id)) }
                             />
                             <TextArea
                                 label="Prestasi (tidak wajib diisi)"
@@ -366,12 +377,13 @@ export default function ADMIN_RekapPegawaiDetailsPage({ auth, rekap }: PageProps
                                 name="prestasi"
                                 value={ rekapPegawaiState.prestasi ?? '' }
                                 onChange={ handleInputChange }
+                                readOnly={ (Boolean(rekap.terverifikasi) || (rekap.admin_id !== auth.user?.id)) }
                             />
                             <Button
                                 color="blue"
                                 type="submit"
                                 loading={onSubmit}
-                                className="group *:group-disabled:text-gray-50 col-span-full flex items-center justify-center h-10 gap-1 text-base"
+                                className={ `${ (Boolean(rekap.terverifikasi) || (rekap.admin_id !== auth.user?.id)) ? '!hidden' : ''} group *:group-disabled:text-gray-50 col-span-full flex items-center justify-center h-10 gap-1 text-base` }
                                 disabled={!onChangeRekapPegawai}
                             >
                                 <span className="normal-case">
@@ -379,6 +391,12 @@ export default function ADMIN_RekapPegawaiDetailsPage({ auth, rekap }: PageProps
                                 </span>
                                 <Save />
                             </Button>
+                            { Boolean(rekap.terverifikasi) && (
+                                <p className="flex gap-1 font-medium text-green-600 italic">
+                                    Sudah Terverifikasi
+                                    <CircleCheck className="text-green-500"/>
+                                </p>
+                            ) }
                         </form>
                     </Card>
                 </main>
