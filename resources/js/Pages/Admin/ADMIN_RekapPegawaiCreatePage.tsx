@@ -146,7 +146,8 @@ export default function ADMIN_RekapPegawaiCreatePage({ auth, periodes }: PagePro
         }
 
         axios.post(route('rekap-pegawai.create'), {
-            ...zodRekapResult.data
+            ...zodRekapResult.data,
+            admin_id: auth.user?.id ?? null
         })
             .then(() => {
                 notifyToast('success', 'Rekap Pegawai berhasil ditambahkan!');

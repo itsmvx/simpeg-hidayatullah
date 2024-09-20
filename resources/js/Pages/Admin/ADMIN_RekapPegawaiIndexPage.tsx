@@ -37,6 +37,7 @@ type Rekaps = {
     marhalah_id: string;
     golongan_id: string;
     periode_rekap_id: string;
+    admin_id: string | null;
     created_at: string;
     pegawai: IDNamaColumn;
     status_pegawai: IDNamaColumn;
@@ -161,6 +162,7 @@ export default function ADMIN_RekapPegawaiIndexPage({ auth, marhalahs, golongans
                                          golongan,
                                          marhalah,
                                          periode_rekap,
+                                         admin_id,
                                          created_at
                                      }, index) => {
                                         const isLast = index === pagination.data.length - 1;
@@ -298,6 +300,7 @@ export default function ADMIN_RekapPegawaiIndexPage({ auth, marhalahs, golongans
                                                                         rekapId: id,
                                                                     }))
                                                                 } }
+                                                                className={`${admin_id !== auth.user?.id || Boolean(terverifikasi) ? 'hidden' : ''}`}
                                                             >
                                                                 <Trash2 className="h-5 w-5 text-red-600"/>
                                                             </IconButton>
