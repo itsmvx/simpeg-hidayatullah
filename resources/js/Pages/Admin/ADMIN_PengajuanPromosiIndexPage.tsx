@@ -145,7 +145,6 @@ export default function ADMIN_PengajuanPromosiIndexPage({ auth, pagination }: Pa
                                          jenis,
                                          asal,
                                          akhir,
-                                         asal_type,
                                          pegawai,
                                          unit,
                                          admin,
@@ -166,7 +165,7 @@ export default function ADMIN_PengajuanPromosiIndexPage({ auth, pagination }: Pa
                                                         color="blue-gray"
                                                         className="font-normal text-center"
                                                     >
-                                                        { index + 1 }
+                                                        { pagination.from + index }
                                                     </Typography>
                                                 </td>
                                                 <td className={ `${ classes } min-w-40` }>
@@ -277,6 +276,7 @@ export default function ADMIN_PengajuanPromosiIndexPage({ auth, pagination }: Pa
                                                         <Tooltip content="Hapus" className="bg-red-400">
                                                             <IconButton
                                                                 variant="text"
+                                                                disabled={admin?.id !== auth.user?.id}
                                                                 onClick={ () => {
                                                                     setDeleteDialog((prevState) => ({
                                                                         ...prevState,

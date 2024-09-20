@@ -83,8 +83,7 @@ export default function AUTH_AccountPage({ auth }: PageProps) {
             <Head title="Pengaturan Akun" />
             <UniversalLayout auth={ auth }>
                 <div className="mx-auto relative">
-                    <div
-                        className="rounded-full flex items-center justify-center w-44 h-44 overflow-hidden border-4">
+                    <div className="rounded-full flex items-center justify-center w-44 h-44 overflow-hidden border-4">
                         <img
                             src={ authUser.foto ? `/storage/${ authUser.foto }` : authUser.jenis_kelamin === 'Laki-Laki' ? MenAvatar : authUser.jenis_kelamin === 'Perempuan' ? WomenAvatar : AdminProfile }
                             alt={ authUser.foto ? `${ authUser.nama }-profil` : 'no-pict' }

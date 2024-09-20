@@ -7,6 +7,7 @@ use App\Models\RekapPegawai;
 use Faker\Factory as Faker;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Response;
@@ -475,8 +476,7 @@ class PegawaiController extends Controller
             ]);
         } catch (QueryException $e) {
             return Response::json([
-                'message' => $e->getMessage(),
-//                'message' => 'Server gagal memproses permintaan!'
+                'message' => 'Server gagal memproses permintaan!'
             ], 500);
         }
     }
@@ -572,6 +572,109 @@ class PegawaiController extends Controller
             ], 500);
         }
     }
+    public function updatePassword(Request $request)
+    {
+        try {
+            $validation = Validator::make($request->only(['id', 'old_password', 'new_password']), [
+                'id' => ['required', 'uuid', 'exists:pegawai,id'],
+                'old_password' => ['required', 'string'],
+                'new_password' => ['required', 'string', 'min:7']
+            ], [
+                'id.required' => 'ID pegawai wajib diisi.',
+                'id.uuid' => 'ID pegawai tidak valid.',
+                'id.exists' => 'Pegawai dengan ID tersebut tidak ditemukan.',
+                'old_password.required' => 'Password lama wajib diisi.',
+                'new_password.required' => 'Password baru wajib diisi.',
+                'new_password.min' => 'Password baru harus minimal 7 karakter.',
+            ]);
+
+            if ($validation->fails()) {
+                return Response::json([
+                    'message' => $validation->errors()->first()
+                ], 422);
+            }
+
+            $validated = $validation->validated();
+
+            $authPegawai = Auth::guard('pegawai')->user();
+            if (!$authPegawai || ($authPegawai->id !== $validated['id'])) {
+                return Response::json([
+                    'message' => 'Anda belum terautentikasi'
+                ], 401);
+            }
+
+            $pegawai = Pegawai::find($validated['id']);
+
+            if (!Hash::check($validated['old_password'], $pegawai->password)) {
+                return Response::json([
+                    'message' => 'Password lama tidak sesuai.'
+                ], 400);
+            }
+
+            $pegawai->update([
+                'password' => Hash::make($validated['new_password'], ['rounds' => 12])
+            ]);
+
+            return Response::json([
+                'message' => 'Password berhasil diperbarui.'
+            ]);
+        } catch (QueryException $exception) {
+            return Response::json([
+                'message' => 'Server gagal memproses permintaan.'
+            ], 500);
+        }
+    }
+
+
+    /**
+     * @throws ValidationException
+     */
+    public function updateUsername(Request $request)
+    {
+        try {
+            $validation = Validator::make($request->only(['id', 'new_username']), [
+                'id' => 'required|uuid|exists:pegawai,id',
+                'new_username' => 'required|string'
+            ]);
+
+            if ($validation->fails()) {
+                return Response::json([
+                    'message' => $validation->errors()->first()
+                ], 422);
+            }
+
+            $validated = $validation->validated();
+
+            $authPegawai = Auth::guard('pegawai')->user();
+            if (!$authPegawai || ($authPegawai->id !== $validated['id'])) {
+                return Response::json([
+                    'message' => 'Anda belum terautentikasi'
+                ], 401);
+            }
+
+
+            if (Pegawai::where('username', '=', $validated['new_username'])->exists()) {
+                return Response::json([
+                    'message' => 'Username telah digunakan'
+                ], 409);
+            }
+
+            $pegawai = Pegawai::find($validated['id']);
+
+            $pegawai->update([
+                'username' => $validated['new_username']
+            ]);
+
+            return Response::json([
+                'message' => 'Username berhasil diperbarui'
+            ]);
+        } catch (QueryException $exception) {
+            return Response::json([
+                'message' => 'Server gagal memproses permintaan'
+            ], 500);
+        }
+    }
+
 
     /**
      * Remove the specified resource from storage.
