@@ -276,7 +276,7 @@ export default function ADMIN_PengajuanPromosiIndexPage({ auth, pagination }: Pa
                                                         <Tooltip content="Hapus" className="bg-red-400">
                                                             <IconButton
                                                                 variant="text"
-                                                                disabled={admin?.id !== auth.user?.id}
+                                                                disabled={(admin?.id !== auth.user?.id) || status_pengajuan !== 'menunggu'}
                                                                 onClick={ () => {
                                                                     setDeleteDialog((prevState) => ({
                                                                         ...prevState,
