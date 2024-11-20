@@ -247,7 +247,7 @@ export default function MASTER_PegawaiCreateUploadPage({ auth, golongans, marhal
         const { months, years } = calculateAge(tanggal_lahir ? tanggal_lahir : new Date());
 
         return {
-            nik: data[1] || "",
+            nik: data[1] ? String(data[1]) : "",
             nip: data[0] || "",
             nama: data[2] || "",
             jenis_kelamin: data[3] === 'L' ? 'Laki-Laki' as JenisKelamin : 'Perempuan' as JenisKelamin,
